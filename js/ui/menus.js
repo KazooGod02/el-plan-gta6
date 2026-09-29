@@ -304,20 +304,30 @@ export const pause = {
     if (G.paused) return;
     this.open = true; G.paused = true; this.sel = 0; this.mode = 'menu'; this.confirm = false; audio.sfx('select');
   },
+  // "REINICIAR MISIÓN" only shows up while a mission is running
+  items() {
+    const it = ['CONTINUAR'];
+    if (G.story?.active && !G.story.dying) it.push('REINICIAR MISIÓN');
+    it.push('CÓMO JUGAR', 'OPCIONES', 'SALIR AL MENÚ');
+    return it;
+  },
   update() {
     if (!this.open) return;
     if (this.mode === 'options') { if (updateOptions(this.opt)) this.mode = 'menu'; return; }
     if (this.mode === 'controls') { if (input.cancel() || input.pressed('a')) this.mode = 'menu'; return; }
-    const items = ['CONTINUAR', 'CÓMO JUGAR', 'OPCIONES', 'SALIR AL MENÚ'];
+    const items = this.items();
+    this.sel = clamp(this.sel, 0, items.length - 1);
     if (input.pressed('down')) { this.sel = (this.sel + 1) % items.length; this.confirm = false; audio.sfx('move'); }
     if (input.pressed('up')) { this.sel = (this.sel + items.length - 1) % items.length; this.confirm = false; audio.sfx('move'); }
     if (input.pressed('pause') || input.pressed('back')) { this.toggle(); return; }
     if (input.pressed('a')) {
       audio.sfx('select');
-      if (this.sel === 0) this.toggle();
-      if (this.sel === 1) this.mode = 'controls';
-      if (this.sel === 2) { this.mode = 'options'; this.opt.sel = 0; }
-      if (this.sel === 3) { if (!this.confirm) { this.confirm = true; return; } this.open = false; G.paused = false; G.quitToTitle(); }
+      const item = items[this.sel];
+      if (item === 'CONTINUAR') this.toggle();
+      if (item === 'CÓMO JUGAR') this.mode = 'controls';
+      if (item === 'OPCIONES') { this.mode = 'options'; this.opt.sel = 0; }
+      if (item === 'REINICIAR MISIÓN') { if (!this.confirm) { this.confirm = true; return; } this.open = false; G.paused = false; input.consume('a'); G.story.restartMission(); }
+      if (item === 'SALIR AL MENÚ') { if (!this.confirm) { this.confirm = true; return; } this.open = false; G.paused = false; G.quitToTitle(); }
     }
   },
   render(ctx) {
@@ -325,12 +335,16 @@ export const pause = {
     ctx.fillStyle = 'rgba(0,0,0,0.6)'; ctx.fillRect(0, 0, W, H);
     if (this.mode === 'options') { drawOptions(ctx, this.opt); return; }
     if (this.mode === 'controls') { drawControls(ctx); return; }
-    font.text(ctx, 'PAUSA', W / 2, 40, '#ffd23f', { align: 'center', scale: 3, outline: '#101018' });
-    ['CONTINUAR', 'CÓMO JUGAR', 'OPCIONES', 'SALIR AL MENÚ'].forEach((t, i) => {
+    font.text(ctx, 'PAUSA', W / 2, 36, '#ffd23f', { align: 'center', scale: 3, outline: '#101018' });
+    const items = this.items();
+    items.forEach((t, i) => {
       const sel = i === this.sel;
-      font.text(ctx, sel ? '► ' + t + ' ◄' : t, W / 2, 80 + i * 14, sel ? '#ffd23f' : '#f4f4f0', { align: 'center', outline: '#101018' });
+      font.text(ctx, sel ? '► ' + t + ' ◄' : t, W / 2, 70 + i * 14, sel ? '#ffd23f' : '#f4f4f0', { align: 'center', outline: '#101018' });
     });
-    if (this.confirm) font.text(ctx, 'Lo no guardado se pierde. A para confirmar.', W / 2, 142, '#d8323c', { align: 'center', outline: '#101018' });
+    if (this.confirm) {
+      const msg = items[this.sel] === 'REINICIAR MISIÓN' ? 'La misión empieza de nuevo. A para confirmar.' : 'Lo no guardado se pierde. A para confirmar.';
+      font.text(ctx, msg, W / 2, 144, '#d8323c', { align: 'center', outline: '#101018' });
+    }
     const s = G.state;
     if (s) font.text(ctx, `${s.chapterName} · Tiempo ${fmt(s.stats.playtime)}`, W / 2, 160, '#a8a8b8', { align: 'center' });
   },

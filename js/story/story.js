@@ -189,15 +189,28 @@ export const story = {
     task.onError = (e) => self.fail(e instanceof MissionFail ? e.reason : 'Algo salió mal', 'fail');
   },
 
+  // Undo everything a mission may have left switched on (input locks, cutscene bars,
+  // camera targets, city rules...). A mission that ends early (fail/death) never
+  // reaches its own cleanup, so without this the player could stay frozen.
+  resetMissionState() {
+    G.lockInput = 0;
+    G.musicOverride = null; G.forceDark = undefined; G.weatherLock = false; G.freezeClock = false; G.slowmo = 0;
+    UI.letterboxTarget = 0; UI.timer = null; UI.meter = null; UI.overFade = null;
+    const c = G.scenes.city;
+    c.wantedLocked = false; c.noEvade = false; c.maxWanted = 5; c.policeKnows = false; c.noPolice = false;
+    c.trafficOn = true; c.pedsOn = true; c.frozen = false; c.lockCar = false; c.extraDraw = null; c.camTarget = null;
+    const r = G.scenes.interior;
+    r.frozen = false; r.noExit = false; r.onShout = null; r.camTarget = null;
+    if (r.p) { r.p.goal = null; r.p.scripted = false; }
+    // conversations that were playing along with the mission
+    runner.cancelWhere((t) => t.name === 'talkAlong');
+  },
+
   complete(m) {
     this.active = null;
-    G.lockInput = 0;
-    UI.letterboxTarget = 0; UI.timer = null; UI.meter = null; UI.setObjective('');
-    G.musicOverride = null;
+    this.resetMissionState();
+    UI.setObjective('');
     G.scenes.city.clearMission();
-    G.scenes.city.wantedLocked = false; G.scenes.city.noEvade = false; G.scenes.city.maxWanted = 5; G.scenes.city.policeKnows = false; G.scenes.city.noPolice = false;
-    G.scenes.city.trafficOn = true; G.scenes.city.pedsOn = true; G.scenes.city.frozen = false; G.scenes.city.lockCar = false; G.scenes.city.extraDraw = null;
-    G.forceDark = undefined;
     if (!G.state.done.includes(m.id)) G.state.done.push(m.id);
     if (!m.silent) {
       const r = m.rating ? m.rating(G.state) : null;
@@ -211,30 +224,66 @@ export const story = {
     this.refreshTriggers(true);
   },
 
+  // What the phone's "Misión" app shows: always read live, so it is never out of date.
+  missionInfo() {
+    const s = G.state;
+    const ch = CHAPTERS[s.chapter] || CHAPTERS[0];
+    const info = { chapter: s.freeMode ? 'MODO LIBRE' : `${ch.short} — ${ch.title}`, day: s.day, active: null, side: false, objective: UI.objective || '', next: [], finished: !!G.global?.finished };
+    if (this.active) { info.active = this.active.m.title || ''; info.side = !!this.active.m.side; return info; }
+    if (s.freeMode) return info;
+    for (const m of this.available()) {
+      const door = m.trigger?.door && MAP.doors.find((d) => d.room === m.trigger.door);
+      const where = door ? titleCase(door.name) : m.trigger?.where ? titleCase(m.trigger.where) : '';
+      info.next.push({ title: m.trigger?.label || m.title, where, pos: m.trigger ? this.triggerPos(m) : null, locked: !!this.episodeLock(m) });
+    }
+    return info;
+  },
+  // phone: re-place the story markers (in case they went missing) and route the GPS to the next one
+  findNextMission() {
+    if (this.active || this.dying) return null;
+    this.refreshTriggers(true);
+    if (this.active) return this.active.m.title;
+    const n = this.missionInfo().next.find((q) => q.pos && !q.locked);
+    if (n) G.bigmap.setWaypoint(n.pos.x, n.pos.y, n.title);
+    return n ? n.title : null;
+  },
+
+  // "Reiniciar misión" (phone / pause menu): way out if a mission ever gets stuck
+  restartMission() {
+    if (!this.active || this.dying) return false;
+    if (G.minigames?.active) G.minigames.active = null;
+    this.fail('', 'restart');
+    return true;
+  },
+
   fail(reason, kind) {
     const a = this.active;
     if (!a) return;
+    const restart = kind === 'restart';
     runner.cancel(a.task);
     this.active = null;
-    G.lockInput = 0;
-    UI.closeDialog(); UI.letterboxTarget = 0; UI.timer = null; UI.meter = null; UI.setObjective(''); UI.overFade = null;
-    G.musicOverride = null; G.forceDark = undefined; G.weatherLock = false;
+    this.resetMissionState();
+    // shop/NPC menus opened during the mission would keep their dialog on screen
+    runner.cancelWhere((t) => t.name === 'npc' || t.name === 'sleep');
+    UI.closeDialog(); UI.setObjective('');
     for (const v of G.scenes.city.vehicles) v.passengers = v.passengers.filter((q) => !q.sideTemp);
     const c = G.scenes.city;
-    c.wantedLocked = false; c.noEvade = false; c.maxWanted = 5; c.policeKnows = false; c.noPolice = false; c.frozen = false; c.lockCar = false; c.extraDraw = null;
-    c.trafficOn = true; c.pedsOn = true;
-    this.failCounts[a.m.id] = (this.failCounts[a.m.id] || 0) + 1;
-    if (this.failCounts[a.m.id] >= 3) unlock('again');
-    G.state.stats.missionsFailed++;
-    audio.sfx('fail');
+    if (!restart) {
+      this.failCounts[a.m.id] = (this.failCounts[a.m.id] || 0) + 1;
+      if (this.failCounts[a.m.id] >= 3) unlock('again');
+      G.state.stats.missionsFailed++;
+    }
+    audio.sfx(restart ? 'select' : 'fail');
     const self = this;
     runner.run((function* () {
       lock(true);
-      UI.showCard('MISIÓN FALLIDA', reason, 3.2, 'fail');
-      yield* wait(3.2);
+      const cardT = restart ? 1.6 : 3.2;
+      UI.showCard(restart ? 'REINICIANDO MISIÓN' : 'MISIÓN FALLIDA', restart ? a.m.title : reason, cardT, 'fail');
+      yield* wait(cardT);
       yield* fadeOut(0.5);
       c.clearMission();
       for (const v of c.vehicles.slice()) if (v.mission) c.removeVehicle(v);
+      removeAllies(c);
       if (kind !== 'wasted' && kind !== 'busted') {
         const back = a.m.failPlace ? MAP.places[a.m.failPlace] : null;
         if (G.scene !== c || back) {
@@ -250,6 +299,9 @@ export const story = {
 
   onDeath(kind) {
     const s = G.state;
+    // one death at a time (city + interior, or a second hit during the "TE MORISTE" card)
+    if (this.dying) return;
+    this.dying = true;
     if (kind === 'wasted') s.stats.deaths++; else s.stats.busted++;
     const wasActive = !!this.active;
     if (wasActive) {
@@ -258,12 +310,32 @@ export const story = {
       if (this.failCounts[a.m.id] >= 3) unlock('again');
       s.stats.missionsFailed++;
     }
+    // the mission may have died holding lock(true) (a talk, a cutscene...): release it
+    // or the player respawns unable to move
+    this.resetMissionState();
+    // anything the player was doing (shop menus, a pending fail card) goes too
+    runner.cancelWhere((t) => t.name !== 'death');
+    if (G.minigames?.active) G.minigames.active = null;
     const self = this;
     const c = G.scenes.city;
     runner.run((function* () {
+      try {
+        yield* respawn();
+      } finally {
+        // even if something above throws or the task is cancelled, never leave the player frozen
+        self.dying = false;
+        G.lockInput = 0; G.slowmo = 0;
+        c.player.dead = false;
+        if (G.scenes.interior.p) G.scenes.interior.p.dead = false;
+        if (UI.fadeTarget > 0) UI.fadeTarget = 0;
+      }
+      self.refreshTriggers(true);
+    })(), 'death');
+
+    function* respawn() {
       lock(true);
-      UI.closeDialog(); UI.timer = null; UI.meter = null; UI.letterboxTarget = 0; UI.setObjective(''); UI.overFade = null;
-      G.musicOverride = null; G.forceDark = undefined; G.drunkT = 0;
+      UI.closeDialog(); UI.setObjective(''); UI.card = null;
+      G.drunkT = 0;
       audio.sfx('fail');
       G.slowmo = 0.35;
       UI.showCard(kind === 'wasted' ? 'TE MORISTE WEY' : 'TE AGARRARON', wasActive ? 'MISIÓN FALLIDA' : '', 3, 'fail');
@@ -273,8 +345,10 @@ export const story = {
       yield* fadeOut(0.6);
       c.clearMission();
       for (const v of c.vehicles.slice()) if (v.mission) c.removeVehicle(v);
-      c.wanted = 0; c.heli = null; c.wantedLocked = false; c.noEvade = false; c.maxWanted = 5; c.policeKnows = false; c.noPolice = false; c.frozen = false; c.lockCar = false; c.extraDraw = null;
-      c.trafficOn = true; c.pedsOn = true;
+      removeAllies(c);
+      c.wanted = 0; c.heli = null;
+      self.resetMissionState();
+      lock(true);
       c.peds = c.peds.filter((q) => !q.cop);
       c.vehicles = c.vehicles.filter((v) => v.ai !== 'police');
       const fee = Math.min(500, Math.floor(s.money * 0.1));
@@ -290,8 +364,7 @@ export const story = {
       yield* fadeIn(0.6);
       UI.toast(kind === 'wasted' ? `Cuenta de la clínica: -$${fee}` : `Multa: -$${fee}. Te quitaron las armas.`, '#d8323c', 4);
       if (kind === 'busted' && !s.unlocked.centro) UI.toast('La patrulla te dejó en tu colonia', '#f4f4f0', 4);
-      self.refreshTriggers(true);
-    })(), 'death');
+    }
   },
 
   // ------------------------------------------------------------ doors & rooms
@@ -600,6 +673,13 @@ export const story = {
     if (audio.songName !== song) audio.play(song, SONGS);
   },
 };
+
+// Coqui/Ghenghis followers are "keep" peds, so clearMission() leaves them; after a
+// fail or death the mission restarts and spawns them again, so drop the old ones.
+function removeAllies(c) {
+  c.peds = c.peds.filter((q) => !q.ally);
+  for (const v of c.vehicles) if (v.passengers) v.passengers = v.passengers.filter((q) => !q.ally);
+}
 
 function titleCase(s) { return s.toLowerCase().replace(/(^|\s)(\S)/g, (m, a, b) => a + b.toUpperCase()); }
 

@@ -12,7 +12,9 @@ import { saveSettings } from '../core/save.js';
 import { LOOKS } from '../data/cast.js';
 import { UI, censor } from './ui.js';
 
+// APPS[0] ("Misión") is the wide widget at the top of the home screen; the rest is a 3x3 grid
 const APPS = [
+  { id: 'mision', name: 'Misión', icon: '#ff7a3c', glyph: '►' },
   { id: 'chat', name: 'Chat', icon: '#46b450', glyph: '✉' },
   { id: 'market', name: 'Market', icon: '#3c64dc', glyph: '$' },
   { id: 'map', name: 'Mapa', icon: '#28b4a0', glyph: '▲' },
@@ -29,13 +31,14 @@ const SX = PX + 8, SY = PY + 18, SW = PW - 16, SH = PH - 34;
 
 export const phone = {
   open: false,
+  opens: 0,       // times the phone was opened: missions can't watch `open` (scripts pause while it's up)
   app: null, sel: 0, scroll: 0, tab: 0, sub: 0, confirm: null, anim: 0,
 
   toggle() {
     if (this.open) this.close();
     else {
       if (G.lockInput || G.paused) return;
-      this.open = true; this.app = null; this.sel = 0; this.anim = 0; G.paused = true; G.phoneBadge = 0;
+      this.open = true; this.opens++; this.app = null; this.sel = 0; this.anim = 0; G.paused = true; G.phoneBadge = 0;
       audio.sfx('phone');
     }
   },
@@ -46,11 +49,12 @@ export const phone = {
     this.anim = Math.min(1, this.anim + dt * 6);
     if (input.pressed('phone')) { this.close(); return; }
     if (!this.app) {
-      const cols = 3;
-      if (input.pressed('right')) { this.sel = (this.sel + 1) % APPS.length; audio.sfx('move'); }
-      if (input.pressed('left')) { this.sel = (this.sel + APPS.length - 1) % APPS.length; audio.sfx('move'); }
-      if (input.pressed('down')) { this.sel = (this.sel + cols) % APPS.length; audio.sfx('move'); }
-      if (input.pressed('up')) { this.sel = (this.sel + APPS.length - cols) % APPS.length; audio.sfx('move'); }
+      const cols = 3, n = APPS.length;
+      if (input.pressed('right')) { this.sel = (this.sel + 1) % n; audio.sfx('move'); }
+      if (input.pressed('left')) { this.sel = (this.sel + n - 1) % n; audio.sfx('move'); }
+      // widget (0) sits above the first grid row (1..3)
+      if (input.pressed('down')) { this.sel = this.sel === 0 ? 1 : this.sel + cols < n ? this.sel + cols : 0; audio.sfx('move'); }
+      if (input.pressed('up')) { this.sel = this.sel === 0 ? n - cols : this.sel <= cols ? 0 : this.sel - cols; audio.sfx('move'); }
       if (input.pressed('a') && APPS[this.sel].id === 'map') { this.close(); G.bigmap.show(); input.consume('a'); return; }
       if (input.pressed('a')) { this.app = APPS[this.sel].id; this.scroll = 0; this.sub = 0; this.tab = 0; this.confirm = null; audio.sfx('select'); if (this.app === 'chat') this.scroll = 9999; }
       if (input.pressed('back') || input.pressed('b') || input.pressed('pause')) this.close();
@@ -61,6 +65,23 @@ export const phone = {
     if (f) f.call(this, back); else if (back) this.app = null;
   },
 
+  u_mision(back) {
+    const story = G.story;
+    if (this.confirm !== null) {
+      if (input.pressed('a')) {
+        this.confirm = null; this.close(); input.consume('a');
+        if (!story.restartMission()) UI.toast('No hay misión que reiniciar', '#d8323c', 2);
+      } else if (back) { this.confirm = null; audio.sfx('back'); }
+      return;
+    }
+    if (back) { this.app = null; audio.sfx('back'); return; }
+    if (input.pressed('a')) {
+      if (story.active) { this.confirm = 'restart'; audio.sfx('select'); return; }
+      this.close(); input.consume('a');
+      const t = story.findNextMission();
+      if (!t) UI.toast('No hay misión disponible ahorita', '#f4f4f0', 2);
+    }
+  },
   u_chat(back) {
     if (back) { this.app = null; audio.sfx('back'); return; }
     if (input.pressed('left') || input.pressed('right')) { if (G.state.chatPriv.length) { this.tab = 1 - this.tab; this.scroll = 9999; audio.sfx('move'); } }
@@ -177,11 +198,20 @@ export const phone = {
 
   r_home(ctx) {
     const s = G.state;
-    // big clock widget
-    font.text(ctx, clock(s.clock), SX + SW / 2, SY + 3, '#f4f4f0', { align: 'center', scale: 2, shadow: 'rgba(0,0,0,0.5)' });
-    font.text(ctx, `Día ${s.day} · ${money(s.money)}`, SX + SW / 2, SY + 20, '#d8d8e8', { align: 'center', shadow: 'rgba(0,0,0,0.5)' });
-    APPS.forEach((a, i) => {
-      const cx = SX + Math.round((SW - 102) / 2) + (i % 3) * 40, cy = SY + 33 + Math.floor(i / 3) * 34;
+    // mission widget (replaces the old big clock: the time is already in the status bar)
+    const info = G.story.missionInfo();
+    const wsel = this.sel === 0;
+    if (wsel) rr(ctx, SX + 1, SY + 1, SW - 2, 29, 5, '#f4f4f0');
+    rr(ctx, SX + 2, SY + 2, SW - 4, 27, 4, 'rgba(10,10,24,0.78)');
+    font.text(ctx, '► MISIÓN', SX + 6, SY + 5, wsel ? '#ffd23f' : '#ff9a5a');
+    font.text(ctx, `Día ${s.day}`, SX + SW - 6, SY + 5, '#a8a8b8', { align: 'right' });
+    let line = info.active ? (info.objective || info.active) : info.next.length ? 'Siguiente: ' + info.next[0].title : info.finished ? 'Historia terminada' : 'Sin misión por ahora';
+    line = censor(line.replace(/ — sigue la flecha.*$/, ''));
+    const l1 = font.wrap(line, SW - 12)[0] || '';
+    font.text(ctx, l1 + (l1.length < line.length ? '…' : ''), SX + 6, SY + 16, '#f4f4f0');
+    APPS.slice(1).forEach((a, k) => {
+      const i = k + 1;
+      const cx = SX + Math.round((SW - 102) / 2) + (k % 3) * 40, cy = SY + 33 + Math.floor(k / 3) * 34;
       const sel = i === this.sel;
       if (sel) rr(ctx, cx - 3, cy - 3, 28, 28, 6, '#f4f4f0');
       rr(ctx, cx - 1, cy - 1, 24, 24, 5, '#05050a');
@@ -192,6 +222,35 @@ export const phone = {
       font.text(ctx, a.name, cx + 11, cy + 25, sel ? '#ffd23f' : '#f4f4f0', { align: 'center', shadow: 'rgba(0,0,0,0.7)' });
       if (a.id === 'chat' && G.phoneBadge) { rr(ctx, cx + 15, cy - 4, 10, 10, 5, '#d8323c'); font.text(ctx, String(Math.min(9, G.phoneBadge)), cx + 20, cy - 2, '#fff', { align: 'center' }); }
     });
+  },
+
+  r_mision(ctx) {
+    const info = G.story.missionInfo();
+    this.header(ctx, 'MISIÓN', '#ff9a5a');
+    let y = SY + 16;
+    const put = (txt, col, max = 6) => { for (const l of font.wrap(censor(txt), SW - 8).slice(0, max)) { font.text(ctx, l, SX + 4, y, col); y += 9; } };
+    put(info.chapter, '#a8a8b8', 2);
+    put(`Día ${info.day}`, '#a8a8b8', 1);
+    y += 3;
+    if (info.active) {
+      put(info.side ? 'EXTRAÑOS Y LOCOS:' : 'EN CURSO:', '#ff9a5a', 1);
+      put(info.active, '#f4f4f0', 2);
+      y += 3;
+      put('OBJETIVO:', '#ff9a5a', 1);
+      put(info.objective || 'Sigue la escena.', '#ffd23f', 5);
+    } else if (info.next.length) {
+      put('SIGUIENTE:', '#ff9a5a', 1);
+      for (const n of info.next.slice(0, 4)) put('► ' + n.title + (n.locked ? ' (PRÓXIMAMENTE)' : n.where && n.where !== n.title ? ' — ' + n.where : ''), n.locked ? '#6a6a7a' : '#ffd23f', 2);
+    } else put(info.finished ? '¡Terminaste la historia! La ciudad es tuya.' : 'No hay misión de historia por ahora. Recorre la ciudad.', '#f4f4f0', 3);
+    // action bar
+    ctx.fillStyle = 'rgba(0,0,0,0.55)'; ctx.fillRect(SX, SY + SH - 13, SW, 13);
+    font.text(ctx, info.active ? 'A: REINICIAR MISIÓN' : 'A: MARCAR EN EL GPS', SX + SW / 2, SY + SH - 10, '#5adcf0', { align: 'center' });
+    if (this.confirm !== null) {
+      ctx.fillStyle = 'rgba(0,0,0,0.85)'; ctx.fillRect(SX + 4, SY + 40, SW - 8, 50);
+      font.text(ctx, '¿Reiniciar la misión?', SX + SW / 2, SY + 46, '#f4f4f0', { align: 'center' });
+      font.text(ctx, 'Empieza desde el inicio.', SX + SW / 2, SY + 58, '#a8a8b8', { align: 'center' });
+      font.text(ctx, 'A: SÍ   B: NO', SX + SW / 2, SY + 74, '#ffd23f', { align: 'center' });
+    }
   },
 
   r_chat(ctx) {

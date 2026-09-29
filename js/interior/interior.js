@@ -30,6 +30,8 @@ export const interior = {
     this.npcs = []; this.enemies = []; this.bullets = []; this.fx = []; this.actions = [];
     this.stealth = false; this.combat = !!opts.combat; this.frozen = false;
     this.onUpdate = null; this.overlay = null; this.onDetected = null; this.camTarget = null; this.extraDraw = null; this.onExit = opts.onExit || null;
+    // per-room mission flags: a mission sets them after entering, so they must not leak into the next room
+    this.noExit = false; this._caught = false; this.onShout = null; this.infiniteAmmo = false; this.extraBack = null;
     this.p = {
       x: opts.x ?? 40, y: FLOOR, facing: opts.facing ?? 1, state: 'idle', anim: 0, hp: this.p?.hp ?? 100, maxHp: 100,
       crouch: false, covered: false, hidden: null, shootT: 0, punchT: 0, hurtT: 0, look: opts.look || 'kazoo', dead: false, visible: true,

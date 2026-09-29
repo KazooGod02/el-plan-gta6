@@ -56,12 +56,14 @@ export const PROLOGO = [
       objective('Lee el papel pegado en la puerta');
       yield* waitAviso();
       objective('');
+      // scripts don't run while the phone is up, so watch the open counter instead of phone.open
+      const opens = G.phone.opens;
       chat('mari', 'Mijo, ¿vienes a trabajar hoy o te doy por muerto?');
       yield* wait(1);
       hint(isTouch() ? 'Abre tu teléfono con el botón 📱' : 'Abre tu teléfono con TAB o T');
       objective('Revisa tu teléfono');
-      yield* until(() => G.phone.open, 20);
-      yield* until(() => !G.phone.open);
+      yield* until(() => G.phone.opens > opens || G.bigmap.open, 20);
+      yield* until(() => !G.phone.open && !G.bigmap.open);
       yield* say('kazoo', 'Doña Mari. Si no llego, me corre. Y si me corre, me tengo que mudar a la banqueta... que según el aviso ya es mi siguiente casa.', 'sad');
       objective('Sal a la calle y ve a Tacos El Compa');
       yield* until(() => G.scene === C());

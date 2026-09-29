@@ -1,7 +1,7 @@
 # EL PLAN — Estado del beta y bugs conocidos
 
 > Documento para retomar el proyecto desde cualquier dispositivo.
-> Última actualización: 29 de septiembre de 2026.
+> Última actualización: 29 de septiembre de 2026 (arreglos: teléfono, Cap. 2 y muerte).
 
 - **Jugar:** https://kazoogod02.github.io/el-plan-gta6/
 - **Repo:** https://github.com/KazooGod02/el-plan-gta6
@@ -74,6 +74,11 @@ Si te pasa algo de esto, anótalo con **capítulo, qué pasó, captura** y, si p
 - [x] **Carros que se chocaban entre sí.** El tráfico respeta los cruces y el daño por choque es menor.
 - [x] **Rehenes del banco (Cap. 8).** Se levantan más despacio, nunca más de dos a la vez, traen una barra de cuánto les falta y el grito alcanza más lejos. También hay 20 s más para llegar al banco.
 - [x] **HUD:** cuadrito con el arma que traes (y las balas), barra de chaleco, y barra de vida sobre lo que golpeas.
+- [x] **"Revisa tu teléfono" no avanzaba (prólogo).** Los scripts de misión se pausan con el teléfono abierto, así que la misión nunca lo "veía" abierto y se quedaba esperando hasta 20 s. Ahora avanza en cuanto cierras el teléfono.
+- [x] **Cap. 2: no dejaba salir del cuarto para ir al bar.** El sigilo del taller del Tuercas (Cap. 1) bloqueaba la salida y el bloqueo se quedaba pegado al siguiente cuarto. Ahora cada cuarto limpia esos bloqueos al entrar (también el "ya te vieron" del sigilo, que hacía que la Bodega 7 y la bóveda no fallaran).
+- [x] **Al morir no te podías mover (softlock).** Si te mataban mientras la misión tenía los controles bloqueados (diálogo, cinemática), el bloqueo se quedaba para siempre. Ahora morir, fallar o reiniciar limpia todo el estado de la misión (controles, cámara, barras de cine, reglas de la ciudad) y quita a Coqui/Ghenghis duplicados.
+- [x] **Nueva app "Misión" en el teléfono** (widget arriba en la pantalla de inicio): capítulo, misión en curso y objetivo actual, o la lista de misiones siguientes. **A: Reiniciar misión** si algo se traba, o **A: Marcar en el GPS** si no hay misión activa (vuelve a poner los marcadores si se perdieron).
+- [x] **"REINICIAR MISIÓN" en el menú de pausa.** La pausa se abre aunque los controles estén bloqueados, así que siempre hay salida.
 - [x] **"No aparece la misión del penal después del prólogo."** Era la versión vieja en caché: la primera que se subió solo traía el prólogo. **Solución:** recargar con Ctrl + Shift + R (en el celular, cerrar y volver a abrir la pestaña) y darle CONTINUAR. Ya debería arrancar el Capítulo 1.
 
 ### Por revisar (sospechosos)
