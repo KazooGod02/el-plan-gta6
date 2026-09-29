@@ -1,0 +1,44 @@
+:root { --bg: #0b0b14; }
+* { box-sizing: border-box; }
+html, body {
+  margin: 0; height: 100%; background: var(--bg); overflow: hidden;
+  touch-action: none; -webkit-user-select: none; user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+#wrap { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; }
+#game {
+  image-rendering: pixelated; image-rendering: crisp-edges;
+  background: #000; display: block;
+}
+
+#touch { position: fixed; inset: 0; pointer-events: none; z-index: 5; }
+#stick {
+  position: absolute; left: 4vw; bottom: 6vh; width: 34vmin; height: 34vmin;
+  border-radius: 50%; background: rgba(255,255,255,.08); border: 2px solid rgba(255,255,255,.18);
+  pointer-events: auto;
+}
+#knob {
+  position: absolute; left: 50%; top: 50%; width: 40%; height: 40%; margin: -20% 0 0 -20%;
+  border-radius: 50%; background: rgba(255,255,255,.28);
+}
+#tbtns { position: absolute; right: 4vw; bottom: 8vh; width: 36vmin; height: 30vmin; pointer-events: none; }
+.tb {
+  position: absolute; width: 17vmin; height: 17vmin; border-radius: 50%;
+  font: bold 6vmin monospace; color: #fff; border: 2px solid rgba(255,255,255,.35);
+  background: rgba(255,255,255,.12); pointer-events: auto;
+}
+.tb-a { right: 0; top: 0; background: rgba(80,200,120,.3); }
+.tb-b { left: 0; bottom: 0; background: rgba(230,70,90,.3); }
+.tb.on, .ts.on { background: rgba(255,255,255,.4); }
+#ttop { position: absolute; right: 2vw; top: 2vh; display: flex; gap: 2vmin; pointer-events: none; }
+.ts {
+  width: 11vmin; height: 11vmin; border-radius: 3vmin; font: bold 4.5vmin monospace; color: #fff;
+  background: rgba(255,255,255,.12); border: 2px solid rgba(255,255,255,.3); pointer-events: auto;
+}
+
+#rotate {
+  position: fixed; inset: 0; z-index: 10; background: var(--bg); color: #ffd23f;
+  display: flex; align-items: center; justify-content: center; text-align: center;
+  font: bold 22px monospace; line-height: 1.8;
+}
+#rotate[hidden], #touch[hidden] { display: none; }
