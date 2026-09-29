@@ -514,6 +514,23 @@ export const story = {
       this.weatherT = (this.weatherT || 60) - dt;
       if (this.weatherT <= 0 && !G.weatherLock) { this.weatherT = 90 + Math.random() * 120; const r = Math.random(); s.weather = r < 0.62 ? 'sun' : r < 0.8 ? 'cloudy' : r < 0.95 ? 'rain' : 'storm'; }
     }
+    // Pinta y Olvida: lose the police by repainting the car
+    const cc = G.scenes.city;
+    if (G.scene === cc && cc.player.car && cc.wanted > 0 && !cc.wantedLocked) {
+      this.pintaCd = (this.pintaCd || 0) - dt;
+      for (const k of ['pintaCol', 'pintaCen']) {
+        const pl = MAP.places[k];
+        if (this.pintaCd <= 0 && dist(cc.player.car.x, cc.player.car.y, pl.x, pl.y) < 22) {
+          this.pintaCd = 5;
+          if (s.money < 300) { UI.toast('Pinta y Olvida: $300. No te alcanza.', '#d8323c', 2); break; }
+          s.money -= 300; cc.wanted = 0; cc.heli = null;
+          cc.player.car.color = pick(['#d8323c', '#3c64dc', '#46b450', '#ffd23f', '#8c46c8', '#f4f4f0', '#1a1a2e']);
+          audio.sfx('pass'); UI.flash(0.5);
+          UI.toast('PINTA Y OLVIDA: -$300. Carro nuevo, vida nueva.', '#ffd23f', 3);
+          unlock('pinta');
+        }
+      }
+    }
     // mission fail checks
     const a = this.active;
     if (a && a.ctx.fails.length) {
