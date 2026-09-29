@@ -5,7 +5,8 @@ import { audio } from '../core/audio.js';
 import * as font from '../core/font.js';
 import { clamp } from '../core/util.js';
 import { listSlots, saveSettings, deleteSlot } from '../core/save.js';
-import { side } from '../data/sprites.js';
+import { portrait } from '../data/sprites.js';
+import { canvas, silhouette, shade } from '../core/gfx.js';
 import { drawProp } from '../interior/props.js';
 import { drawSky } from '../interior/interior.js';
 import { UI } from './ui.js';
@@ -128,54 +129,171 @@ export const title = {
   },
   render(ctx) {
     const t = this.t;
+    // ---- background: the city at dusk, dimmed on the left so the menu reads well
     drawSky(ctx, 'dusk', t);
-    // city skyline parallax
     drawProp(ctx, { t: 'skyline', w: 520, neon: false, col: '#2a1a4a' }, -((t * 6) % 140), 150, t, {});
     ctx.fillStyle = '#12091e'; ctx.fillRect(0, 150, W, 30);
-    // palm trees
-    for (const px of [18, 292]) {
-      ctx.fillStyle = '#1a0e24'; ctx.fillRect(px, 96, 3, 56);
-      for (let i = 0; i < 5; i++) { const a = -2.6 + i * 0.55 + Math.sin(t + i) * 0.05; ctx.fillRect(Math.round(px + 1 + Math.cos(a) * 14), Math.round(96 + Math.sin(a) * 8), 12, 2); }
-    }
-    // crew on the rooftop
-    const crew = [['coqui', 128], ['kazoo', 150], ['ghenghis', 172]];
-    for (const [id, x] of crew) ctx.drawImage(side(id, 'idle', id === 'coqui' ? 1 : id === 'ghenghis' ? -1 : 1), x, 128);
-    // logo
-    const bob = Math.round(Math.sin(t * 2) * 2);
-    font.text(ctx, 'EL PLAN', W / 2 + 3, 20 + bob + 3, '#3a0a3a', { align: 'center', scale: 5 });
-    font.text(ctx, 'EL PLAN', W / 2, 20 + bob, '#ffd23f', { align: 'center', scale: 5, outline: '#5a1a00' });
-    font.text(ctx, 'UNA PRECUELA DE "EL ESCAPE"', W / 2, 60, '#f4f4f0', { align: 'center', outline: '#2a0a2a' });
-    font.text(ctx, 'KAZOOGOD02', W / 2, 70, '#ff7ae0', { align: 'center', outline: '#2a0a2a' });
+    const g = ctx.createLinearGradient(0, 0, 190, 0);
+    g.addColorStop(0, 'rgba(8,4,18,0.88)'); g.addColorStop(0.75, 'rgba(8,4,18,0.55)'); g.addColorStop(1, 'rgba(8,4,18,0)');
+    ctx.fillStyle = g; ctx.fillRect(0, 0, 190, H);
+    // ---- right: rotating character art
+    drawHeroArt(ctx, t);
+    // ---- left: logo
+    const bob = Math.round(Math.sin(t * 2) * 1.5);
+    font.text(ctx, 'EL PLAN', 12 + 3, 10 + bob + 3, '#3a0a3a', { scale: 4 });
+    font.text(ctx, 'EL PLAN', 12, 10 + bob, '#ffd23f', { scale: 4, outline: '#5a1a00' });
+    font.text(ctx, 'UNA PRECUELA DE "EL ESCAPE"', 13, 44, '#f4f4f0', { outline: '#2a0a2a' });
+    ctx.fillStyle = '#ff3cc8'; ctx.fillRect(13, 55, 60, 1); ctx.fillStyle = '#ffd23f'; ctx.fillRect(13, 55, 24, 1);
+    // ---- bottom-right signature, small and see-through
+    ctx.globalAlpha = 0.55;
+    font.text(ctx, '@KazooGod02', W - 5, H - 11, '#f4f4f0', { align: 'right', outline: '#101018' });
+    ctx.globalAlpha = 1;
+    if (CONFIG.marathonDate) font.text(ctx, 'EL ESCAPE: ' + countdownText(), 13, H - 11, '#5adcf0', { outline: '#101018' });
 
     if (this.mode === 'press') {
-      if (Math.floor(t * 2) % 2 === 0) font.text(ctx, input.isTouch ? 'TOCA LA PANTALLA' : 'PRESIONA CUALQUIER BOTÓN', W / 2, 100, '#f4f4f0', { align: 'center', outline: '#101018' });
-      if (CONFIG.marathonDate) font.text(ctx, 'EL ESCAPE: ' + countdownText(), W / 2, 164, '#5adcf0', { align: 'center', outline: '#101018' });
+      if (Math.floor(t * 2) % 2 === 0) font.text(ctx, input.isTouch ? 'TOCA LA PANTALLA' : 'PRESIONA CUALQUIER BOTÓN', 13, 76, '#f4f4f0', { outline: '#101018' });
       return;
     }
     if (this.mode === 'menu') {
       const items = this.items();
+      this.selY = this.selY ?? 0;
+      const y0 = 66, step = 13;
+      this.selY += (y0 + this.sel * step - this.selY) * 0.3;
+      // highlight bar slides between entries
+      const hy = Math.round(this.selY) - 3;
+      ctx.fillStyle = 'rgba(255,210,63,0.16)'; ctx.fillRect(8, hy, 150, 12);
+      ctx.fillStyle = '#ffd23f'; ctx.fillRect(8, hy, 2, 12);
       items.forEach((it, i) => {
-        const y = 84 + i * 11, sel = i === this.sel;
-        font.text(ctx, sel ? '► ' + it.t + ' ◄' : it.t, W / 2, y, sel ? '#ffd23f' : '#f4f4f0', { align: 'center', outline: '#101018' });
+        const y = y0 + i * step, sel = i === this.sel;
+        const x = sel ? 18 + Math.round(Math.sin(t * 6) * 1) : 14;
+        font.text(ctx, sel ? '► ' + it.t : it.t, x, y, sel ? '#ffd23f' : '#d8d8e8', { outline: '#101018' });
       });
-      if (CONFIG.marathonDate) font.text(ctx, 'EL ESCAPE: ' + countdownText(), W / 2, 168, '#5adcf0', { align: 'center', outline: '#101018' });
     }
     if (this.mode === 'options') drawOptions(ctx, this.opt, 90);
     if (this.mode === 'controls') drawControls(ctx);
     if (this.mode === 'slots') {
-      ctx.fillStyle = 'rgba(8,8,20,0.92)'; ctx.fillRect(40, 80, W - 80, 84);
-      font.text(ctx, this.slotMode === 'load' ? 'CARGAR PARTIDA' : 'NUEVA PARTIDA — ELIGE RANURA', W / 2, 84, '#ffd23f', { align: 'center' });
+      ctx.fillStyle = 'rgba(8,8,20,0.94)'; ctx.fillRect(8, 60, 200, 100);
+      ctx.fillStyle = '#ffd23f'; ctx.fillRect(8, 60, 2, 100);
+      font.text(ctx, this.slotMode === 'load' ? 'CARGAR PARTIDA' : 'NUEVA PARTIDA: ELIGE RANURA', 16, 66, '#ffd23f');
       const slots = listSlots();
       slots.forEach((m, i) => {
-        const y = 100 + i * 18, sel = i === this.slotSel;
+        const y = 82 + i * 18, sel = i === this.slotSel;
         const txt = m ? `${i + 1}. ${m.chapter || '—'} · ${fmt(m.play)}` : `${i + 1}. VACÍA`;
-        font.text(ctx, (sel ? '► ' : '  ') + txt, 54, y, sel ? '#ffd23f' : '#f4f4f0');
-        if (m) font.text(ctx, new Date(m.t).toLocaleDateString('es-MX'), W - 54, y, '#a8a8b8', { align: 'right' });
+        font.text(ctx, (sel ? '► ' : '  ') + txt, 16, y, sel ? '#ffd23f' : '#f4f4f0');
+        if (m) font.text(ctx, new Date(m.t).toLocaleDateString('es-MX'), 200, y + 9, '#a8a8b8', { align: 'right' });
       });
-      if (this.confirm !== null && this.slotMode === 'new') font.text(ctx, '¿Sobrescribir? Presiona A otra vez', W / 2, 154, '#d8323c', { align: 'center' });
+      if (this.confirm !== null && this.slotMode === 'new') font.text(ctx, '¿Sobrescribir? Presiona A otra vez', 16, 146, '#d8323c');
     }
   },
 };
+
+// ---------------------------------------------------------------- title art
+// Loading-screen style panels of the three leads, swapping every few seconds with a
+// wipe + RGB glitch, a light sweep over the face, halftone dots and speed lines.
+const HEROES = [
+  { id: 'kazoo', name: 'KAZOO', tag: 'EL QUE DEBE', col: '#e0a82e', col2: '#ff3cc8', exprs: ['happy', 'smug'] },
+  { id: 'coqui', name: 'COQUI', tag: 'EL QUE SALIÓ', col: '#3c64dc', col2: '#5adcf0', exprs: ['serious', 'angry'] },
+  { id: 'ghenghis', name: 'GHENGHIS', tag: 'EL QUE CUIDABA', col: '#d8323c', col2: '#ffd23f', exprs: ['laugh', 'crazy'] },
+];
+const HERO_T = 4.6;
+let artBuf = null;
+function heroCanvas(hero, expr, sweep) {
+  // the face (4x) plus a light sweep that only lands on the drawn pixels
+  artBuf ||= canvas(128, 128);
+  const x = artBuf.x;
+  x.clearRect(0, 0, 128, 128);
+  x.globalCompositeOperation = 'source-over';
+  x.imageSmoothingEnabled = false;
+  x.drawImage(portrait(hero.id, expr), 0, 0, 128, 128);
+  if (sweep >= 0 && sweep <= 1) {
+    x.globalCompositeOperation = 'source-atop';
+    const sx = -60 + sweep * 250;
+    const gr = x.createLinearGradient(sx, 0, sx + 40, 40);
+    gr.addColorStop(0, 'rgba(255,255,255,0)'); gr.addColorStop(0.5, 'rgba(255,255,240,0.55)'); gr.addColorStop(1, 'rgba(255,255,255,0)');
+    x.fillStyle = gr; x.fillRect(0, 0, 128, 128);
+    x.globalCompositeOperation = 'source-over';
+  }
+  return artBuf;
+}
+const silCache = new Map();
+function heroSil(id, expr, col) {
+  const key = id + '|' + expr + '|' + col;
+  let c = silCache.get(key);
+  if (!c) {
+    const big = canvas(128, 128); big.x.imageSmoothingEnabled = false; big.x.drawImage(portrait(id, expr), 0, 0, 128, 128);
+    c = silhouette(big, col); silCache.set(key, c);
+  }
+  return c;
+}
+function drawHeroArt(ctx, t) {
+  const k = Math.floor(t / HERO_T), lt = t - k * HERO_T;
+  const hero = HEROES[k % HEROES.length], prev = HEROES[(k + HEROES.length - 1) % HEROES.length];
+  const ease = (v) => 1 - Math.pow(1 - Math.min(1, Math.max(0, v)), 3);
+  const inT = ease(lt / 0.55);
+  const X0 = 150;
+  const panel = (h, slide, alpha) => {
+    const off = Math.round((1 - slide) * 190);
+    ctx.save();
+    ctx.globalAlpha = alpha;
+    ctx.beginPath(); ctx.moveTo(X0 + 34 + off, 0); ctx.lineTo(W + 10 + off, 0); ctx.lineTo(W + 10 + off, H); ctx.lineTo(X0 + off, H); ctx.closePath();
+    ctx.clip();
+    const gg = ctx.createLinearGradient(X0, 0, W, H);
+    gg.addColorStop(0, shade(h.col, 0.45)); gg.addColorStop(1, shade(h.col2, 0.55));
+    ctx.fillStyle = gg; ctx.fillRect(X0 + off, 0, W, H);
+    // halftone dots, bigger toward the bottom
+    ctx.fillStyle = 'rgba(0,0,0,0.22)';
+    for (let yy = 4; yy < H; yy += 6) for (let xx = X0 + ((yy / 6) % 2 ? 0 : 3); xx < W + 10; xx += 6) { const r = 0.5 + yy / H * 1.6; ctx.fillRect(Math.round(xx + off), yy, r, r); }
+    // speed lines
+    for (let i = 0; i < 7; i++) {
+      const ly = (i * 29 + Math.floor(t * 60)) % (H + 20) - 10;
+      ctx.fillStyle = 'rgba(255,255,255,0.10)'; ctx.fillRect(X0 + off, ly, W, 1);
+    }
+    ctx.restore();
+    // bright edge stripe
+    ctx.globalAlpha = alpha;
+    ctx.strokeStyle = '#f4f4f0'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(X0 + 34 + off, 0); ctx.lineTo(X0 + off, H); ctx.stroke();
+    ctx.strokeStyle = h.col2; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(X0 + 39 + off, 0); ctx.lineTo(X0 + 5 + off, H); ctx.stroke();
+    ctx.globalAlpha = 1;
+  };
+  if (lt < 0.55) panel(prev, 1, 1);
+  panel(hero, inT, 1);
+  // the face: slides in, breathes, blinks to a second expression now and then
+  const expr = lt > 2.6 && lt < 3.4 ? hero.exprs[1] : hero.exprs[0];
+  const art = heroCanvas(hero, expr, (lt - 1.1) / 0.9);
+  const ax = Math.round(186 + (1 - inT) * 150), ay = Math.round(H - 124 + Math.sin(t * 1.6) * 1.5);
+  const sil = heroSil(hero.id, expr, '#101018'), glow = heroSil(hero.id, expr, hero.col2);
+  ctx.globalAlpha = 0.9; ctx.drawImage(glow, ax + 5, ay + 3); ctx.globalAlpha = 1;
+  for (const [dx, dy] of [[-2, 0], [2, 0], [0, -2], [0, 2]]) ctx.drawImage(sil, ax + dx, ay + dy);
+  // RGB split glitch on the way in
+  if (lt < 0.8) {
+    const gl = Math.round((1 - lt / 0.8) * 7);
+    ctx.globalAlpha = 0.55;
+    ctx.drawImage(heroSil(hero.id, expr, '#ff2a6a'), ax - gl, ay);
+    ctx.drawImage(heroSil(hero.id, expr, '#2ae0ff'), ax + gl, ay);
+    ctx.globalAlpha = 1;
+  }
+  ctx.drawImage(art, ax, ay);
+  // name tag
+  const nx = W - 8, ny = 14 + Math.round((1 - inT) * -30);
+  // long names drop a size so they never run into the logo
+  const sc = font.measure(hero.name) * 3 > W - 196 ? 2 : 3;
+  font.text(ctx, hero.name, nx + 2, ny + 2, 'rgba(0,0,0,0.5)', { align: 'right', scale: sc });
+  font.text(ctx, hero.name, nx, ny, '#f4f4f0', { align: 'right', scale: sc, outline: '#101018' });
+  const tw = font.measure(hero.tag) + 8, ty = ny + sc * 7 + 4;
+  ctx.fillStyle = hero.col; ctx.fillRect(nx - tw, ty, tw, 11);
+  font.text(ctx, hero.tag, nx - 4, ty + 2, '#101018', { align: 'right' });
+  // sparks drifting up
+  for (let i = 0; i < 14; i++) {
+    const px = 176 + ((i * 53) % 140), py = H - ((t * (18 + (i % 5) * 6) + i * 37) % (H + 10));
+    ctx.fillStyle = i % 3 ? hero.col2 : '#fff08c';
+    ctx.globalAlpha = 0.5 + 0.5 * Math.sin(t * 5 + i);
+    ctx.fillRect(Math.round(px), Math.round(py), 1, 1);
+  }
+  ctx.globalAlpha = 1;
+  // quick white flash when a new hero lands
+  if (lt < 0.18) { ctx.fillStyle = `rgba(255,255,255,${0.35 * (1 - lt / 0.18)})`; ctx.fillRect(X0, 0, W - X0, H); }
+}
+
 function fmt(sec = 0) { const h = Math.floor(sec / 3600), m = Math.floor(sec / 60) % 60; return `${h}h ${String(m).padStart(2, '0')}m`; }
 
 // ---------------------------------------------------------------- PAUSE
