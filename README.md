@@ -25,3 +25,4 @@ Edita `js/config.js`: fecha del marathon, link del stream, hashtag y capítulos 
 ## Documentos
 - [HISTORIA.md](HISTORIA.md) — la historia completa.
 - [DISENO.md](DISENO.md) — el documento de diseño.
+- [BETA.md](BETA.md) — estado del beta, bugs conocidos y cómo retomar el proyecto.
