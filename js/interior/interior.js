@@ -247,7 +247,7 @@ export const interior = {
       return;
     }
     const seen = !p.dead && this.canSee(e);
-    if (e.state === 'patrol' || e.state === 'pause' || e.state === 'search') {
+    if (e.state === 'patrol' || e.state === 'pause' || e.state === 'search' || e.state === 'investigate') {
       if (seen) {
         const close = 1 - Math.abs(p.x - e.x) / e.vision;
         e.susp += dt * (0.9 + close * 2.6) * (e.alertRate || 1);
@@ -265,6 +265,10 @@ export const interior = {
       const tx = e.facing > 0 ? b : a;
       if (Math.abs(tx - e.x) < 2) { e.state = 'pause'; e.pause = e.pauseT || rand(1.2, 2.5); e.moving = false; }
       else { e.x += Math.sign(tx - e.x) * e.speed * dt; e.moving = true; e.facing = Math.sign(tx - e.x) || e.facing; }
+    } else if (e.state === 'investigate') {
+      const tx = e.inv.x;
+      if (Math.abs(tx - e.x) > 3) { e.facing = Math.sign(tx - e.x); e.x += e.facing * e.speed * 1.4 * dt; e.moving = true; }
+      else { e.moving = false; e.inv.t -= dt; e.facing = Math.floor(e.inv.t * 0.8) % 2 ? 1 : -1; if (e.inv.t <= 0) { e.state = 'patrol'; e.bark = '...'; e.barkT = 1; } }
     } else if (e.state === 'pause') {
       e.pause -= dt; e.moving = false;
       if (e.lookAround && Math.floor(e.pause * 1.2) % 2 === 0) e.facing = e.facing;

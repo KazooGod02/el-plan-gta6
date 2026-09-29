@@ -122,7 +122,7 @@ export const city = {
     p.car = v; v.driver = 'player'; v.ai = null;
     p.x = v.x; p.y = v.y;
     // board allies nearby
-    for (const a of this.peds.filter((q) => q.ally && q.follow)) {
+    for (const a of this.peds.filter((q) => q.ally && q.follow && !(q.noMoto && v.spec.style === 'moto'))) {
       if (dist(a.x, a.y, v.x, v.y) < 90 && v.passengers.length < (v.spec.style === 'moto' ? 1 : 3)) { v.passengers.push(a); this.removePed(a); }
     }
     emit('enterVehicle', v);
