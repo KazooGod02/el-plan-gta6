@@ -1,17 +1,17 @@
 // ==========================================================================
-//  CONFIGURACIÓN DEL MARATHON — edita solo este archivo
+//  CONFIGURACIÓN DEL LANZAMIENTO — edita solo este archivo
 // ==========================================================================
 export const CONFIG = {
-  // Fecha y hora de inicio del marathon (ISO con zona horaria). null = "PRÓXIMAMENTE"
+  // Fecha y hora del tráiler "El Escape" (ISO con zona horaria). null = no se muestra nada.
   // Ejemplo: '2026-11-19T18:00:00-06:00'
   marathonDate: null,
 
-  // Plataforma y link del stream que aparece en la pantalla final y en el espectacular
+  // Canal y link que aparecen en la pantalla final (vacío = no se muestra)
   streamName: 'KazooGod02',
   streamUrl: '',              // ej. 'https://twitch.tv/kazoogod02'
 
-  // Hashtag para la tarjeta final
-  hashtag: '#KazooGTA6Marathon',
+  // Hashtag para el cartel final
+  hashtag: '#ElPlanKazoo',
 
   // Lanzamiento por episodios: capítulos que se desbloquean por fecha real.
   // Cada entrada: { chapter: número de capítulo desde el que se bloquea, date: ISO }

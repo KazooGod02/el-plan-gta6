@@ -10,6 +10,7 @@ export function newState() {
     clock: 8 * 60 + 30,    // minutes of the day
     weather: 'sun',
     money: 120,
+    armor: 0,              // bulletproof vest (0-100)
     debt: 50000,
     paid: 0,
     unlocked: { centro: false, puerto: false, afueras: false },
@@ -24,6 +25,9 @@ export function newState() {
     weapon: 'fists',
     items: [],             // marketplace cosmetics
     outfit: 'normal',
+    outfits: ['normal'],
+    shoes: 'normal',
+    shoesOwned: ['normal'],
     masks: { kazoo: 'luchador', coqui: 'presidente', ghenghis: 'payaso' },
     pos: { scene: 'interior', room: 'cuarto', x: 70, y: 0 },
     radio: 0,

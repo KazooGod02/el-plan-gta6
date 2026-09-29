@@ -107,6 +107,7 @@ export const CAP6 = [
       }
       c.removeMarker(m);
       lock(true);
+      while (k < talks.length) { yield* lines(talks[k]); k++; }
       yield* fadeOut(0.5);
       const car = c.player.car;
       if (car) c.exitCar(true);

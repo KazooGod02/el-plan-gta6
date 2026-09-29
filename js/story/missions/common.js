@@ -6,7 +6,7 @@ import { input } from '../../core/input.js';
 import { LOOKS } from '../../data/cast.js';
 import { Ped } from '../../world/entities.js';
 import { MAP, TS } from '../../world/map.js';
-import { say, wait, until } from '../script.js';
+import { say, wait, until, runner } from '../script.js';
 import { dist } from '../../core/util.js';
 
 export const P = () => MAP.places;
@@ -14,11 +14,29 @@ export const C = () => G.scenes.city;
 export const R = () => G.scenes.interior;
 export const S = () => G.state;
 
-// auto-advancing line (for dialogue while driving / walking)
+// auto-advancing line (for dialogue while driving / walking): long enough to read comfortably
+export const autoTime = (text) => 2.4 + text.length / 11;
 export function* line(who, text, expr = 'normal') {
-  yield* say(who, text, expr, { auto: 1.6 + text.length / 17 });
+  yield* say(who, text, expr, { auto: autoTime(text) });
 }
 export function* lines(list) { for (const l of list) yield* line(l[0], l[1], l[2]); }
+
+// a conversation that plays while you keep driving; pair it with finishTalk() so that
+// arriving early waits for the talk to end instead of cutting it off
+export function talkAlong(list) {
+  const h = { done: false };
+  const mission = G.story.active;
+  runner.run((function* () {
+    for (const l of list) {
+      if (G.story.active !== mission) break;
+      while (G.ui.dialog) yield;
+      yield* line(l[0], l[1], l[2]);
+    }
+    h.done = true;
+  })(), 'talkAlong');
+  return h;
+}
+export function* finishTalk(h) { while (!h.done) yield; }
 
 export function maskedLook(id) {
   const m = S().masks[id];

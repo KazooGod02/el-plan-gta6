@@ -118,7 +118,12 @@ const PAINT = {
   teller(c, x, y, o) { const w = o.w || 40; R(c, x, y - 15, w, 15, '#c8c8d0'); R(c, x - 1, y - 17, w + 2, 3, '#8a6a3a'); R(c, x, y - 40, w, 23, 'rgba(160,210,240,0.22)'); R(c, x, y - 40, w, 1, '#c8c8d0'); for (let i = 0; i < w; i += 25) R(c, x + i, y - 40, 1, 23, '#9a9aa6'); },
   rope(c, x, y) { R(c, x, y - 14, 3, 14, '#c8a040'); R(c, x + 27, y - 14, 3, 14, '#c8a040'); c.strokeStyle = '#a82030'; c.lineWidth = 2; c.beginPath(); c.moveTo(x + 2, y - 12); c.quadraticCurveTo(x + 15, y - 6, x + 28, y - 12); c.stroke(); },
   bench(c, x, y, o) { R(c, x, y - 10, 30, 3, o.col || '#8c5a32'); R(c, x + 2, y - 7, 2, 7, '#3a3a44'); R(c, x + 26, y - 7, 2, 7, '#3a3a44'); if (o.back) R(c, x, y - 18, 30, 3, o.col || '#8c5a32'); },
-  poster(c, x, y, o) { R(c, x, y, 16, 22, o.col || '#f4f4f0'); R(c, x + 2, y + 2, 12, 12, o.col2 || '#3c64dc'); if (o.text) font.text(c, o.text, x + 8, y + 15, '#101018', { align: 'center' }); },
+  poster(c, x, y, o) {
+    // grow to fit the caption and keep it readable on dark posters
+    const bg = o.col || '#f4f4f0', w = Math.max(16, o.text ? font.measure(o.text) + 4 : 16), dark = parseInt(bg.slice(1, 3), 16) < 90;
+    R(c, x, y, w, 22, bg); R(c, x + 2, y + 2, w - 4, 11, o.col2 || '#3c64dc');
+    if (o.text) font.text(c, o.text, x + w / 2, y + 14, dark ? '#f4f4f0' : '#101018', { align: 'center' });
+  },
   window(c, x, y, o, t, env) {
     const w = o.w || 28, h = o.h || 22;
     R(c, x - 2, y - 2, w + 4, h + 4, '#e8e0d0');

@@ -11,6 +11,7 @@ import { drawSky } from '../interior/interior.js';
 import { UI } from './ui.js';
 import { CONFIG } from '../config.js';
 import { countdownText } from '../world/city.js';
+import { VIGNETTES, PW, PH } from '../story/cinematics.js';
 
 // ---------------------------------------------------------------- options list (shared)
 function optionsRows() {
@@ -54,6 +55,7 @@ const CONTROLS = [
   ['AGACHARSE / CUBRIRSE (interiores)', 'S / Abajo', 'Abajo'],
   ['CAMBIAR ARMA / RADIO', 'Q', '🔫'],
   ['TELÉFONO', 'Tab / T', '📱'],
+  ['MAPA (waypoint e índice)', 'M', 'Cel > Mapa'],
   ['PAUSA', 'Esc / P', 'II'],
 ];
 function drawControls(ctx) {
@@ -61,12 +63,12 @@ function drawControls(ctx) {
   font.text(ctx, 'CÓMO JUGAR', W / 2, 16, '#ffd23f', { align: 'center' });
   const touch = input.isTouch;
   CONTROLS.forEach(([a, k, t], i) => {
-    const y = 32 + i * 14;
+    const y = 30 + i * 12;
     font.text(ctx, a, 18, y, '#f4f4f0');
     font.text(ctx, (touch ? t : k).replace('🔫', 'botón arma').replace('📱', 'botón cel'), W - 18, y, '#5adcf0', { align: 'right' });
   });
   font.text(ctx, 'Maneja: Arriba acelera, Abajo frena/reversa. B = freno de mano.', W / 2, 148, '#a8a8b8', { align: 'center' });
-  font.text(ctx, 'Sigue las letras en el mapa para avanzar la historia.', W / 2, 158, '#ffd23f', { align: 'center' });
+  font.text(ctx, 'Sigue la flecha y la ruta del radar. ? = extraños y locos.', W / 2, 158, '#ffd23f', { align: 'center' });
 }
 
 // ---------------------------------------------------------------- TITLE
@@ -143,11 +145,11 @@ export const title = {
     font.text(ctx, 'EL PLAN', W / 2 + 3, 20 + bob + 3, '#3a0a3a', { align: 'center', scale: 5 });
     font.text(ctx, 'EL PLAN', W / 2, 20 + bob, '#ffd23f', { align: 'center', scale: 5, outline: '#5a1a00' });
     font.text(ctx, 'UNA PRECUELA DE "EL ESCAPE"', W / 2, 60, '#f4f4f0', { align: 'center', outline: '#2a0a2a' });
-    font.text(ctx, 'GTA VI MARATHON · KAZOOGOD02', W / 2, 70, '#ff7ae0', { align: 'center', outline: '#2a0a2a' });
+    font.text(ctx, 'KAZOOGOD02', W / 2, 70, '#ff7ae0', { align: 'center', outline: '#2a0a2a' });
 
     if (this.mode === 'press') {
       if (Math.floor(t * 2) % 2 === 0) font.text(ctx, input.isTouch ? 'TOCA LA PANTALLA' : 'PRESIONA CUALQUIER BOTÓN', W / 2, 100, '#f4f4f0', { align: 'center', outline: '#101018' });
-      font.text(ctx, 'Marathon: ' + countdownText(), W / 2, 164, '#5adcf0', { align: 'center', outline: '#101018' });
+      if (CONFIG.marathonDate) font.text(ctx, 'EL ESCAPE: ' + countdownText(), W / 2, 164, '#5adcf0', { align: 'center', outline: '#101018' });
       return;
     }
     if (this.mode === 'menu') {
@@ -156,7 +158,7 @@ export const title = {
         const y = 84 + i * 11, sel = i === this.sel;
         font.text(ctx, sel ? '► ' + it.t + ' ◄' : it.t, W / 2, y, sel ? '#ffd23f' : '#f4f4f0', { align: 'center', outline: '#101018' });
       });
-      font.text(ctx, 'Marathon: ' + countdownText(), W / 2, 168, '#5adcf0', { align: 'center', outline: '#101018' });
+      if (CONFIG.marathonDate) font.text(ctx, 'EL ESCAPE: ' + countdownText(), W / 2, 168, '#5adcf0', { align: 'center', outline: '#101018' });
     }
     if (this.mode === 'options') drawOptions(ctx, this.opt, 90);
     if (this.mode === 'controls') drawControls(ctx);
@@ -225,18 +227,30 @@ const CREDITS = [
   ['REPARTO', 'h'], ['KAZOO — Kazoo', ''], ['COQUI — Coqui', ''], ['GHENGHIS — Ghenghis', ''], ['', ''],
   ['TAMBIÉN APARECEN', 'h'], ['Don Chuy · Doña Mari · La Tía Gris', ''], ['El Tuercas · Comandante Reyes', ''], ['VendeRápido_5E (5 estrellas)', ''], ['', ''],
   ['GUION DEL TRAILER', 'h'], ['KazooGod02', ''], ['', ''],
-  ['JUEGO, PIXELES Y CHIPTUNE', 'h'], ['Hecho con código y cariño', ''], ['para la GTA VI Marathon', ''], ['', ''],
-  ['GRACIAS ESPECIALES', 'h'], ['A la comunidad del marathon', ''], ['A todos los que dejan reseñas honestas', ''], ['A Doña Mari, por los tacos', ''], ['', ''],
+  ['JUEGO, PIXELES Y CHIPTUNE', 'h'], ['Hecho con código y cariño', ''], ['para los que esperan el tráiler', ''], ['', ''],
+  ['GRACIAS ESPECIALES', 'h'], ['A la comunidad de KazooGod02', ''], ['A todos los que dejan reseñas honestas', ''], ['A Doña Mari, por los tacos', ''], ['', ''],
   ['Ningún Tsuru fue lastimado', ''], ['durante la producción de este juego.', ''], ['(Mentira.)', ''], ['', ''],
-  ['NOS VEMOS EN EL MARATHON', 'h'], ['', ''], ['', ''],
+  ['NOS VEMOS EN "EL ESCAPE"', 'h'], ['', ''], ['', ''],
 ];
+// credits roll on the right while little scenes from the story play on the left
+const COL_X = 250, COL_W = 128, PX0 = 8, PY0 = 36;
+let creditLines = null;
+function buildCredits() {
+  const out = [];
+  for (const [txt, kind] of CREDITS) {
+    if (kind === 'title') { out.push({ txt, kind, h: 22 }); continue; }
+    if (!txt) { out.push({ txt: '', kind, h: 8 }); continue; }
+    font.wrap(txt, COL_W).forEach((l) => out.push({ txt: l, kind, h: 11 }));
+  }
+  return out;
+}
 export const credits = {
   name: 'credits', song: 'credits',
-  enter(opts = {}) { this.t = 0; this.back = opts.back || 'title'; this.onDone = opts.onDone || null; UI.hud = false; UI.fadeTarget = 0; },
+  enter(opts = {}) { this.t = 0; this.back = opts.back || 'title'; this.onDone = opts.onDone || null; UI.hud = false; UI.fadeTarget = 0; creditLines ||= buildCredits(); },
+  length() { return VIGNETTES.length * VIG_T; },
   update(dt) {
     this.t += dt * (input.down('a') || input.down('b') ? 4 : 1);
-    const endY = 190 - this.t * 16 + CREDITS.length * 14;
-    if (endY < -20 || input.pressed('pause') || input.pressed('back')) {
+    if (this.t > this.length() + 1.5 || input.pressed('pause') || input.pressed('back')) {
       if (this.onDone) { const f = this.onDone; this.onDone = null; f(); }
       else setScene(this.back);
     }
@@ -244,12 +258,33 @@ export const credits = {
   render(ctx) {
     ctx.fillStyle = '#06060e'; ctx.fillRect(0, 0, W, H);
     for (let i = 0; i < 40; i++) { ctx.fillStyle = '#3a3a5a'; ctx.fillRect((i * 83) % W, (i * 47 + Math.floor(this.t * 5)) % H, 1, 1); }
-    CREDITS.forEach(([txt, kind], i) => {
-      const y = 190 - this.t * 16 + i * 14;
-      if (y < -20 || y > H + 10) return;
-      if (kind === 'title') font.text(ctx, txt, W / 2, y - 6, '#ffd23f', { align: 'center', scale: 2, outline: '#5a1a00' });
-      else font.text(ctx, txt, W / 2, y, kind === 'h' ? '#ff7ae0' : '#f4f4f0', { align: 'center' });
-    });
+    // ---- cinematics panel
+    const k = Math.min(VIGNETTES.length - 1, Math.floor(this.t / VIG_T)), lt = this.t - k * VIG_T;
+    const v = VIGNETTES[k];
+    ctx.fillStyle = '#000'; ctx.fillRect(PX0 - 2, PY0 - 2, PW + 4, PH + 4);
+    ctx.fillStyle = '#3a3a5a'; ctx.fillRect(PX0 - 3, PY0 - 3, PW + 6, 1); ctx.fillRect(PX0 - 3, PY0 + PH + 2, PW + 6, 1);
+    ctx.save(); ctx.beginPath(); ctx.rect(PX0, PY0, PW, PH); ctx.clip(); ctx.translate(PX0, PY0);
+    v.draw(ctx, lt);
+    // film grain + fade between scenes
+    ctx.fillStyle = 'rgba(255,240,200,0.05)'; ctx.fillRect(0, 0, PW, PH);
+    const fade = Math.max(0, 1 - lt / 0.5, (lt - (VIG_T - 0.5)) / 0.5);
+    if (fade > 0) { ctx.fillStyle = `rgba(0,0,0,${Math.min(1, fade)})`; ctx.fillRect(0, 0, PW, PH); }
+    ctx.restore();
+    // sprocket holes
+    for (let x = PX0; x < PX0 + PW; x += 12) { ctx.fillStyle = '#1a1a2a'; ctx.fillRect(x + 3, PY0 - 10, 6, 4); ctx.fillRect(x + 3, PY0 + PH + 6, 6, 4); }
+    font.text(ctx, v.cap, PX0 + PW / 2, PY0 + PH + 14, '#ffd23f', { align: 'center' });
+    // ---- credits column
+    const total = creditLines.reduce((a, l) => a + l.h, 0);
+    let y = H + 4 - (this.t / this.length()) * (total + H - 20);
+    for (const l of creditLines) {
+      if (y > -24 && y < H + 10) {
+        if (l.kind === 'title') font.text(ctx, l.txt, COL_X, y, '#ffd23f', { align: 'center', scale: 2, outline: '#5a1a00' });
+        else font.text(ctx, l.txt, COL_X, y, l.kind === 'h' ? '#ff7ae0' : '#f4f4f0', { align: 'center' });
+      }
+      y += l.h;
+    }
     if (CONFIG.streamUrl) font.text(ctx, CONFIG.streamUrl, W / 2, H - 10, '#5adcf0', { align: 'center' });
+    font.text(ctx, 'A: adelantar', 4, H - 10, '#4a4a6a');
   },
 };
+const VIG_T = 5.4;

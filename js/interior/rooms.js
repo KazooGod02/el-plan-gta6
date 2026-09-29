@@ -270,3 +270,55 @@ export const ROOMS = {
     exits: [{ x: 12, w: 22, to: 'city', place: 'clinica' }],
   },
 };
+
+// ---------------------------------------------------------------- shops (one room per business)
+import { SHOPS } from '../data/shops.js';
+const SHOP_ROOMS = {
+  ropa: (sh) => ({
+    theme: { wall: sh.fancy ? '#2a1a3a' : '#f8d0e0', wall2: sh.fancy ? '#3a2450' : '#f0bcd0', pattern: sh.fancy ? 'damask' : 'stripes', floor: sh.fancy ? '#e8e0d0' : '#c8b8a8', floorP: sh.fancy ? 'marble' : 'wood', ceil: '#5a2a40' },
+    props: [
+      { t: 'door', x: 12, exit: 'city' },
+      { t: 'rack', x: 48 }, { t: 'rack', x: 84 }, { t: 'mirror', x: 128, y: 90 },
+      { t: 'clothes', x: 158, y: 84 }, { t: 'rack', x: 190 },
+      { t: 'cartel', x: 214, y: 72, w: 90, text: sh.sign, col: '#f4f4f0', bg: sh.roof },
+      { t: 'counter', x: 232, w: 60, col: sh.roof, front: true, cover: true }, { t: 'register', x: 252 },
+      { t: 'plant', x: 300 },
+    ],
+  }),
+  zapateria: (sh) => ({
+    theme: { wall: '#e8e8f0', wall2: '#d8d8e4', pattern: 'panels', floor: '#3a3a44', floorP: 'tiles', ceil: '#1e1e2a' },
+    props: [
+      { t: 'door', x: 12, exit: 'city' },
+      { t: 'shelf', x: 44, w: 44, h: 50 }, { t: 'shelf', x: 96, w: 44, h: 50 },
+      { t: 'bench', x: 150 }, { t: 'mirror', x: 188, y: 96 },
+      { t: 'cartel', x: 210, y: 72, w: 90, text: sh.sign, col: '#101018', bg: sh.awning === '#101018' ? '#46b450' : '#ffd23f' },
+      { t: 'counter', x: 232, w: 60, col: sh.roof, front: true, cover: true }, { t: 'register', x: 252 },
+    ],
+  }),
+  restaurante: (sh) => ({
+    theme: { wall: sh.menu === 'sushi' ? '#f0ece0' : sh.menu === 'mariscos' ? '#5adcf0' : '#ffd890', wall2: sh.menu === 'sushi' ? '#d8323c' : sh.menu === 'mariscos' ? '#3cb4d0' : '#f0c060', pattern: sh.menu === 'sushi' ? 'panels' : 'tiles', floor: '#8c5a32', floorP: sh.menu === 'sushi' ? 'wood' : 'checker', ceil: '#3a2a1a' },
+    props: [
+      { t: 'door', x: 12, exit: 'city' },
+      { t: 'table', x: 44, cloth: '#f4f4f0' }, { t: 'chair', x: 34 }, { t: 'chair', x: 74, flip: true },
+      { t: 'table', x: 104, cloth: sh.roof }, { t: 'chair', x: 94 }, { t: 'chair', x: 134, flip: true },
+      { t: 'cartel', x: 150, y: 72, w: 70, text: 'MENÚ', col: '#f4f4f0', bg: '#1a1a2a' },
+      { t: 'stove', x: 250, on: true }, { t: 'fridge', x: 290 },
+      { t: 'counter', x: 200, w: 100, col: sh.roof, tiles: true, front: true, cover: true },
+      { t: 'cartel', x: 196, y: 90, w: 100, text: sh.sign, col: '#f4f4f0', bg: sh.roof },
+    ],
+  }),
+  bar: (sh) => ({
+    theme: { wall: '#3a2418', wall2: '#2a180e', pattern: 'bricks', floor: '#2a1a12', floorP: 'wood', ceil: '#140a06', dim: 0.2 },
+    props: [
+      { t: 'door', x: 12, exit: 'city', col: '#5a3a1a' },
+      { t: 'jukebox', x: 44 }, { t: 'pool', x: 80 },
+      { t: 'sign', x: 150, y: 72, text: sh.sign, neon: true, col: sh.awning },
+      { t: 'bottles', x: 196, y: 94, w: 90 },
+      { t: 'bar', x: 186, w: 120, front: true, cover: true },
+      { t: 'stool', x: 196, front: true }, { t: 'stool', x: 222, front: true }, { t: 'stool', x: 248, front: true },
+    ],
+  }),
+};
+for (const sh of SHOPS) {
+  ROOMS[sh.id] = { name: sh.name, w: 320, ...SHOP_ROOMS[sh.kind](sh), exits: [{ x: 12, w: 22, to: 'city', place: sh.id }], shop: sh.id };
+}

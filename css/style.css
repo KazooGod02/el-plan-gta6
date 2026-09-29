@@ -14,12 +14,12 @@ html, body {
 #touch { position: fixed; inset: 0; pointer-events: none; z-index: 5; }
 #stick {
   position: absolute; left: 4vw; bottom: 6vh; width: 34vmin; height: 34vmin;
-  border-radius: 50%; background: rgba(255,255,255,.08); border: 2px solid rgba(255,255,255,.18);
+  border-radius: 50%; background: rgba(255,255,255,.05); border: 2px solid rgba(255,255,255,.14);
   pointer-events: auto;
 }
 #knob {
   position: absolute; left: 50%; top: 50%; width: 40%; height: 40%; margin: -20% 0 0 -20%;
-  border-radius: 50%; background: rgba(255,255,255,.28);
+  border-radius: 50%; background: rgba(255,255,255,.22);
 }
 #tbtns { position: absolute; right: 4vw; bottom: 8vh; width: 36vmin; height: 30vmin; pointer-events: none; }
 .tb {
@@ -30,9 +30,11 @@ html, body {
 .tb-a { right: 0; top: 0; background: rgba(80,200,120,.3); }
 .tb-b { left: 0; bottom: 0; background: rgba(230,70,90,.3); }
 .tb.on, .ts.on { background: rgba(255,255,255,.4); }
-#ttop { position: absolute; right: 2vw; top: 2vh; display: flex; gap: 2vmin; pointer-events: none; }
+/* phone / weapon / pause: a column on the left edge (the letterbox bar on wide phones),
+   so they never cover the money, stars or weapon box */
+#ttop { position: absolute; left: max(1vw, env(safe-area-inset-left)); top: 3vh; display: flex; flex-direction: column; gap: 2vmin; pointer-events: none; }
 .ts {
-  width: 11vmin; height: 11vmin; border-radius: 3vmin; font: bold 4.5vmin monospace; color: #fff;
+  width: 10vmin; height: 10vmin; border-radius: 3vmin; font: bold 4.2vmin monospace; color: #fff;
   background: rgba(255,255,255,.12); border: 2px solid rgba(255,255,255,.3); pointer-events: auto;
 }
 
@@ -42,3 +44,20 @@ html, body {
   font: bold 22px monospace; line-height: 1.8;
 }
 #rotate[hidden], #touch[hidden] { display: none; }
+
+/* WANTED poster download overlay (end of the game) */
+#poster {
+  position: fixed; inset: 0; z-index: 20; background: rgba(5,5,12,.88);
+  display: flex; align-items: center; justify-content: center; padding: 16px;
+  font: bold 16px monospace; color: #f4f4f0; touch-action: auto; -webkit-user-select: auto; user-select: auto;
+}
+#poster .pbox { display: flex; flex-direction: column; align-items: center; gap: 12px; max-height: 100%; }
+#poster img { max-height: calc(100vh - 130px); max-width: 100%; image-rendering: pixelated; box-shadow: 0 6px 30px rgba(0,0,0,.6); -webkit-touch-callout: default; }
+#poster .pbtns { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+#poster .pbtn {
+  font: bold 16px monospace; padding: 10px 18px; border-radius: 6px; border: 2px solid #f4f4f0;
+  background: #1a1a2e; color: #f4f4f0; text-decoration: none; cursor: pointer;
+}
+#poster .pdl { background: #1e6e3c; border-color: #46d470; }
+#poster .phint { margin: 0; font-size: 12px; color: #a8a8b8; text-align: center; }
+#poster [hidden] { display: none; }

@@ -1,5 +1,6 @@
 // Puerto Vicio — deterministic city layout, road graph and landmarks.
 import { seeded } from '../core/util.js';
+import { SHOPS } from '../data/shops.js';
 
 export const T = {
   GRASS: 0, ROAD: 1, SIDEWALK: 2, WATER: 3, ROOF: 4, WALL: 5, DOOR: 6, TREE: 7, SAND: 8, DIRT: 9,
@@ -24,6 +25,8 @@ export const MAP = {
   parking: [],
   collect: { cassettes: [], stars: [], graffiti: [], kazoos: [] },
   props: [],   // overhead decorations {type,x,y}
+  pois: [],    // named places for the big map's index {id,name,x,y,icon,color,kind}
+  pickups: [], // hearts, vests and bribe stars {kind,x,y}
 };
 
 export const idx = (x, y) => y * MW + x;
@@ -247,11 +250,31 @@ export function buildMap() {
   for (let y = 116; y <= 126; y++) for (let x = 140; x <= 152; x++) if (tileAt(x, y) === T.TREE || tileAt(x, y) === T.BUSH) setTile(x, y, T.FIELD);
   setTile(146, 121, T.TREE);
 
+  placeShops();
   applyBarriers({ centro: false, puerto: false, afueras: false });
   buildGraph();
   collectParking(rnd);
   placeCollectibles(rnd);
   definePlaces();
+  placePickups();
+}
+
+// turn the generic building closest to each shop's `near` spot into that business
+function placeShops() {
+  const used = new Set();
+  for (const sh of SHOPS) {
+    let best = null, bd = Infinity;
+    for (const b of MAP.buildings) {
+      if (!b.generic || !b.door || used.has(b.id) || b.w < 4) continue;
+      const d = Math.hypot(b.door.x - sh.near[0], b.door.y - sh.near[1]);
+      if (d < bd) { bd = d; best = b; }
+    }
+    if (!best) continue;
+    used.add(best.id);
+    Object.assign(best, { name: sh.name, sign: sh.sign, room: sh.id, roof: sh.roof, awning: sh.awning, shop: sh.id, warehouse: false });
+    MAP.doors.push({ x: best.door.x, y: best.door.y, room: sh.id, bid: best.id, name: sh.name });
+    sh.bid = best.id;
+  }
 }
 
 function park(b, rnd) {
@@ -392,6 +415,27 @@ function placeCollectibles(rnd) {
   }
 }
 
+// health hearts, bulletproof vests and bribe stars (own RNG so the collectibles don't move)
+function placePickups() {
+  const rnd = seeded(777);
+  const ok = (x, y) => [T.SIDEWALK, T.PLAZA, T.PARKING, T.DOCK, T.DIRT, T.COURT].includes(tileAt(x, y)) && !MAP.barriers.centro.concat(MAP.barriers.puerto, MAP.barriers.afueras).some(([bx, by]) => Math.abs(bx - x) + Math.abs(by - y) < 3);
+  const plan = { colonia: [5, 2, 2], centro: [4, 2, 2], puerto: [3, 2, 2], afueras: [2, 1, 1] };
+  const kinds = ['health', 'armor', 'bribe'];
+  const taken = [];
+  for (const zone in plan) plan[zone].forEach((n, k) => {
+    for (let i = 0; i < n; i++) {
+      for (let tries = 0; tries < 3000; tries++) {
+        const x = rnd.int(2, 163), y = rnd.int(2, 126);
+        if (zoneOf(x, y) !== zone || !ok(x, y)) continue;
+        if (taken.some(([a, b]) => Math.abs(a - x) + Math.abs(b - y) < 14)) continue;
+        taken.push([x, y]);
+        MAP.pickups.push({ kind: kinds[k], x: x * TS + 8, y: y * TS + 8, zone });
+        break;
+      }
+    }
+  });
+}
+
 function definePlaces() {
   const P = MAP.places;
   const doorFront = (name) => { const b = MAP.buildings.find((b) => b.name === name); return { x: b.door.x * TS + 8, y: (b.door.y + 1) * TS + 8 }; };
@@ -418,4 +462,29 @@ function definePlaces() {
   P.pintaCen = { x: 92 * TS + 8, y: 46 * TS + 8 };
   P.gasolinera = { x: 92 * TS, y: 109 * TS };
   P.billboard = { x: 34 * TS, y: 13 * TS };
+  for (const sh of SHOPS) if (sh.bid !== undefined) { const b = MAP.buildings[sh.bid]; P[sh.id] = { x: b.door.x * TS + 8, y: (b.door.y + 1) * TS + 8 }; }
+  // index for the big map
+  const poi = (id, name, icon, color, kind) => P[id] && MAP.pois.push({ id, name, icon, color, kind, x: P[id].x, y: P[id].y });
+  poi('pension', 'Pensión Las Palmas (tu cuarto)', 'H', '#ffd23f', 'lugar');
+  poi('taqueria', 'Tacos El Compa', 'T', '#f07aa8', 'comida');
+  poi('tiendita', 'Abarrotes Lupita', '$', '#28b4a0', 'tienda');
+  poi('clinica', 'Clínica', '+', '#f4f4f0', 'lugar');
+  poi('donchuy', 'Casa de Don Chuy', 'D', '#c8a03c', 'lugar');
+  poi('pintaCol', 'Pinta y Olvida (Colonia)', 'P', '#ffd23f', 'servicio');
+  poi('pintaCen', 'Pinta y Olvida (Centro)', 'P', '#ffd23f', 'servicio');
+  poi('banco', 'Banco Federal', 'B', '#c8c8d0', 'lugar');
+  poi('bar', 'La Última Risa (bar)', 'b', '#ff3cc8', 'bar');
+  poi('disfraces', 'Disfraces Carnaval', 'M', '#f08c28', 'tienda');
+  poi('comandancia', 'Comandancia de policía', '★', '#5a9cff', 'lugar');
+  poi('plazavicio', 'Plaza Vicio', 'S', '#f46eaa', 'lugar');
+  poi('escondite', 'Taller abandonado', 'E', '#a8a8b8', 'lugar');
+  poi('galpon', 'Galpón (La Tía Gris)', 'G', '#a0b070', 'tienda');
+  poi('bodega', 'Bodega 7', '7', '#a8a8b8', 'lugar');
+  poi('tuercas', 'Taller El Tuercas', 'W', '#6a8cc8', 'lugar');
+  poi('gasolinera', 'Gasolinera', 'g', '#d8323c', 'servicio');
+  poi('penal', 'Penal (CERESO PV)', 'X', '#7a7a82', 'lugar');
+  poi('campo', 'El campo', 'C', '#a0dc50', 'lugar');
+  const ICON = { ropa: ['R', '#f46eaa', 'ropa'], zapateria: ['Z', '#5adcf0', 'ropa'], restaurante: ['F', '#f08c28', 'comida'], bar: ['b', '#c878f0', 'bar'] };
+  for (const sh of SHOPS) { const [ic, col, kind] = ICON[sh.kind]; poi(sh.id, titleCase(sh.name), ic, col, kind); }
 }
+function titleCase(s) { return s.toLowerCase().replace(/(^|\s)(\S)/g, (m, a, b) => a + b.toUpperCase()).replace(/\bPv\b/g, 'PV'); }

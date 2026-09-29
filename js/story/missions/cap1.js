@@ -124,6 +124,7 @@ export const CAP1 = [
       }
       c.removeMarker(m2);
       lock(true);
+      while (ci < convo.length) { yield* lines(convo[ci][1]); ci++; }
       yield* line('coqui', 'Hace tres años. Joyería Brillante, en El Centro. Era mi trabajo más fácil...', 'sad');
       lock(false);
     },

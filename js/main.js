@@ -8,6 +8,7 @@ import { city } from './world/city.js';
 import { interior } from './interior/interior.js';
 import { UI } from './ui/ui.js';
 import { phone } from './ui/phone.js';
+import { bigmap } from './ui/bigmap.js';
 import { title, pause, credits } from './ui/menus.js';
 import { story, radioNext } from './story/story.js';
 import { runner } from './story/script.js';
@@ -24,16 +25,22 @@ ctx.imageSmoothingEnabled = false;
 G.canvas = canvas; G.ctx = ctx;
 G.settings = loadSettings();
 G.global = loadGlobal();
-G.ui = UI; G.story = story; G.phone = phone; G.radioNext = radioNext; G.minigames = minigames;
+G.ui = UI; G.story = story; G.phone = phone; G.bigmap = bigmap; G.radioNext = radioNext; G.minigames = minigames;
 G.scenes = { title, city, interior, credits, finale };
 audio.setVolumes(G.settings.music, G.settings.sfx);
 
+// The game is laid out in 320x180 logical pixels but drawn at a higher internal
+// resolution (G.res = 2..4) so text and sprites stay crisp at any screen size.
 function resize() {
   const vw = window.innerWidth, vh = window.innerHeight;
-  let s = Math.min(vw / W, vh / H);
-  if (s > 2) s = Math.floor(s);
+  const s = Math.min(vw / W, vh / H);
+  const dpr = window.devicePixelRatio || 1;
+  const res = Math.max(2, Math.min(4, Math.ceil(s * dpr - 0.05)));
+  if (res !== G.res) { G.res = res; canvas.width = W * res; canvas.height = H * res; }
   canvas.style.width = Math.floor(W * s) + 'px';
   canvas.style.height = Math.floor(H * s) + 'px';
+  // shrinking a bigger buffer looks best smoothed; growing it looks best as crisp pixels
+  canvas.style.imageRendering = res > s * dpr + 0.01 ? 'auto' : 'pixelated';
   const rot = document.getElementById('rotate');
   if (rot) rot.hidden = !(input.isTouch && vh > vw);
 }
@@ -42,8 +49,7 @@ window.addEventListener('resize', resize);
 // ------------------------------------------------------------------ flow
 G.startNew = (free = false) => {
   story.init();
-  story.newGame();
-  G.state.freeMode = free;
+  story.newGame(free);
   if (free) {
     const s = G.state;
     s.unlocked = { centro: true, puerto: true, afueras: true }; city.setUnlocked(s.unlocked);
@@ -51,6 +57,7 @@ G.startNew = (free = false) => {
     const p = MAP.places.pension;
     setScene('city', { x: p.x, y: p.y + 8, a: Math.PI / 2 });
     UI.hud = true; UI.fade = 1; UI.fadeTarget = 0;
+    story.refreshTriggers(false);
     UI.toast('MODO LIBRE: toda la ciudad abierta', '#ffd23f', 4);
     return;
   }
@@ -66,7 +73,7 @@ G.quitToTitle = () => {
   runner.cancelWhere(() => true);
   story.active = null;
   minigames.active = null;
-  G.lockInput = 0; G.paused = false; G.musicOverride = null; G.forceDark = undefined;
+  G.lockInput = 0; G.paused = false; G.musicOverride = null; G.forceDark = undefined; G.drunkT = 0;
   UI.dialog = null; UI.timer = null; UI.meter = null; UI.card = null; UI.letterboxTarget = 0; UI.letterbox = 0; UI.objective = '';
   setScene('title');
 };
@@ -77,7 +84,6 @@ const CHEATS = {
   TSURITO: () => { const p = city.pos(); const v = city.spawnVehicle('tsuru', p.x + 30, p.y, 0, { color: '#d8d8d0' }); v.hp = v.maxHp = 999; },
   NOSEWEY: () => { G.cheatNoSe = !G.cheatNoSe; },
   PAALLA: () => { if (!G.state.unlocked.afueras) return 'Todavía no puedes ir pa\' allá'; const a = MAP.places.campo; if (city.player.car) city.exitCar(true); city.teleport(a.x, a.y); },
-  MARATHON: () => { G.cheatMarathon = !G.cheatMarathon; },
   KAZOOGOD: () => { G.cheatGod = !G.cheatGod; },
   BALAS: () => { G.cheatAmmo = true; G.state.weapons.pistol ??= 0; G.state.weapons.shotgun ??= 0; },
   SINPOLICIA: () => { city.wanted = 0; city.noPolice = !city.noPolice; },
@@ -108,8 +114,8 @@ function drawRadio(c) {
     G.radioShowT -= 1 / 60;
     const a = Math.min(1, G.radioShowT * 2);
     c.globalAlpha = a;
-    font.text(c, '♪ ' + st.name, W / 2, 40, '#ffd23f', { align: 'center', outline: '#101018' });
-    if (st.dj) font.text(c, st.dj, W / 2, 50, '#f4f4f0', { align: 'center', outline: '#101018' });
+    font.text(c, '♪ ' + st.name, 190, H - 62, '#ffd23f', { align: 'center', outline: '#101018' });
+    if (st.dj) font.text(c, st.dj, 190, H - 52, '#f4f4f0', { align: 'center', outline: '#101018' });
     c.globalAlpha = 1;
   }
   if (st.id === 'news' && !UI.dialog) {
@@ -118,8 +124,10 @@ function drawRadio(c) {
       tickerText = '📻 RADIO NOTICIAS PV — '.replace('📻 ', '') + pick(pool); tickerX = W;
     }
     tickerX -= 0.7;
-    c.fillStyle = 'rgba(10,10,20,0.8)'; c.fillRect(0, H - 70, W, 11);
-    font.text(c, tickerText, Math.round(tickerX), H - 68, '#fff08c');
+    c.save(); c.beginPath(); c.rect(64, H - 34, W - 64, 11); c.clip();
+    c.fillStyle = 'rgba(10,10,20,0.8)'; c.fillRect(64, H - 34, W - 64, 11);
+    font.text(c, tickerText, Math.round(tickerX), H - 32, '#fff08c');
+    c.restore();
   }
 }
 
@@ -131,11 +139,14 @@ function tick(dt) {
   input.update();
   const inGame = G.scene === city || G.scene === interior;
   if (minigames.fullscreen) { minigames.update(dt); runner.update(dt); story.update(dt); return; }
+  if (bigmap.open) { bigmap.update(dt); return; }
+  if (inGame && !minigames.active && !pause.open && !phone.open && !UI.dialog && input.pressed('map') && !G.lockInput) { bigmap.show(); return; }
   if (inGame && !minigames.active && !pause.open && !UI.dialog && input.pressed('phone') && !G.lockInput) { phone.toggle(); input.consume('phone'); input.consume('a'); return; }
   if (inGame && !phone.open && input.pressed('pause')) { pause.toggle(); input.consume('pause'); return; }
   if (phone.open) { phone.update(dt); return; }
   if (pause.open) { pause.update(dt); return; }
   if (inGame && G.scene === city && city.player.car && input.pressed('weapon') && !G.lockInput) radioNext();
+  if (G.drunkT > 0) G.drunkT -= dt;
   const sdt = G.slowmo ? dt * G.slowmo : dt;
   if (G.scene) G.scene.update(sdt);
   if (minigames.active) minigames.update(dt);
@@ -146,14 +157,19 @@ function tick(dt) {
 }
 
 function render() {
-  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  ctx.setTransform(G.res, 0, 0, G.res, 0, 0);
   ctx.imageSmoothingEnabled = false;
   if (minigames.fullscreen) { minigames.render(ctx); UI.render(ctx); return; }
+  // a couple of beers at the cantina: the world sways a little
+  const drunk = G.drunkT > 0 && (G.scene === city || G.scene === interior) ? Math.min(1, G.drunkT / 8) : 0;
+  if (drunk) { ctx.save(); ctx.translate(W / 2, H / 2); ctx.rotate(Math.sin(G.time * 1.3) * 0.025 * drunk); ctx.translate(-W / 2 + Math.sin(G.time * 2.1) * 3 * drunk, -H / 2 + Math.cos(G.time * 1.7) * 2 * drunk); }
   if (G.scene) G.scene.render(ctx);
+  if (drunk) ctx.restore();
   if (minigames.active) minigames.render(ctx);
   if (G.scene === city || G.scene === interior || G.scene === finale) { UI.render(ctx); drawRadio(ctx); }
   else if (UI.fade > 0.001) { ctx.fillStyle = `rgba(0,0,0,${UI.fade})`; ctx.fillRect(0, 0, W, H); }
   phone.render(ctx);
+  bigmap.render(ctx);
   pause.render(ctx);
 }
 

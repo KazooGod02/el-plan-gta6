@@ -60,7 +60,7 @@ export const CAP8 = [
       music('heist');
       lock(false);
       objective('Maneja al Banco Federal. ¡Llega antes de las 10:05!');
-      UI.timer = { label: 'HORA', t: 170 };
+      UI.timer = { label: 'HORA', t: 190 };
       ctx.check(() => (t.dead ? '¡Destruiste el Tsuru!' : null));
       ctx.check(() => (UI.timer && UI.timer.t <= 0 ? 'Llegaste tarde (otra vez)' : null));
       let said = 0, tt = 0;
@@ -70,7 +70,7 @@ export const CAP8 = [
         if (said === 0 && tt > 6) { said = 1; G.story._lineQ = ['coqui', 'Kazoo. A tiempo. Por una vez en tu vida.', 'serious']; }
         if (said === 1 && tt > 20) { said = 2; G.story._lineQ = ['ghenghis', '¿Alguien más siente que se le sale el corazón? Jajaja... ja.', 'laugh']; }
         if (said === 2 && tt > 40) { said = 3; G.story._lineQ = ['kazoo', '¡Voy, voy! ¡Tsurito, no me falles!', 'shock']; }
-        if (G.story._lineQ && !UI.dialog) { const q = G.story._lineQ; G.story._lineQ = null; UI.say(q[0], q[1], { expr: q[2], auto: 3 }); }
+        if (G.story._lineQ && !UI.dialog) { const q = G.story._lineQ; G.story._lineQ = null; UI.say(q[0], q[1], { expr: q[2], auto: 2.4 + q[1].length / 11 }); }
       } });
       UI.timer = null;
       lock(true);
@@ -244,12 +244,12 @@ function* hostagePhase(ctx) {
   gh.goal = { x: 740, speed: 60 };
   lock(false);
   objective('Mantén a los rehenes en el suelo: acércate y presiona B (Espacio) para gritar');
-  let comp = 0, t = 0, riseT = 2;
+  let comp = 0, t = 0, riseT = 3;
   const rising = new Set();
   r.onShout = () => {
     audio.sfx('hurt', { vol: 0.4 });
     r.p.bark = pick(['¡AL SUELO!', '¡QUIETOS!', '¡ABAJO!', '¡NI SE MUEVAN!']); r.p.barkT = 1;
-    for (const h of rising) if (Math.abs(h.x - r.p.x) < 34) { rising.delete(h); h.pose = 'down'; h.bark = pick(['¡Perdón, perdón!', 'Ya, ya...', 'Nomás me picaba la pierna']); h.barkT = 1.2; }
+    for (const h of rising) if (Math.abs(h.x - r.p.x) < 64) { rising.delete(h); h.pose = 'down'; h.bark = pick(['¡Perdón, perdón!', 'Ya, ya...', 'Nomás me picaba la pierna']); h.barkT = 1.2; }
   };
   const prevUpd = r.onUpdate;
   r.onUpdate = (dt) => {
@@ -257,14 +257,15 @@ function* hostagePhase(ctx) {
     if (r.p.barkT > 0) { r.p.barkT -= dt; if (r.p.barkT <= 0) r.p.bark = null; }
   };
   UI.meter = { label: 'COMPLICACIONES 0/3', v: 0, col: '#d8323c' };
-  UI.timer = { label: 'GHENGHIS EN LA BÓVEDA', t: 45 };
+  UI.timer = { label: 'GHENGHIS EN LA BÓVEDA', t: 40 };
   while (UI.timer.t > 0) {
     const dt = yield; t += dt; UI.timer.t -= dt;
     riseT -= dt;
     if (riseT <= 0) {
-      riseT = rand(2.2, 3.6);
+      riseT = rand(3.6, 5.2);
+      // never more than two getting up at once, and each one gives you time to walk over
       const cand = hostages.filter((h) => !rising.has(h));
-      if (cand.length) { const h = pick(cand); rising.add(h); h.pose = 'crouch'; h.riseT = 2.8; h.bark = '!'; h.barkT = 1.5; }
+      if (cand.length && rising.size < 2) { const h = pick(cand); rising.add(h); h.pose = 'crouch'; h.riseT = 5.5; h.bark = '!'; h.barkT = 5.5; audio.sfx('blip', { f: 900 }); }
     }
     for (const h of [...rising]) {
       h.riseT -= dt;

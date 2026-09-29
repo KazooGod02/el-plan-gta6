@@ -3,7 +3,7 @@ import { G } from '../../core/game.js';
 import { UI } from '../../ui/ui.js';
 import { audio } from '../../core/audio.js';
 import { wait, until, say, talk, ask, fadeOut, fadeIn, lock, objective, toast, chat, setClock, setDay, trust, music, walkNpc, goTo } from '../script.js';
-import { P, C, R, S, line, lines, ally, unlockZone, cityAt, roomAt } from './common.js';
+import { P, C, R, S, line, lines, ally, unlockZone, cityAt, roomAt, talkAlong, finishTalk } from './common.js';
 import { play } from '../../minigames/index.js';
 import { FLOOR } from '../../interior/rooms.js';
 import { dist } from '../../core/util.js';
@@ -184,7 +184,7 @@ export const CAP2 = [
       objective('Pasa despacio frente al Banco Federal');
       const bk = P().banco;
       yield* goTo(bk.x, bk.y + 40, { r: 40, needCar: true, label: 'BANCO FEDERAL' });
-      yield* lines([
+      const tour = talkAlong([
         ['ghenghis', 'Ahí está. El Banco Federal. Mi ex. Jajaja.', 'laugh'],
         ['ghenghis', 'El último viernes del mes, la bóveda guarda la lana de los blindados. Mucha lana.', 'serious'],
         ['ghenghis', 'Tres guardias. Seis cámaras. La cámara cuatro está chueca desde que la acomodé con el hombro.', 'normal'],
@@ -202,6 +202,7 @@ export const CAP2 = [
       const home = { x: 44 * 16, y: 91 * 16 + 8 };
       yield* goTo(home.x, home.y, { r: 30, needCar: true, label: 'CASA DE GHENGHIS' });
       lock(true);
+      yield* finishTalk(tour);
       yield* lines([
         ['coqui', 'En tres días. En El Puerto. Hay un taller abandonado. Ahí nos vemos.', 'serious'],
         ['ghenghis', 'Un taller abandonado. Qué romántico. Jajaja. Ahí estaré.', 'laugh'],

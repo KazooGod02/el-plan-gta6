@@ -15,6 +15,9 @@ import { SONGS } from '../data/music.js';
 import { RADIO_STATIONS, CASSETTES, BARKS, MARKET_ITEMS } from '../data/strings.js';
 import { dist, pick, money, clamp } from '../core/util.js';
 import { minigames } from '../minigames/index.js';
+import { SHOP_BY_ID, populateShop, applyOutfit } from './shops.js';
+import { sideAvailable } from './side.js';
+import { LOOKS } from '../data/cast.js';
 
 export const story = {
   active: null,
@@ -35,8 +38,9 @@ export const story = {
   },
 
   // ------------------------------------------------------------ game start
-  newGame() {
+  newGame(free = false) {
     G.state = newState();
+    G.state.freeMode = free;
     this.failCounts = {};
     this.active = null;
     G.scenes.city.init();
@@ -44,6 +48,7 @@ export const story = {
     G.scenes.city.vehicles = []; G.scenes.city.peds = []; G.scenes.city.markers = [];
     G.scenes.city.wanted = 0;
     G.scenes.city.player.hp = 100;
+    applyOutfit();
     this.refreshTriggers(true);
   },
 
@@ -52,6 +57,7 @@ export const story = {
     if (!data) return false;
     G.state = { ...newState(), ...data.state };
     G.state.stats = { ...newState().stats, ...data.state.stats };
+    applyOutfit();
     G.settings.lastSlot = slot;
     this.active = null;
     const c = G.scenes.city;
@@ -92,7 +98,9 @@ export const story = {
     const c = G.scenes.city;
     for (const t of this.triggers) c.removeMarker(t);
     this.triggers = [];
-    if (this.active || G.state.freeMode) return;
+    if (this.active) return;
+    this.addSideTriggers();
+    if (G.state.freeMode) return;
     for (const m of this.available()) {
       const lockEp = this.episodeLock(m);
       if (!m.trigger) {
@@ -111,12 +119,37 @@ export const story = {
       });
       this.triggers.push(mk);
     }
+    // always say where the next story mission is (the GPS arrow points there too)
+    const next = this.triggers.find((t) => t.mission && t.label !== 'PRÓXIMAMENTE');
+    if (next && !this.active) {
+      const m = MISSIONS.find((q) => q.id === next.mission);
+      const door = m.trigger.door && MAP.doors.find((d) => d.room === m.trigger.door);
+      const where = door ? door.name : m.trigger.place ? (m.trigger.where || '') : '';
+      const txt = `Siguiente: ${m.trigger.label || m.title}${where && where !== m.trigger.label ? ' (' + titleCase(where) + ')' : ''} — sigue la flecha [${m.trigger.letter || 'K'}]`;
+      if (UI.objective !== txt) UI.setObjective(txt);
+    }
     if (!this.active && UI.fadeTarget > 0 && G.lockInput === 0) UI.fadeTarget = 0;
+  },
+  // pink "?" markers for the strangers & freaks side missions
+  addSideTriggers() {
+    const c = G.scenes.city;
+    for (const m of sideAvailable()) {
+      const mk = c.addMarker({
+        x: m.pos.x, y: m.pos.y, r: 14, letter: '?', color: '#ff7ae0', label: (LOOKS[m.who]?.name || '???'), persistent: true, side: m.id, title: m.title,
+        onEnter: () => { if (!this.active && G.lockInput === 0) this.startMission(m, 'marker'); },
+      });
+      this.triggers.push(mk);
+    }
   },
   triggerPos(m) {
     const t = m.trigger;
     if (t.place) return MAP.places[t.place];
-    if (t.door) return MAP.places[t.door];
+    if (t.door) {
+      if (MAP.places[t.door]) return MAP.places[t.door];
+      // door triggers name the room (e.g. 'cuarto' = Pensión Las Palmas): use that building's door
+      const d = MAP.doors.find((q) => q.room === t.door);
+      if (d) return { x: d.x * TS + 8, y: (d.y + 1) * TS + 8 };
+    }
     if (t.x !== undefined) return { x: t.x, y: t.y };
     return null;
   },
@@ -131,8 +164,10 @@ export const story = {
       check: (fn) => ctx.fails.push(fn),
       fail: (reason) => { throw new MissionFail(reason); },
     };
-    G.state.chapter = Math.max(G.state.chapter, m.chapter);
-    G.state.chapterName = CHAPTERS[m.chapter]?.short || '';
+    if (!m.side) {
+      G.state.chapter = Math.max(G.state.chapter, m.chapter);
+      G.state.chapterName = CHAPTERS[m.chapter]?.short || '';
+    }
     this.active = { m, ctx };
     const self = this;
     function* wrapper() {
@@ -183,7 +218,8 @@ export const story = {
     this.active = null;
     G.lockInput = 0;
     UI.closeDialog(); UI.letterboxTarget = 0; UI.timer = null; UI.meter = null; UI.setObjective(''); UI.overFade = null;
-    G.musicOverride = null; G.forceDark = undefined;
+    G.musicOverride = null; G.forceDark = undefined; G.weatherLock = false;
+    for (const v of G.scenes.city.vehicles) v.passengers = v.passengers.filter((q) => !q.sideTemp);
     const c = G.scenes.city;
     c.wantedLocked = false; c.noEvade = false; c.maxWanted = 5; c.policeKnows = false; c.noPolice = false; c.frozen = false; c.lockCar = false; c.extraDraw = null;
     c.trafficOn = true; c.pedsOn = true;
@@ -227,7 +263,7 @@ export const story = {
     runner.run((function* () {
       lock(true);
       UI.closeDialog(); UI.timer = null; UI.meter = null; UI.letterboxTarget = 0; UI.setObjective(''); UI.overFade = null;
-      G.musicOverride = null; G.forceDark = undefined;
+      G.musicOverride = null; G.forceDark = undefined; G.drunkT = 0;
       audio.sfx('fail');
       G.slowmo = 0.35;
       UI.showCard(kind === 'wasted' ? 'TE MORISTE WEY' : 'TE AGARRARON', wasActive ? 'MISIÓN FALLIDA' : '', 3, 'fail');
@@ -244,7 +280,8 @@ export const story = {
       const fee = Math.min(500, Math.floor(s.money * 0.1));
       s.money -= fee;
       if (kind === 'busted') { s.weapons = {}; s.weapon = 'fists'; }
-      const place = kind === 'wasted' ? MAP.places.clinica : MAP.places.comandancia;
+      // the comandancia is in El Centro: if that zone is still closed, the patrol drops you back in La Colonia
+      const place = kind === 'wasted' ? MAP.places.clinica : s.unlocked.centro ? MAP.places.comandancia : MAP.places.pension;
       c.player.hp = 100; c.player.dead = false; c.player.car = null;
       G.scenes.interior.p && (G.scenes.interior.p.hp = 100, G.scenes.interior.p.dead = false);
       setScene('city', { x: place.x, y: place.y + 10, a: Math.PI / 2 });
@@ -252,6 +289,7 @@ export const story = {
       lock(false);
       yield* fadeIn(0.6);
       UI.toast(kind === 'wasted' ? `Cuenta de la clínica: -$${fee}` : `Multa: -$${fee}. Te quitaron las armas.`, '#d8323c', 4);
+      if (kind === 'busted' && !s.unlocked.centro) UI.toast('La patrulla te dejó en tu colonia', '#f4f4f0', 4);
       self.refreshTriggers(true);
     })(), 'death');
   },
@@ -349,7 +387,17 @@ export const story = {
       case 'clinica':
         r.addNpc({ look: 'teller', x: 270, facing: -1, name: 'ENFERMERA', onTalk: () => runner.run(say('teller', 'Ya estás bien. Más o menos. Trata de no morirte tan seguido, ¿sí?', 'normal', { name: 'ENFERMERA' }), 'nurse') });
         break;
-      default: break;
+      default:
+        if (SHOP_BY_ID[id]) populateShop(r, id);
+        break;
+    }
+    // a story mission that starts at this building's door can also be started from inside
+    if (!this.active) for (const m of this.available()) {
+      if (m.trigger && m.trigger.door === id && !this.episodeLock(m)) {
+        const ex = r.room.exits[0];
+        r.addAction({ x: id === 'cuarto' ? 110 : ex ? ex.x + ex.w + 26 : 60, r: 14, label: '► ' + (m.trigger.label || m.title), fn: () => { if (!this.active) this.startMission(m, 'door'); } });
+        break;
+      }
     }
   },
 
@@ -489,7 +537,7 @@ export const story = {
     } else if (kind === 'graffiti') {
       const n = s.collect.graffiti.length;
       UI.toast(`GRAFITI ${n}/20`, '#ff3cc8', 2);
-      if (n >= 20) { unlock('tags'); UI.toast('Desbloqueaste el outfit MARATHON', '#ff3cc8', 4); s.outfitMarathon = true; }
+      if (n >= 20) { unlock('tags'); UI.toast('Desbloqueaste el outfit GRAFITERO', '#ff3cc8', 4); s.outfitMarathon = true; }
     }
   },
 
@@ -552,6 +600,8 @@ export const story = {
     if (audio.songName !== song) audio.play(song, SONGS);
   },
 };
+
+function titleCase(s) { return s.toLowerCase().replace(/(^|\s)(\S)/g, (m, a, b) => a + b.toUpperCase()); }
 
 export function radioNext() {
   const s = G.state;

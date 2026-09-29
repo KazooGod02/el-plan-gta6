@@ -74,7 +74,7 @@ export class Vehicle {
       if (!this.collides(nx, this.y, this.a)) { this.x = nx; this.vy *= -0.2; }
       else if (!this.collides(this.x, ny, this.a)) { this.y = ny; this.vx *= -0.2; }
       else { this.vx *= -0.3; this.vy *= -0.3; }
-      if (imp > 55) { this.damage((imp - 45) * 0.18, city); if (city) city.onCrash(this, imp); }
+      if (imp > 70) { this.damage((imp - 60) * 0.1, city); if (city) city.onCrash(this, imp); }
       if (this.collides(this.x, this.y, this.a)) this.unstick();
     }
     const tt = tileAt(Math.floor(this.x / TS), Math.floor(this.y / TS));
@@ -131,9 +131,8 @@ export class Vehicle {
     const s = this.seg;
     if (s.kind === 'edge') {
       const n = this.edge.to, din = this.edge.dir;
-      const opts = n.out.filter((e) => e && e.dir !== (din + 2) % 4 && !edgeBlocked(e));
-      let e2 = opts.length ? pick(opts) : n.out[(din + 2) % 4];
-      if (!e2 || edgeBlocked(e2)) e2 = n.out.find((e) => e && !edgeBlocked(e)) || null;
+      const e2 = this.plan && this.plan.node === n ? this.plan.e : this.pickNext(n, din);
+      this.plan = null;
       if (!e2) { this.seg.t = this.seg.len; this.cruise = 0; return; }
       const p0 = nodeEntry(n, din), p1 = nodeExit(n, e2.dir);
       let c = null;
@@ -145,22 +144,49 @@ export class Vehicle {
       const len = c ? (Math.hypot(c.x - p0.x, c.y - p0.y) + Math.hypot(p1.x - c.x, p1.y - c.y)) * 0.9 : Math.hypot(p1.x - p0.x, p1.y - p0.y);
       this.seg = { p0, p1, c, len: Math.max(1, len), t: 0, kind: 'turn' };
       this.nextEdge = e2;
+      if (!n.dead) { n.res = n.res || []; if (!n.res.some((r) => r.car === this)) n.res.push({ car: this, din, straight: e2.dir === din }); }
     } else {
       const e = this.nextEdge; this.edge = e;
       const p0 = nodeExit(e.from, e.dir), p1 = nodeEntry(e.to, e.dir);
       this.seg = { p0, p1, c: null, len: Math.hypot(p1.x - p0.x, p1.y - p0.y), t: 0, kind: 'edge' };
     }
   }
+  pickNext(n, din) {
+    const opts = n.out.filter((e) => e && e.dir !== (din + 2) % 4 && !edgeBlocked(e));
+    let e2 = opts.length ? pick(opts) : n.out[(din + 2) % 4];
+    if (!e2 || edgeBlocked(e2)) e2 = n.out.find((e) => e && !edgeBlocked(e)) || null;
+    return e2;
+  }
+  // intersection etiquette: a car only enters a crossing when no conflicting car is in it
+  canEnterNode() {
+    const s = this.seg;
+    if (s.kind !== 'edge' || s.len - s.t > 14) return true;
+    const n = this.edge.to;
+    if (n.dead) return true;
+    const din = this.edge.dir;
+    if (!this.plan || this.plan.node !== n) this.plan = { node: n, e: this.pickNext(n, din) };
+    const straightA = !this.plan.e || this.plan.e.dir === din;
+    n.res = (n.res || []).filter((r) => r.car.seg && r.car.seg.kind === 'turn' && r.car.edge.to === n && !r.car.wreck && r.car.ai === 'traffic' && r.car.driver);
+    for (const r of n.res) {
+      if (r.car === this) return true;
+      const sameAxis = r.din % 2 === din % 2;
+      if (r.din === din) continue;                        // following the same flow
+      if (sameAxis && r.straight && straightA) continue;  // opposite lanes going straight
+      return false;
+    }
+    return true;
+  }
   trafficStep(dt, city) {
     if (this.stun > 0) { this.stun -= dt; this.vx *= 0.9; this.vy *= 0.9; return; }
     // look ahead for obstacles
     const ax = this.x + Math.cos(this.a) * 20, ay = this.y + Math.sin(this.a) * 20;
     let blocked = city.obstacleNear(ax, ay, 13, this);
+    if (!blocked && !this.canEnterNode()) blocked = 'node';
     let target = this.cruise;
     if (blocked) {
       target = 0; this.wait += dt;
       if (this.wait > 1.2 && this.honk <= 0 && blocked === 'player') { this.honk = 3; city.sfxAt('horn', this.x, this.y); }
-      if (this.wait > 6) { target = this.cruise * 0.5; }
+      if (this.wait > 10 && blocked !== 'player') this.giveUp = true;
     } else this.wait = 0;
     if (this.honk > 0) this.honk -= dt;
     this.curSpeed = (this.curSpeed || 0) + clamp(target - (this.curSpeed || 0), -140 * dt, 70 * dt);

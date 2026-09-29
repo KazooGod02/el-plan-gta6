@@ -21,6 +21,22 @@ export const LOOKS = {
   bartender:{ name: 'EL CANTINERO', skin: '#c08858', hair: 'bald', hc: '#3a2a1a', shirt: '#f0f0f0', pants: '#1a1a1a', shoes: '#101010', body: 'big', mustache: true, voice: 220, color: '#c8c8c8' },
   clerk:    { name: 'DEPENDIENTE', skin: '#e0b890', hair: 'mohawk', hc: '#8c46c8', shirt: '#1a1a1a', pants: '#1a1a1a', shoes: '#c83c3c', body: 'thin', voice: 470, color: '#c878f0' },
   chavo:    { name: 'EL CHAVO', skin: '#c89468', hair: 'beanie', hc: '#1a1a1a', cap: '#c83c28', shirt: '#6a6a6a', pants: '#2c4c8c', shoes: '#f0f0f0', body: 'thin', voice: 480, color: '#c83c28' },
+  // shop owners
+  chayo:    { name: 'CHAYO', skin: '#d8a070', hair: 'bun', hc: '#6a2a1a', shirt: '#f46eaa', pants: '#3c3c64', shoes: '#101010', body: 'fem', glasses: true, voice: 520, color: '#f46eaa' },
+  flash:    { name: 'EL FLASH', skin: '#c48a5e', hair: 'mohawk', hc: '#ffd23f', shirt: '#3c64dc', pants: '#26262e', shoes: '#ffd23f', body: 'thin', voice: 520, color: '#5adcf0' },
+  donpollo: { name: 'DON POLLO', skin: '#e0b088', hair: 'bald', hc: '#8a7a6a', shirt: '#f4f4f0', pants: '#6e6e82', shoes: '#101010', body: 'big', mustache: true, apron: true, voice: 240, color: '#f08c28' },
+  guero:    { name: 'EL GÜERO', skin: '#f0c8a0', hair: 'slick', hc: '#d8b060', shirt: '#8c5a32', pants: '#26262e', shoes: '#5a3218', body: 'wide', mustache: true, voice: 260, color: '#d8b060' },
+  lulu:     { name: 'MADAME LULÚ', skin: '#e8c8a8', hair: 'long', hc: '#c878f0', shirt: '#1a1a2e', pants: '#1a1a2e', shoes: '#c83c3c', body: 'fem', shades: true, chain: true, voice: 480, color: '#c878f0' },
+  chef:     { name: 'CHEF TOÑO', skin: '#d49a6a', hair: 'short', hc: '#161010', shirt: '#f4f4f0', pants: '#26262e', shoes: '#101010', body: 'normal', apron: true, voice: 380, color: '#d8323c' },
+  brayan:   { name: 'BRAYAN', skin: '#b87a4b', hair: 'cap', hc: '#161010', cap: '#46b450', shirt: '#101018', pants: '#46b450', shoes: '#f4f4f0', body: 'thin', chain: true, voice: 460, color: '#46b450' },
+  guera:    { name: 'LA GÜERA', skin: '#f0c8a0', hair: 'pony', hc: '#e8c040', shirt: '#28b4a0', pants: '#34466e', shoes: '#f0f0f0', body: 'fem', apron: true, voice: 560, color: '#28b4a0' },
+  chema:    { name: 'CAPITÁN CHEMA', skin: '#a8704a', hair: 'cap', hc: '#c8c8d0', cap: '#1e2c78', shirt: '#f4f4f0', pants: '#1e2c78', shoes: '#101010', body: 'wide', mustache: true, voice: 200, color: '#5adcf0' },
+  // strangers & freaks (side missions)
+  profeta:  { name: 'EL PROFETA', skin: '#c48a5e', hair: 'long', hc: '#e8e8f0', shirt: '#f0ece0', pants: '#f0ece0', shoes: '#8c5a32', body: 'thin', crazy: true, voice: 300, color: '#fff08c' },
+  lucha:    { name: 'EL MÍSTICO DEL BARRIO', skin: '#b87a4b', hair: 'bald', hc: '#161010', shirt: '#8c46c8', pants: '#ffd23f', shoes: '#8c46c8', body: 'big', mask: 'luchador', voice: 220, color: '#c878f0' },
+  abuela:   { name: 'DOÑA CUCA', skin: '#d8a070', hair: 'bun', hc: '#e8e8f0', shirt: '#5a8c46', pants: '#3c3c64', shoes: '#5a3218', body: 'fem', glasses: true, voice: 620, color: '#a0dc50' },
+  influ:    { name: 'LA INFLU', skin: '#e0b088', hair: 'long', hc: '#f46eaa', shirt: '#ffd23f', pants: '#f4f4f0', shoes: '#f46eaa', body: 'fem', shades: true, voice: 640, color: '#ff7ae0' },
+  ovni:     { name: 'EL DEL OVNI', skin: '#c89468', hair: 'side', hc: '#5a3a1a', shirt: '#46b450', pants: '#6e6e82', shoes: '#101010', body: 'thin', glasses: true, crazy: true, voice: 450, color: '#a0dc50' },
   unknown:  { name: '???', skin: '#888', hair: 'bald', hc: '#222', shirt: '#222', pants: '#222', shoes: '#111', body: 'normal', voice: 300, color: '#666', silhouette: true },
 };
 

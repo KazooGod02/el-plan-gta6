@@ -9,7 +9,8 @@ import { side } from '../data/sprites.js';
 import { LOOKS, civilianLook } from '../data/cast.js';
 import { ROOMS, FLOOR, CEIL } from './rooms.js';
 import { drawProp, PROP_W, sideCar } from './props.js';
-import { darkness } from '../world/city.js';
+import { darkness, absorbArmor } from '../world/city.js';
+import { shoeSpeed } from '../story/shops.js';
 
 export const interior = {
   name: 'interior',
@@ -91,7 +92,7 @@ export const interior = {
     p.covered = p.crouch && this.coverAt(p.x);
     const run = input.down('run');
     if (!p.crouch && Math.abs(ax) > 0.2 && p.punchT <= 0.15) {
-      const sp = (run ? 96 : 58) * Math.sign(ax) * Math.min(1, Math.abs(ax) * 1.3);
+      const sp = (run ? 96 * shoeSpeed() : 58) * Math.sign(ax) * Math.min(1, Math.abs(ax) * 1.3);
       p.x = clamp(p.x + sp * dt, 8, this.room.w - 8);
       p.facing = Math.sign(ax);
       p.moving = true; p.anim += dt * (run ? 1.6 : 1);
@@ -167,7 +168,8 @@ export const interior = {
 
   hurtEnemy(e, dmg, dir) {
     if (e.state === 'down') return;
-    e.hp -= dmg; e.flash = 0.15; e.x += dir * 3;
+    e.hp -= dmg; e.flash = 0.15; e.x += dir * 3; e.hitT = 2.5;
+    for (let i = 0; i < 5; i++) this.fx.push({ x: e.x, y: e.y - 14, vx: dir * rand(20, 60), vy: rand(-50, -10), life: 0.25, col: i % 2 ? '#fff08c' : '#f4f4f0', g: 120 });
     audio.sfx('hit');
     if (e.state === 'patrol' || e.state === 'pause') { e.state = 'attack'; e.facing = -dir; }
     if (e.hp <= 0) { e.state = 'down'; e.downT = 0; if (e.onDown) e.onDown(e); emit('enemyDown', e); }
@@ -176,6 +178,7 @@ export const interior = {
   hurtPlayer(dmg) {
     const p = this.p;
     if (p.dead || p.invuln || G.cheatGod) return;
+    dmg = absorbArmor(dmg);
     p.hp -= dmg; p.hurtT = 0.35; audio.sfx('hurt'); this.shake(2);
     if (p.hp <= 0) { p.hp = 0; p.dead = true; p.state = 'down'; emit('wasted'); }
   },
@@ -232,6 +235,7 @@ export const interior = {
 
   updateEnemy(e, dt) {
     e.anim += dt;
+    if (e.hitT > 0) e.hitT -= dt;
     if (e.flash > 0) e.flash -= dt;
     if (e.barkT > 0) { e.barkT -= dt; if (e.barkT <= 0) e.bark = null; }
     if (e.state === 'down') { e.downT += dt; return; }
@@ -408,6 +412,12 @@ export const interior = {
     // alert indicators & bubbles
     for (const e of this.enemies) {
       if (e.state === 'down') continue;
+      if (e.hitT > 0 && e.kind !== 'camera') {
+        const x = X(e.x) - 8, y = e.y - 30, f = clamp(e.hp / e.maxHp, 0, 1);
+        ctx.fillStyle = '#101018'; ctx.fillRect(x - 1, y - 1, 18, 5);
+        ctx.fillStyle = '#2a1a1a'; ctx.fillRect(x, y, 16, 3);
+        ctx.fillStyle = '#d8323c'; ctx.fillRect(x, y, Math.round(16 * f), 3);
+      }
       if (e.susp > 0.05 && e.state !== 'attack') {
         const w = 12, x = X(e.x) - 6, y = e.y - 32;
         ctx.fillStyle = '#101018'; ctx.fillRect(x - 1, y - 1, w + 2, 4);
@@ -416,13 +426,19 @@ export const interior = {
       if (e.bark) font.text(ctx, e.bark, X(e.x), e.y - 42, e.bark === '!' ? '#d8323c' : '#ffd23f', { align: 'center', outline: '#101018', scale: e.bark.length === 1 ? 2 : 1 });
     }
     for (const n of this.npcs) if (n.bark && !n.hidden) bubble(ctx, X(n.x), (n.y ?? FLOOR) - 30, n.bark);
+    // someone getting up: show how long until they bolt
+    for (const n of this.npcs) if (n.pose === 'crouch' && n.riseT > 0 && !n.hidden) {
+      const x = X(n.x) - 9, y = (n.y ?? FLOOR) - 44, f = clamp(n.riseT / 5.5, 0, 1);
+      ctx.fillStyle = '#101018'; ctx.fillRect(x - 1, y - 1, 20, 5);
+      ctx.fillStyle = f < 0.35 ? '#d8323c' : '#ffd23f'; ctx.fillRect(x, y, Math.round(18 * f), 3);
+    }
     if (p.bark) bubble(ctx, X(p.x), p.y - 30, p.bark);
     // prompt
     if (!G.lockInput && !this.frozen && !p.dead) {
       const it = this.interactTarget();
       if (it) {
         const lbl = (input.lastDevice === 'touch' ? 'A' : input.lastDevice === 'pad' ? 'A' : 'E') + ' ' + it.label;
-        const w = font.measure(lbl) + 6, x = clamp(X(it.x) - w / 2, 2, W - w - 2), y = FLOOR - 50;
+        const w = font.measure(lbl) + 6, x = clamp(X(it.x) - w / 2, 2, W - w - 2), y = FLOOR - 40;
         ctx.fillStyle = '#101018'; ctx.fillRect(x, y, w, 11); ctx.fillStyle = '#ffd23f'; ctx.fillRect(x, y + 10, w, 1);
         font.text(ctx, lbl, x + 3, y + 2, '#f4f4f0');
       }

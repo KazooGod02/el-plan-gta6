@@ -11,6 +11,7 @@ import { Vehicle, Ped, randomCivilian } from './entities.js';
 import { topSprites, TOP_DIRS, VEHICLES } from '../data/sprites.js';
 import { BARKS } from '../data/strings.js';
 import { CONFIG } from '../config.js';
+import { shoeSpeed } from '../story/shops.js';
 
 const DRIVABLE_BFS = (t) => t !== T.WATER && t !== T.ROOF && t !== T.WALL && t !== T.DOOR && t !== T.TREE && t !== T.FENCE && t !== T.BARRIER && t !== T.FOUNTAIN && t !== T.CONTAINER;
 
@@ -36,6 +37,7 @@ export const city = {
     buildTiles();
     this.mini = canvas(MW, MH);
     this.redrawMini();
+    this.worldPickups = MAP.pickups.map((p) => ({ ...p, taken: false, t: 0 }));
     this.field = new Int16Array(MW * MH);
     this.queue = new Int32Array(MW * MH);
     this.player = { x: 0, y: 0, a: 0, hp: 100, maxHp: 100, car: null, moving: false, anim: 0, punchT: 0, shootT: 0, hurtT: 0, dead: false, arrestT: 0, doorCd: 0, stepT: 0, look: 'kazoo', invuln: false, spray: 0 };
@@ -49,6 +51,7 @@ export const city = {
 
   setUnlocked(unlocked) {
     applyBarriers(unlocked);
+    this.gpsKey = null;
     for (const zone in MAP.barriers) for (const [bx, by] of MAP.barriers[zone]) refreshTiles(bx, by, bx, by);
     this.redrawMini();
   },
@@ -114,7 +117,7 @@ export const city = {
     const q = this.pos(); const d = dist(q.x, q.y, x, y);
     if (d < 260) audio.sfx(name, { vol: 1 - d / 280 });
   },
-  setWanted(n) { if (this.wantedLocked) return; this.wanted = clamp(n, 0, this.maxWanted); this.evadeT = 0; },
+  setWanted(n) { if (this.wantedLocked) return; this.wanted = clamp(n, 0, this.maxWanted); this.evadeT = 0; this.heat = HEAT[this.wanted]; },
 
   // ------------------------------------------------------------ player car
   putInCar(v) {
@@ -191,14 +194,30 @@ export const city = {
     for (const p of this.peds) if (p.cop && p.state !== 'dead' && p.state !== 'down' && dist2(p.x, p.y, x, y) < r * r) return true;
     return false;
   },
+  // Crimes add "heat". A star is only earned once enough heat piles up, and never
+  // faster than one star every few seconds, so a single mistake doesn't snowball.
+  // a cop only "sees" you when close and with nothing big in between
+  copsSee(x, y) {
+    for (const v of this.vehicles) if ((v.type === 'police' || v.type === 'reyes') && v.ai === 'police' && dist2(v.x, v.y, x, y) < 190 * 190 && clearLine(v.x, v.y, x, y)) return true;
+    for (const p of this.peds) if (p.cop && p.state !== 'dead' && p.state !== 'down' && dist2(p.x, p.y, x, y) < 150 * 150 && clearLine(p.x, p.y, x, y)) return true;
+    if (this.heli && dist2(this.heli.x, this.heli.y, x, y) < 120 * 120) return true;
+    return false;
+  },
   crime(sev, x, y, always = false, needCop = false) {
     if (this.noPolice || this.wantedLocked) return;
-    const witness = always || this.copsNear(x, y, 240) || (!needCop && chance(0.4 + sev * 0.15));
+    const copSaw = this.copsNear(x, y, 200);
+    const witness = always || copSaw || (!needCop && chance(0.15 + sev * 0.1));
     if (!witness) return;
-    const target = Math.min(this.maxWanted, Math.max(this.wanted + (this.wanted === 0 || sev >= 2 ? 1 : chance(0.25) ? 1 : 0), sev >= 2 ? 1 : 0));
-    if (target > this.wanted) { this.wanted = target; audio.sfx('star'); emit('wanted', this.wanted); }
-    this.evadeT = 0;
     G.state.stats.crimes = (G.state.stats.crimes || 0) + 1;
+    this.heat = (this.heat || 0) + [0.4, 1, 1.6][Math.min(2, sev)] * (copSaw ? 1.5 : 1);
+    if (this.wanted > 0) this.evadeT = Math.min(this.evadeT, 2);
+    const need = [1, 3, 5, 8, 12][this.wanted] ?? 99;
+    if (this.heat < need || (this.starCd || 0) > 0) return;
+    const target = Math.min(this.maxWanted, this.wanted + 1);
+    if (target > this.wanted) {
+      this.wanted = target; this.evadeT = 0; this.starCd = 5 + this.wanted * 1.5;
+      audio.sfx('star'); emit('wanted', this.wanted);
+    }
   },
 
   onCrash(v, imp) {
@@ -214,24 +233,35 @@ export const city = {
     for (let i = 0; i < 12; i++) this.particles.push({ x, y, vx: rand(-20, 20), vy: rand(-20, 20), life: rand(1.2, 2.2), max: 2, col: '#2a2a2a', size: randi(3, 6), drag: 1, smoke: true });
     const p = this.player;
     for (const v of this.vehicles) { const d = dist(v.x, v.y, x, y); if (d < 50 && d > 1) { v.vx += (v.x - x) / d * 90; v.vy += (v.y - y) / d * 90; v.damage(60 * (1 - d / 50), this); } }
-    for (const q of this.peds) { const d = dist(q.x, q.y, x, y); if (d < 45) this.hurtPed(q, 80, x, y); }
+    const mine = !this._exploding || this._exploding === p.car || this._exploding.lastHitBy === 'player';
+    for (const q of this.peds) { const d = dist(q.x, q.y, x, y); if (d < 45) this.hurtPed(q, 80, x, y, mine); }
     const pp = this.pos(); const dp = dist(pp.x, pp.y, x, y);
     if (dp < 45 && !p.car) this.hurtPlayer(70 * (1 - dp / 45));
-    else if (dp < 45 && p.car && p.car !== this._exploding) p.car.damage(40, this);
-    this.crime(1, x, y);
+    else if (dp < 45 && p.car && p.car !== this._exploding) p.car.damage(25, this);
+    if (mine) this.crime(1, x, y);
   },
 
-  hurtPed(q, dmg, fx, fy) {
+  hurtPed(q, dmg, fx, fy, byPlayer = true) {
     if (q.state === 'dead' || q.invuln) return;
+    if (q.brawler) {
+      // street fight: no police, no fleeing — just a K.O. at zero
+      if (q.state === 'down') return;
+      q.hp -= dmg; q.flash = 0.15; if (byPlayer) this.lastHit = { q, t: 2.5 };
+      for (let i = 0; i < 6; i++) this.particles.push({ x: q.x, y: q.y - 4, vx: rand(-40, 40), vy: rand(-50, 0), life: 0.25, max: 0.25, col: i % 2 ? '#fff08c' : '#f4f4f0', size: 1 });
+      if (q.hp <= 0) { q.state = 'down'; q.timer = 999; this.say(q, pick(['¡Me rindo!', 'Ya, ya, ya...', '¡Mamá!']), 2); }
+      return;
+    }
+    if (byPlayer) this.lastHit = { q, t: 2.5 };
+    q.maxHp = Math.max(q.maxHp || 30, q.hp);
     q.hp -= dmg; q.flash = 0.15;
     if (q.ally) { q.hp = Math.max(q.hp, 1); return; }
     if (q.hp <= 0) {
       q.state = 'dead'; q.timer = 25; q.bark = null;
       G.state.stats.peds = (G.state.stats.peds || 0) + 1;
-      this.crime(q.cop ? 2 : 1, q.x, q.y, q.cop);
+      if (byPlayer) this.crime(q.cop ? 2 : 1, q.x, q.y, q.cop);
       emit('pedDown', q);
     } else {
-      if (q.cop) { q.state = 'chase'; this.crime(2, q.x, q.y, true); }
+      if (q.cop) { q.state = 'chase'; if (byPlayer) this.crime(2, q.x, q.y, true); }
       else { q.state = 'flee'; q.timer = 6; q.fleeFrom = { x: fx, y: fy }; if (chance(0.5)) this.say(q, pick(BARKS.scared)); }
     }
   },
@@ -239,6 +269,7 @@ export const city = {
   hurtPlayer(dmg) {
     const p = this.player;
     if (p.invuln || p.dead || G.cheatGod) return;
+    dmg = absorbArmor(dmg);
     p.hp -= dmg; p.hurtT = 0.3;
     audio.sfx('hurt');
     if (p.hp <= 0) { p.hp = 0; this.wasted(); }
@@ -304,6 +335,8 @@ export const city = {
     const p = this.player;
     const ctl = !G.lockInput && !this.frozen && !p.dead && !G.paused;
     if (p.doorCd > 0) p.doorCd -= dt;
+    if (this.lastHit) { this.lastHit.t -= dt; if (this.lastHit.t <= 0) this.lastHit = null; }
+    if (p.barkT > 0) { p.barkT -= dt; if (p.barkT <= 0) p.bark = null; }
     if (p.hurtT > 0) p.hurtT -= dt;
 
     if (ctl) {
@@ -340,6 +373,7 @@ export const city = {
     }
     // collectibles
     if (!p.dead) this.checkCollectibles(pos);
+    for (const pk of this.worldPickups) if (pk.taken && (pk.t -= dt) <= 0 && !isVisible(this, pk.x, pk.y, 20)) pk.taken = false;
 
     // police / wanted
     this.fieldT -= dt;
@@ -358,15 +392,46 @@ export const city = {
     for (const v of this.vehicles) if (v.sirenOn) { const d = dist(pos.x, pos.y, v.x, v.y); if (d < 350) sirenNear = Math.max(sirenNear, 1 - d / 350); }
     audio.setSiren(sirenNear);
 
+    this.updateGps(dt);
     this.updateCamera(dt);
+  },
+
+  // ------------------------------------------------------------ GPS
+  // target priority: your own waypoint > the current mission marker > the next story mission
+  gpsPick() {
+    if (this.waypoint) return { x: this.waypoint.x, y: this.waypoint.y, color: '#c878f0', kind: 'waypoint' };
+    let best = null;
+    for (const m of this.markers) if (!m.hidden && !m.persistent && !m.noBlip && !m.noGps) best = m;
+    if (best) return { x: best.x, y: best.y, color: best.color || '#ffd23f', kind: 'mission' };
+    const pos = this.pos();
+    let bd = Infinity;
+    for (const m of this.markers) if (m.persistent && m.mission && !m.hidden) { const d = dist2(m.x, m.y, pos.x, pos.y); if (d < bd) { bd = d; best = m; } }
+    if (best) return { x: best.x, y: best.y, color: best.color || '#ffd23f', kind: 'story' };
+    return null;
+  },
+  updateGps(dt) {
+    this.gpsT = (this.gpsT || 0) - dt;
+    if (this.gpsT > 0) return;
+    this.gpsT = 0.2;
+    const pos = this.pos();
+    if (this.waypoint && dist(pos.x, pos.y, this.waypoint.x, this.waypoint.y) < 40) { this.waypoint = null; G.ui?.toast('Llegaste a tu destino', '#c878f0', 2); audio.sfx('select'); }
+    const g = this.gpsPick();
+    this.gps = g;
+    if (!g) { this.gpsRoute = null; this.gpsDist = null; return; }
+    const tx = clamp(Math.floor(g.x / TS), 0, MW - 1), ty = clamp(Math.floor(g.y / TS), 0, MH - 1);
+    const key = tx + ',' + ty;
+    if (key !== this.gpsKey) { this.gpsKey = key; this.gpsField = gpsField(tx, ty); }
+    const r = gpsTrace(this.gpsField, pos.x, pos.y);
+    this.gpsRoute = r.route; this.gpsDist = r.len;
   },
 
   footControls(dt) {
     const p = this.player;
     let ax = input.ax, ay = input.ay;
+    if (G.drunkT > 0 && (ax || ay)) { const f = Math.min(1, G.drunkT / 8) * 0.4; ax += Math.sin(G.time * 2.3) * f; ay += Math.cos(G.time * 1.9) * f; }
     const mag = Math.hypot(ax, ay);
     const run = input.down('run') || mag > 0.95 && input.stick.on;
-    const sp = (run ? 92 : 52) * (G.cheatFast ? 1.6 : 1);
+    const sp = (run ? 92 * shoeSpeed() : 52) * (G.cheatFast ? 1.6 : 1);
     if (mag > 0.15) {
       p.a = Math.atan2(ay, ax);
       const nx = ax / Math.max(1, mag) * sp * dt, ny = ay / Math.max(1, mag) * sp * dt;
@@ -455,7 +520,7 @@ export const city = {
           audio.sfx('hit');
           q.x += Math.cos(p.a) * 6; q.y += Math.sin(p.a) * 6;
           this.hurtPed(q, 12, p.x, p.y);
-          if (q.state !== 'dead' && !q.cop) this.crime(0, q.x, q.y, false, true);
+          if (q.state !== 'dead' && !q.cop && !q.brawler) this.crime(0, q.x, q.y, false, true);
         }
       }
       return;
@@ -509,6 +574,7 @@ export const city = {
       v.steer = (input.down('right') ? 1 : 0) - (input.down('left') ? 1 : 0);
     }
     v.handbrake = input.down('b');
+    if (G.drunkT > 0 && v.throttle) v.steer = clamp(v.steer + Math.sin(G.time * 1.7) * 0.3 * Math.min(1, G.drunkT / 8), -1, 1);
     if (input.pressed('run')) this.sfxAt('horn', v.x, v.y);
     if (input.pressed('a') && !this.lockCar && !G.ui?.dialog) this.exitCar();
   },
@@ -559,7 +625,7 @@ export const city = {
     }
     const pl = this.player;
     // deploy officers when close and player on foot
-    if (!pl.car && d < 85 && !v.deployed && v.speed < 60) {
+    if ((!pl.car || pl.car.speed < 12) && d < 85 && !v.deployed && v.speed < 60) {
       v.deployed = true; v.throttle = 0; v.handbrake = true;
       for (const s of [1, -1]) {
         const ox = v.x + Math.cos(v.a + s * Math.PI / 2) * 12, oy = v.y + Math.sin(v.a + s * Math.PI / 2) * 12;
@@ -570,7 +636,8 @@ export const city = {
     if (v.deployed) { v.throttle = 0; v.handbrake = true; if (pl.car && d > 120) v.deployed = false; else return; }
     v.handbrake = false;
     let tx, ty;
-    if (d < 110) { const lead = pl.car ? 0.35 : 0.1; tx = pos.x + (pl.car ? pl.car.vx * lead : 0); ty = pos.y + (pl.car ? pl.car.vy * lead : 0); }
+    const direct = d < 110 && clearLine(v.x, v.y, pos.x, pos.y);
+    if (direct) { const lead = pl.car ? 0.25 : 0.1; tx = pos.x + (pl.car ? pl.car.vx * lead : 0); ty = pos.y + (pl.car ? pl.car.vy * lead : 0); }
     else { const s = this.fieldStep(v.x, v.y, 4); tx = s.x; ty = s.y; }
     const aim = angleTo(v.x, v.y, tx, ty);
     const diff = angDiff(v.a, aim);
@@ -579,8 +646,14 @@ export const city = {
     if (v.reverseT > 0) { v.reverseT -= dt; v.throttle = -0.8; v.steer = -Math.sign(diff); return; }
     if (v.stuckT > 1.2) { v.reverseT = 0.9; v.stuckT = 0; return; }
     v.steer = clamp(diff * 2.4, -1, 1);
-    v.throttle = Math.abs(diff) > 2.2 ? 0.3 : Math.abs(diff) > 1.2 ? 0.6 : 1;
+    v.throttle = Math.abs(diff) > 2.2 ? 0.3 : Math.abs(diff) > 1.2 ? 0.6 : 0.9;
     if (!pl.car && d < 50) v.throttle = 0.2;
+    // tail the player instead of ramming: only 4+ stars get the aggressive cops
+    if (pl.car && d < 60) {
+      const keep = this.wanted >= 4 ? 20 : 38;
+      const rel = pl.car.fwdSpeed;
+      v.throttle = d < keep ? (v.fwdSpeed > rel ? -0.4 : 0) : clamp(0.3 + (rel - v.fwdSpeed) / 80, 0, 0.85);
+    }
   },
 
   collideVehicles() {
@@ -604,9 +677,14 @@ export const city = {
         const rvx = b.vx - a.vx, rvy = b.vy - a.vy;
         const vn = rvx * nx + rvy * ny;
         const imp = Math.abs(vn);
-        if (!aKin && !bKin) { a.x -= nx * overlap / 2; a.y -= ny * overlap / 2; b.x += nx * overlap / 2; b.y += ny * overlap / 2; }
-        else if (aKin && !bKin) { b.x += nx * overlap; b.y += ny * overlap; }
-        else if (!aKin && bKin) { a.x -= nx * overlap; a.y -= ny * overlap; }
+        // separate the cars, but never shove one into a wall (that's how cars "went through" houses)
+        if (!aKin && !bKin) {
+          const okA = nudge(a, -nx * overlap / 2, -ny * overlap / 2), okB = nudge(b, nx * overlap / 2, ny * overlap / 2);
+          if (!okA) nudge(b, nx * overlap / 2, ny * overlap / 2);
+          if (!okB) nudge(a, -nx * overlap / 2, -ny * overlap / 2);
+        }
+        else if (aKin && !bKin) nudge(b, nx * overlap, ny * overlap);
+        else if (!aKin && bKin) nudge(a, -nx * overlap, -ny * overlap);
         if (vn < 0) {
           const e = 0.35;
           const ma = a.spec.hp, mb = b.spec.hp;
@@ -617,12 +695,13 @@ export const city = {
           if (bKin && imp > 20) { b.stun = 0.8; }
         }
         if (imp > 40) {
-          a.damage((imp - 30) * 0.12, this); b.damage((imp - 30) * 0.12, this);
+          if (imp > 55) { a.damage((imp - 50) * 0.07, this); b.damage((imp - 50) * 0.07, this); }
           const pc = this.player.car;
           if (a === pc || b === pc) {
             this.shake(Math.min(5, imp / 35)); this.sfxAt('crash', a.x, a.y);
             const other = a === pc ? b : a;
-            if ((other.type === 'police' || other.type === 'reyes') && imp > 50) this.crime(1, other.x, other.y, true);
+            // only the player's fault if they were the one driving into the cop
+            if ((other.type === 'police' || other.type === 'reyes') && imp > 50 && pc.speed > 40 && pc.speed > other.speed && Math.abs(pc.throttle) > 0.1) this.crime(1, other.x, other.y, true);
             if (other.ai === 'traffic' && other.driver && chance(0.5)) { other.honk = 2; this.sfxAt('horn', other.x, other.y); }
           }
         }
@@ -637,9 +716,10 @@ export const city = {
             q.state = 'down'; q.timer = 3; q.a = Math.atan2(a.vy, a.vx);
             q.x += a.vx * 0.12; q.y += a.vy * 0.12;
             if (solidFootPx(q.x, q.y)) { q.x -= a.vx * 0.12; q.y -= a.vy * 0.12; }
-            this.hurtPed(q, sp * 0.45, a.x, a.y);
+            const mine = a === this.player.car && Math.abs(a.throttle) > 0.1;
+            this.hurtPed(q, sp * 0.45, a.x, a.y, mine);
             if (q.state !== 'dead') q.state = 'down';
-            if (a === this.player.car) { this.sfxAt('hit', q.x, q.y); this.crime(1, q.x, q.y); a.damage(2, this); }
+            if (mine) { this.sfxAt('hit', q.x, q.y); this.crime(1, q.x, q.y); a.damage(2, this); }
           }
         }
         const p = this.player;
@@ -700,6 +780,21 @@ export const city = {
         break;
       }
       case 'chase': this.copStep(q, dt); break;
+      case 'brawl': {
+        const d = dist(q.x, q.y, pos.x, pos.y);
+        q.punchT = (q.punchT || 0) - dt;
+        if (d > 11) { q.goTo(pos.x, pos.y, q.speed || 55, dt, false); }
+        else {
+          q.moving = false; q.a = angleTo(q.x, q.y, pos.x, pos.y);
+          if (q.punchT <= 0 && !p.car && !p.dead) {
+            q.punchT = rand(0.8, 1.2); audio.sfx('punch', { vol: 0.6 });
+            this.hurtPlayer(7); p.x += Math.cos(q.a) * 5; p.y += Math.sin(q.a) * 5;
+            if (solidFootPx(p.x, p.y)) { p.x -= Math.cos(q.a) * 5; p.y -= Math.sin(q.a) * 5; }
+            if (chance(0.3)) this.say(q, pick(['¡Toma!', '¡Llave china!', '¡Ahí te va!', '¡De a tres caídas!']), 1.2);
+          }
+        }
+        break;
+      }
       default: break;
     }
     // barks near player
@@ -754,7 +849,7 @@ export const city = {
         for (const v of this.vehicles) {
           if (v === p.car && b.owner === 'player') continue;
           if (!v.wreck && this.inCarRect(v, b.x, b.y)) {
-            b.life = 0; v.damage(b.dmg * 0.4, this);
+            b.life = 0; v.damage(b.dmg * 0.4, this); if (b.owner === 'player') v.lastHitBy = 'player';
             this.particles.push({ x: b.x, y: b.y, vx: rand(-40, 40), vy: rand(-40, 40), life: 0.15, max: 0.15, col: '#ffd23f', size: 1 });
             if (b.owner === 'player' && (v.type === 'police' || v.type === 'reyes')) this.crime(2, v.x, v.y, true);
             break;
@@ -765,7 +860,7 @@ export const city = {
           if (q.state === 'dead') continue;
           if (b.owner === 'cop' && (q.cop || q.ally)) continue;
           if (b.owner === 'player' && q.ally) continue;
-          if (dist2(q.x, q.y, b.x, b.y) < 36) { b.life = 0; this.hurtPed(q, b.dmg, b.x - b.vx, b.y - b.vy); break; }
+          if (dist2(q.x, q.y, b.x, b.y) < 36) { b.life = 0; this.hurtPed(q, b.dmg, b.x - b.vx, b.y - b.vy, b.owner === 'player'); break; }
         }
         if (b.life <= 0) break;
         if (b.owner !== 'player') {
@@ -785,19 +880,24 @@ export const city = {
   // ------------------------------------------------------------ wanted
   updateWanted(dt) {
     const pos = this.pos();
+    if (this.starCd > 0) this.starCd -= dt;
     if (this.wanted > 0) {
+      this.heat = Math.max(this.heat || 0, HEAT[this.wanted]);
       if (this.noEvade || this.wanted >= 5) this.evadeT = 0;
-      else if (this.copsNear(pos.x, pos.y, 230)) this.evadeT = 0;
+      else if (this.copsSee(pos.x, pos.y)) this.evadeT = 0;
       else {
         this.evadeT += dt;
-        if (this.evadeT > 7 + this.wanted * 3.5) { this.wanted--; this.evadeT = 0; emit('wanted', this.wanted); if (this.wanted === 0) G.ui?.toast('Los perdiste', '#46b450', 2); }
+        if (this.evadeT > 5 + this.wanted * 3) {
+          this.wanted--; this.evadeT = 0; this.heat = HEAT[this.wanted]; emit('wanted', this.wanted);
+          if (this.wanted === 0) G.ui?.toast('Los perdiste', '#46b450', 2);
+        }
       }
-      // spawn police
+      // spawn police (slowly, and never right on top of the player)
       const cars = this.vehicles.filter((v) => v.ai === 'police');
-      const want = Math.min(6, [0, 1, 2, 3, 4, 6][this.wanted] + (this.extraCops || 0));
+      const want = Math.min(6, [0, 1, 2, 3, 4, 5][this.wanted] + (this.extraCops || 0));
       this.policeSpawnT = (this.policeSpawnT || 0) - dt;
       if (cars.length < want && this.policeSpawnT <= 0) {
-        this.policeSpawnT = this.wanted >= 4 ? 1.5 : 3;
+        this.policeSpawnT = this.wanted >= 4 ? 3.5 : 6;
         this.spawnPoliceCar(this.wanted >= 4 && !cars.some((c) => c.type === 'reyes') ? 'reyes' : 'police');
       }
       // heli at 5 stars
@@ -816,6 +916,7 @@ export const city = {
       // busted-in-car check handled in copStep
     } else {
       this.heli = null;
+      this.heat = Math.max(0, (this.heat || 0) - dt * 0.08);
       if (this.player.arrestT > 0) this.player.arrestT = Math.max(0, this.player.arrestT - dt);
     }
     // police without wanted return to patrol / despawn
@@ -827,7 +928,7 @@ export const city = {
 
   spawnPoliceCar(type = 'police') {
     const pos = this.pos();
-    const cands = MAP.nodes.filter((n) => { const d = dist(n.x, n.y, pos.x, pos.y); return d > 260 && d < 520 && !isVisible(this, n.x, n.y, 40); });
+    const cands = MAP.nodes.filter((n) => { const d = dist(n.x, n.y, pos.x, pos.y); return d > 360 && d < 640 && !isVisible(this, n.x, n.y, 110); });
     const lockedTile = (n) => tileAt(Math.floor(n.x / TS), Math.floor(n.y / TS)) === T.BARRIER;
     const valid = cands.filter((n) => !lockedTile(n) && MAP.unlocked && reachable(this, n));
     const n = pick(valid.length ? valid : cands);
@@ -845,7 +946,7 @@ export const city = {
     const pos = this.pos();
     const zone = zoneOf(Math.floor(pos.x / TS), Math.floor(pos.y / TS));
     // despawn far
-    this.vehicles = this.vehicles.filter((v) => v.mission || v === this.player.car || v.ai === 'police' || dist2(v.x, v.y, pos.x, pos.y) < 700 * 700 || (v.passengers && v.passengers.length));
+    this.vehicles = this.vehicles.filter((v) => v.mission || v === this.player.car || v.ai === 'police' || (v.passengers && v.passengers.length) || (dist2(v.x, v.y, pos.x, pos.y) < 700 * 700 && !(v.giveUp && !isVisible(this, v.x, v.y, 30))));
     this.peds = this.peds.filter((q) => q.mission || q.ally || dist2(q.x, q.y, pos.x, pos.y) < 480 * 480 && !(q.state === 'dead' && q.timer <= 0));
     for (const k of [...this.spawnedParking]) { const pk = MAP.parking[k]; if (dist2(pk.x, pk.y, pos.x, pos.y) > 720 * 720) this.spawnedParking.delete(k); }
     // traffic
@@ -905,6 +1006,17 @@ export const city = {
       if (dist2(pk.x, pk.y, pos.x, pos.y) < 150 && (!pk.needFoot || !this.player.car)) { pk.taken = true; audio.sfx('pickup'); if (pk.onTake) pk.onTake(pk); }
     }
     this.pickups = this.pickups.filter((p) => !p.taken);
+    // hearts / vests / bribe stars: only grabbed when they'd actually do something
+    const s = G.state, p = this.player;
+    for (const pk of this.worldPickups) {
+      if (pk.taken || dist2(pk.x, pk.y, pos.x, pos.y) > 196) continue;
+      if (pk.kind === 'health') { if (p.hp >= 100) continue; p.hp = Math.min(100, p.hp + 50); G.ui?.toast('+50 VIDA', '#ff5a5a', 1.5); }
+      else if (pk.kind === 'armor') { if ((s.armor || 0) >= 100) continue; s.armor = 100; G.ui?.toast('CHALECO ANTIBALAS', '#5a9cff', 1.8); }
+      else { if (this.wanted <= 0 || this.wantedLocked) continue; this.setWanted(this.wanted - 1); G.ui?.toast('SOBORNO: -1 ESTRELLA', '#46d4c8', 2); }
+      pk.taken = true; pk.t = 150;
+      audio.sfx(pk.kind === 'bribe' ? 'coin' : 'pickup');
+      for (let k = 0; k < 10; k++) this.particles.push({ x: pk.x, y: pk.y, vx: rand(-30, 30), vy: rand(-40, 0), life: 0.5, max: 0.5, col: pk.kind === 'health' ? '#ff5a5a' : pk.kind === 'armor' ? '#5a9cff' : '#46d4c8', size: 1 });
+    }
   },
 
   // ------------------------------------------------------------ camera
@@ -955,6 +1067,7 @@ export const city = {
       drawCollectible(ctx, c.x - cx, c.y - cy + Math.sin(t * 3 + i) * 1.5, kind, t);
     });
     for (const pk of this.pickups) if (vis(pk.x, pk.y)) drawPickup(ctx, pk.x - cx, pk.y - cy + Math.sin(t * 4) * 1.5, pk, t);
+    for (const pk of this.worldPickups) if (!pk.taken && vis(pk.x, pk.y)) drawWorldPickup(ctx, pk.x - cx, pk.y - cy + Math.sin(t * 3 + pk.x) * 1.5, pk.kind, t);
 
     // peds (down first)
     const peds = this.peds.filter((q) => vis(q.x, q.y));
@@ -1016,11 +1129,87 @@ export const city = {
 };
 
 // ================================================================= helpers
+function nudge(v, dx, dy) {
+  if (v.collides(v.x + dx, v.y + dy, v.a)) return false;
+  v.x += dx; v.y += dy; return true;
+}
 function circles(v) {
   const r = v.spec.W / 2 + 0.5, off = v.spec.L / 2 - r;
   const c = Math.cos(v.a), s = Math.sin(v.a);
   if (off <= 1) return [[v.x, v.y, Math.max(r, v.spec.L / 2)]];
   return [[v.x + c * off, v.y + s * off, r], [v.x - c * off, v.y - s * off, r], [v.x, v.y, r]];
+}
+
+const HEAT = [0, 1, 3, 5, 8, 12];
+
+// GPS: cost field flowing out of the target (roads are cheap, sidewalks/grass cost more)
+const GPS_INF = 65535;
+function gpsCost(t) {
+  if (t === T.ROAD || t === T.BRIDGE) return 2;
+  if (t === T.WATER || t === T.ROOF || t === T.WALL || t === T.TREE || t === T.FENCE || t === T.BARRIER || t === T.FOUNTAIN || t === T.CONTAINER) return 0;
+  return t === T.GRASS || t === T.BUSH || t === T.FIELD ? 7 : 5;
+}
+export function gpsField(tx, ty) {
+  const f = new Uint16Array(MW * MH).fill(GPS_INF);
+  const buckets = [];
+  const push = (i, d) => { (buckets[d] ||= []).push(i); };
+  const start = ty * MW + tx;
+  f[start] = 0; push(start, 0);
+  const tiles = MAP.tiles;
+  for (let d = 0; d < buckets.length; d++) {
+    const b = buckets[d];
+    if (!b) continue;
+    for (let k = 0; k < b.length; k++) {
+      const i = b[k];
+      if (f[i] !== d) continue;
+      const x = i % MW, y = (i / MW) | 0;
+      const nb = [x > 0 ? i - 1 : -1, x < MW - 1 ? i + 1 : -1, y > 0 ? i - MW : -1, y < MH - 1 ? i + MW : -1];
+      for (const j of nb) {
+        if (j < 0) continue;
+        const c = gpsCost(tiles[j]);
+        if (!c && j !== start) continue;
+        const nd = d + (c || 1);
+        if (nd < f[j]) { f[j] = nd; push(j, nd); }
+      }
+    }
+    buckets[d] = null;
+  }
+  return f;
+}
+export function gpsTrace(f, px, py, max = 400) {
+  let x = clamp(Math.floor(px / TS), 0, MW - 1), y = clamp(Math.floor(py / TS), 0, MH - 1);
+  // standing on something solid (e.g. a door): step to the best neighbour first
+  const route = [[px, py]];
+  let len = 0;
+  for (let k = 0; k < max; k++) {
+    const cur = f[y * MW + x];
+    if (cur === 0) break;
+    let bx = -1, by = -1, bv = cur;
+    for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
+      const nx = x + dx, ny = y + dy;
+      if (nx < 0 || ny < 0 || nx >= MW || ny >= MH) continue;
+      const v = f[ny * MW + nx];
+      if (v < bv) { bv = v; bx = nx; by = ny; }
+    }
+    if (bx < 0) break;
+    x = bx; y = by; len += TS;
+    route.push([x * TS + 8, y * TS + 8]);
+  }
+  return { route, len: f[y * MW + x] === 0 || route.length > 1 ? len : null };
+}
+// the bulletproof vest soaks up most of the damage until it breaks
+export function absorbArmor(dmg) {
+  const s = G.state;
+  if (!s || !(s.armor > 0)) return dmg;
+  const soak = Math.min(s.armor, dmg * 0.75);
+  s.armor = Math.max(0, s.armor - soak);
+  if (s.armor <= 0) G.ui?.toast('¡Se rompió el chaleco!', '#5a9cff', 1.5);
+  return dmg - soak;
+}
+function clearLine(x0, y0, x1, y1) {
+  const d = Math.hypot(x1 - x0, y1 - y0), n = Math.ceil(d / 12);
+  for (let i = 1; i < n; i++) { const t = i / n; if (solidCarPx(x0 + (x1 - x0) * t, y0 + (y1 - y0) * t) && tileAt(Math.floor((x0 + (x1 - x0) * t) / TS), Math.floor((y0 + (y1 - y0) * t) / TS)) !== T.WATER) return false; }
+  return true;
 }
 
 function isVisible(c, x, y, m) { return x > c.cam.x - m && y > c.cam.y - m && x < c.cam.x + W + m && y < c.cam.y + H + m; }
@@ -1125,6 +1314,25 @@ function drawPickup(ctx, x, y, pk, t) {
   if (pk.icon) font.text(ctx, pk.icon, x, y - 3, '#101018', { align: 'center' });
 }
 
+function drawWorldPickup(ctx, x, y, kind, t) {
+  x = Math.round(x); y = Math.round(y);
+  ctx.fillStyle = 'rgba(0,0,0,0.3)'; ctx.fillRect(x - 4, y + 6, 9, 2);
+  if (kind === 'health') {
+    font.text(ctx, '♥', x, y - 4, Math.floor(t * 4) % 2 ? '#ff5a5a' : '#d8323c', { align: 'center', outline: '#3a0a0a' });
+  } else if (kind === 'armor') {
+    // little blue vest
+    ctx.fillStyle = '#101018'; ctx.fillRect(x - 5, y - 5, 11, 11);
+    ctx.fillStyle = '#3c64dc'; ctx.fillRect(x - 4, y - 4, 9, 9);
+    ctx.fillStyle = '#5a9cff'; ctx.fillRect(x - 4, y - 4, 3, 9); ctx.fillRect(x + 2, y - 4, 3, 9);
+    ctx.fillStyle = '#101018'; ctx.fillRect(x - 1, y - 4, 3, 3);
+    ctx.fillStyle = '#f4f4f0'; ctx.fillRect(x - 3, y + 1, 7, 1);
+  } else {
+    // bribe: a teal star, clearly not the yellow collectible ones
+    font.text(ctx, '★', x, y - 4, Math.floor(t * 5) % 2 ? '#46d4c8' : '#8af0e0', { align: 'center', outline: '#0a2a2a' });
+    font.text(ctx, '$', x + 5, y - 9, '#46d470', { align: 'center', outline: '#101018' });
+  }
+}
+
 function drawTag(ctx, x, y, i) {
   const cols = ['#ffd23f', '#ff3cc8', '#5adcf0', '#46b450'];
   ctx.fillStyle = cols[i % 4];
@@ -1154,7 +1362,7 @@ function drawProp(ctx, pr, x, y, t) {
     ctx.fillStyle = '#1a0a2a'; ctx.fillRect(x - 45, y - 21, 90, 30);
     const g = ctx.createLinearGradient(0, y - 21, 0, y + 9); g.addColorStop(0, '#ff3cc8'); g.addColorStop(1, '#2a0a4a');
     ctx.fillStyle = g; ctx.fillRect(x - 45, y - 21, 90, 30);
-    font.text(ctx, 'GTA VI MARATHON', x, y - 18, '#fff08c', { align: 'center', outline: '#2a0a2a' });
+    font.text(ctx, 'EL ESCAPE', x, y - 18, '#fff08c', { align: 'center', outline: '#2a0a2a' });
     font.text(ctx, 'KAZOOGOD02', x, y - 9, '#5adcf0', { align: 'center', outline: '#2a0a2a' });
     font.text(ctx, countdownText(), x, y, '#f4f4f0', { align: 'center', outline: '#2a0a2a' });
   } else if (pr.type === 'tower') {

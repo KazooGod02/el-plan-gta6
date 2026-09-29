@@ -18,13 +18,13 @@ const APPS = [
   { id: 'map', name: 'Mapa', icon: '#28b4a0', glyph: '▲' },
   { id: 'debt', name: 'Deuda', icon: '#d8323c', glyph: '!' },
   { id: 'radio', name: 'Radio', icon: '#f08c28', glyph: '♪' },
-  { id: 'lore', name: 'Cassettes', icon: '#e0a82e', glyph: '■' },
+  { id: 'lore', name: 'Cintas', icon: '#e0a82e', glyph: '■' },
   { id: 'logros', name: 'Logros', icon: '#ffd23f', glyph: '★' },
   { id: 'ajustes', name: 'Ajustes', icon: '#6e6e82', glyph: '*' },
   { id: 'guardar', name: 'Guardar', icon: '#8c46c8', glyph: '♦' },
 ];
 
-const PX = 186, PY = 4, PW = 128, PH = 172;
+const PX = 174, PY = 4, PW = 142, PH = 172;
 const SX = PX + 8, SY = PY + 18, SW = PW - 16, SH = PH - 34;
 
 export const phone = {
@@ -51,6 +51,7 @@ export const phone = {
       if (input.pressed('left')) { this.sel = (this.sel + APPS.length - 1) % APPS.length; audio.sfx('move'); }
       if (input.pressed('down')) { this.sel = (this.sel + cols) % APPS.length; audio.sfx('move'); }
       if (input.pressed('up')) { this.sel = (this.sel + APPS.length - cols) % APPS.length; audio.sfx('move'); }
+      if (input.pressed('a') && APPS[this.sel].id === 'map') { this.close(); G.bigmap.show(); input.consume('a'); return; }
       if (input.pressed('a')) { this.app = APPS[this.sel].id; this.scroll = 0; this.sub = 0; this.tab = 0; this.confirm = null; audio.sfx('select'); if (this.app === 'chat') this.scroll = 9999; }
       if (input.pressed('back') || input.pressed('b') || input.pressed('pause')) this.close();
       return;
@@ -132,51 +133,64 @@ export const phone = {
   // ------------------------------------------------ render
   render(ctx) {
     if (!this.open) return;
-    ctx.fillStyle = 'rgba(0,0,0,0.45)'; ctx.fillRect(0, 0, W, H);
+    ctx.fillStyle = 'rgba(0,0,0,0.5)'; ctx.fillRect(0, 0, W, H);
     const oy = Math.round((1 - this.anim) * 60);
     ctx.save(); ctx.translate(0, oy);
-    // body
-    ctx.fillStyle = '#101018'; ctx.fillRect(PX - 1, PY - 1, PW + 2, PH + 2);
-    ctx.fillStyle = '#2a2a38'; ctx.fillRect(PX, PY, PW, PH);
-    ctx.fillStyle = '#3a3a4a'; ctx.fillRect(PX + 2, PY + 2, PW - 4, PH - 4);
-    ctx.fillStyle = '#101018'; ctx.fillRect(SX - 1, SY - 12, SW + 2, SH + 14);
-    // screen
+    // body: rounded case with a bezel and side buttons
+    rr(ctx, PX - 2, PY - 2, PW + 4, PH + 4, 10, '#07070c');
+    rr(ctx, PX, PY, PW, PH, 9, '#23232e');
+    rr(ctx, PX + 1, PY + 1, PW - 2, 3, 2, '#3a3a4a');
+    ctx.fillStyle = '#15151c'; ctx.fillRect(PX - 3, PY + 30, 2, 14); ctx.fillRect(PX - 3, PY + 50, 2, 10); ctx.fillRect(PX + PW + 1, PY + 38, 2, 18);
+    rr(ctx, SX - 1, SY - 13, SW + 2, SH + 16, 5, '#05050a');
+    // screen + wallpaper
     const s = G.state;
-    const grad = ctx.createLinearGradient(0, SY, 0, SY + SH);
-    grad.addColorStop(0, '#1e1e4a'); grad.addColorStop(1, '#4a1e5a');
-    ctx.fillStyle = grad; ctx.fillRect(SX, SY - 11, SW, SH + 12);
-    // cracked glass
-    ctx.strokeStyle = 'rgba(255,255,255,0.25)'; ctx.lineWidth = 1; ctx.beginPath();
-    ctx.moveTo(SX + SW - 20, SY - 11); ctx.lineTo(SX + SW - 30, SY + 10); ctx.lineTo(SX + SW - 18, SY + 22); ctx.moveTo(SX + SW - 30, SY + 10); ctx.lineTo(SX + SW - 44, SY + 16); ctx.stroke();
-    // status bar
-    font.text(ctx, clock(s.clock), SX + 2, SY - 9, '#f4f4f0');
-    font.text(ctx, money(s.money), SX + SW - 2, SY - 9, '#46d470', { align: 'right' });
+    ctx.save(); ctx.beginPath(); roundPath(ctx, SX, SY - 12, SW, SH + 14, 4); ctx.clip();
+    wallpaper(ctx, this.app);
+    // notch + status bar
+    ctx.fillStyle = '#05050a'; ctx.fillRect(SX + SW / 2 - 14, SY - 12, 28, 5); ctx.fillRect(SX + SW / 2 - 12, SY - 7, 24, 1);
+    ctx.fillStyle = 'rgba(0,0,0,0.35)'; ctx.fillRect(SX, SY - 12, SW, 11);
+    font.text(ctx, clock(s.clock), SX + 3, SY - 10, '#f4f4f0');
+    // signal + battery
+    for (let i = 0; i < 4; i++) { ctx.fillStyle = i < 3 ? '#f4f4f0' : '#6a6a7a'; ctx.fillRect(SX + SW - 30 + i * 3, SY - 4 - i * 2, 2, 2 + i * 2); }
+    ctx.fillStyle = '#f4f4f0'; ctx.fillRect(SX + SW - 16, SY - 9, 12, 6); ctx.fillStyle = '#05050a'; ctx.fillRect(SX + SW - 15, SY - 8, 10, 4);
+    ctx.fillStyle = '#d8323c'; ctx.fillRect(SX + SW - 15, SY - 8, 2, 4); ctx.fillStyle = '#f4f4f0'; ctx.fillRect(SX + SW - 4, SY - 7, 1, 2);
+    ctx.restore();
     ctx.save(); ctx.beginPath(); ctx.rect(SX, SY, SW, SH); ctx.clip();
     if (!this.app) this.r_home(ctx);
     else { const f = this['r_' + this.app]; if (f) f.call(this, ctx); }
     ctx.restore();
-    // home button
-    ctx.fillStyle = '#1a1a24'; ctx.fillRect(PX + PW / 2 - 8, PY + PH - 12, 16, 8);
-    font.text(ctx, 'B: ATRÁS', PX + PW / 2, PY + PH + 3, '#a8a8b8', { align: 'center' });
+    // cracked glass (Kazoo bought it used)
+    ctx.strokeStyle = 'rgba(255,255,255,0.22)'; ctx.lineWidth = 1; ctx.beginPath();
+    ctx.moveTo(SX + SW - 12, SY - 12); ctx.lineTo(SX + SW - 22, SY + 8); ctx.lineTo(SX + SW - 10, SY + 20); ctx.moveTo(SX + SW - 22, SY + 8); ctx.lineTo(SX + SW - 36, SY + 13); ctx.stroke();
+    // home bar + hint
+    rr(ctx, PX + PW / 2 - 14, PY + PH - 9, 28, 3, 1, '#6a6a7a');
+    font.text(ctx, this.app ? 'B: ATRÁS' : 'B: CERRAR', PX + PW / 2, PY + PH + 4, '#a8a8b8', { align: 'center', outline: '#101018' });
     ctx.restore();
   },
 
   header(ctx, title, col = '#ffd23f') {
-    ctx.fillStyle = 'rgba(0,0,0,0.4)'; ctx.fillRect(SX, SY, SW, 12);
-    font.text(ctx, title, SX + SW / 2, SY + 2, col, { align: 'center' });
+    ctx.fillStyle = 'rgba(0,0,0,0.55)'; ctx.fillRect(SX, SY, SW, 13);
+    ctx.fillStyle = col; ctx.fillRect(SX, SY + 12, SW, 1);
+    font.text(ctx, '◄', SX + 3, SY + 3, '#a8a8b8');
+    font.text(ctx, title, SX + SW / 2 + 3, SY + 3, col, { align: 'center' });
   },
 
   r_home(ctx) {
-    font.text(ctx, 'KAZOOPHONE', SX + SW / 2, SY + 3, '#ffd23f', { align: 'center' });
+    const s = G.state;
+    // big clock widget
+    font.text(ctx, clock(s.clock), SX + SW / 2, SY + 3, '#f4f4f0', { align: 'center', scale: 2, shadow: 'rgba(0,0,0,0.5)' });
+    font.text(ctx, `Día ${s.day} · ${money(s.money)}`, SX + SW / 2, SY + 20, '#d8d8e8', { align: 'center', shadow: 'rgba(0,0,0,0.5)' });
     APPS.forEach((a, i) => {
-      const cx = SX + 8 + (i % 3) * 34, cy = SY + 16 + Math.floor(i / 3) * 38;
+      const cx = SX + Math.round((SW - 102) / 2) + (i % 3) * 40, cy = SY + 33 + Math.floor(i / 3) * 34;
       const sel = i === this.sel;
-      if (sel) { ctx.fillStyle = '#f4f4f0'; ctx.fillRect(cx - 2, cy - 2, 28, 28); }
-      ctx.fillStyle = a.icon; ctx.fillRect(cx, cy, 24, 24);
-      ctx.fillStyle = shade(a.icon, 1.25); ctx.fillRect(cx, cy, 24, 3);
-      font.text(ctx, a.glyph, cx + 12, cy + 7, '#101018', { align: 'center', scale: 1 });
-      font.text(ctx, a.name, cx + 12, cy + 26, sel ? '#ffd23f' : '#d8d8e8', { align: 'center' });
-      if (a.id === 'chat' && G.phoneBadge) { ctx.fillStyle = '#d8323c'; ctx.fillRect(cx + 18, cy - 3, 8, 8); font.text(ctx, String(Math.min(9, G.phoneBadge)), cx + 22, cy - 2, '#fff', { align: 'center' }); }
+      if (sel) rr(ctx, cx - 3, cy - 3, 28, 28, 6, '#f4f4f0');
+      rr(ctx, cx - 1, cy - 1, 24, 24, 5, '#05050a');
+      rr(ctx, cx, cy, 22, 22, 5, a.icon);
+      rr(ctx, cx, cy, 22, 9, 5, shade(a.icon, 1.25));
+      ctx.fillStyle = a.icon; ctx.fillRect(cx, cy + 7, 22, 3);
+      font.text(ctx, a.glyph, cx + 11, cy + 4, '#101018', { align: 'center', scale: 2 });
+      font.text(ctx, a.name, cx + 11, cy + 25, sel ? '#ffd23f' : '#f4f4f0', { align: 'center', shadow: 'rgba(0,0,0,0.7)' });
+      if (a.id === 'chat' && G.phoneBadge) { rr(ctx, cx + 15, cy - 4, 10, 10, 5, '#d8323c'); font.text(ctx, String(Math.min(9, G.phoneBadge)), cx + 20, cy - 2, '#fff', { align: 'center' }); }
     });
   },
 
@@ -213,12 +227,12 @@ export const phone = {
   r_market(ctx) {
     this.header(ctx, 'MARKETPLACE PV', '#5a9cff');
     const items = MARKET_ITEMS;
-    const top = Math.max(0, this.sub - 3);
-    items.slice(top, top + 5).forEach((it, k) => {
+    const top = Math.max(0, Math.min(this.sub - 2, items.length - 4));
+    items.slice(top, top + 4).forEach((it, k) => {
       const i = top + k, y = SY + 15 + k * 24;
       const sel = i === this.sub, owned = G.state.items.includes(it.id);
       ctx.fillStyle = sel ? '#3a3a6a' : '#22223a'; ctx.fillRect(SX + 2, y, SW - 4, 22);
-      font.text(ctx, it.name.length > 20 ? it.name.slice(0, 19) + '…' : it.name, SX + 5, y + 2, owned ? '#6a6a7a' : '#f4f4f0');
+      font.text(ctx, it.name.length > 23 ? it.name.slice(0, 22) + '…' : it.name, SX + 5, y + 2, owned ? '#6a6a7a' : '#f4f4f0');
       font.text(ctx, owned ? 'VENDIDO' : money(it.price), SX + 5, y + 12, owned ? '#6a6a7a' : '#46d470');
       font.text(ctx, '★'.repeat(it.stars), SX + SW - 5, y + 12, '#ffd23f', { align: 'right' });
     });
@@ -333,5 +347,27 @@ export const phone = {
     font.wrap('También puedes guardar durmiendo en tu cama.', SW - 8).forEach((l, i) => font.text(ctx, l, SX + 4, SY + 104 + i * 9, '#a8a8b8'));
   },
 };
+
+function roundPath(ctx, x, y, w, h, r) {
+  ctx.moveTo(x + r, y); ctx.lineTo(x + w - r, y); ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+  ctx.lineTo(x + w, y + h - r); ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+  ctx.lineTo(x + r, y + h); ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+  ctx.lineTo(x, y + r); ctx.quadraticCurveTo(x, y, x + r, y); ctx.closePath();
+}
+function rr(ctx, x, y, w, h, r, col) { ctx.fillStyle = col; ctx.beginPath(); roundPath(ctx, x, y, w, h, Math.min(r, w / 2, h / 2)); ctx.fill(); }
+
+// Puerto Vicio sunset behind the icons; apps get a calmer dark gradient
+function wallpaper(ctx, app) {
+  const g = ctx.createLinearGradient(0, SY - 12, 0, SY + SH);
+  if (app) { g.addColorStop(0, '#1a1a34'); g.addColorStop(1, '#241a3a'); }
+  else { g.addColorStop(0, '#2a1a5a'); g.addColorStop(0.55, '#c8508a'); g.addColorStop(1, '#f0a050'); }
+  ctx.fillStyle = g; ctx.fillRect(SX, SY - 12, SW, SH + 14);
+  if (app) return;
+  ctx.fillStyle = 'rgba(255,230,160,0.8)'; ctx.beginPath(); ctx.arc(SX + SW / 2, SY + SH - 22, 14, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = '#1a0e2a';
+  const bs = [[0, 22], [10, 34], [20, 26], [30, 44], [42, 30], [54, 38], [66, 24], [76, 40], [88, 28], [98, 34], [108, 20]];
+  for (const [x, h] of bs) ctx.fillRect(SX + x, SY + SH - h, 10, h);
+  for (const px of [SX + 6, SX + SW - 10]) { ctx.fillRect(px, SY + SH - 40, 2, 40); ctx.fillRect(px - 5, SY + SH - 42, 12, 2); }
+}
 
 function bar(v) { return '■'.repeat(Math.round(v * 5)) + '·'.repeat(5 - Math.round(v * 5)); }

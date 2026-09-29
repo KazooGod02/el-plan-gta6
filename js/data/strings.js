@@ -2,7 +2,7 @@
 export const BARKS = {
   generic: [
     '¿Viste el precio de las tortillas?', 'Mi primo compró un carro en el Marketplace y se le apagó en la carretera vieja.',
-    'Dicen que la Comandante Reyes no duerme.', 'Hace un calor de la...', 'Ya viene el marathon, ¿no?',
+    'Dicen que la Comandante Reyes no duerme.', 'Hace un calor de la...', '¿Ya viste el teaser ese?',
     '¿Quién pone reggaetón a las 7 AM?', 'Le di cinco estrellas a mi dentista. Error.', 'No hay pedo, no hay pedo.',
     'Ese wey me debe 200 pesos desde 2019.', 'Voy tarde. Siempre voy tarde.', '¿Tú crees que llueva?',
     'Mi ex vende pasteles en el Marketplace. 5 estrellas. Increíble.', 'Nomás vine por unas papitas.',
@@ -34,7 +34,7 @@ export const NEWS = {
   always: [
     'El clima: calor. Mañana: más calor. Pasado mañana: consulte a su santo de confianza.',
     'El Marketplace de Puerto Vicio rompió récord: 10 mil ventas y cero devoluciones. "Nadie regresa a quejarse", dijo un vendedor.',
-    'COMERCIAL: ¿Aburrido? ¡Llega la GTA VI MARATHON de KazooGod02! Horas y horas de puro Vice City. No se lo pierda.',
+    'COMERCIAL: ¿Aburrido? KazooGod02 prepara algo. Nadie sabe qué es. Ni él. No se lo pierda.',
     'La Comandante Reyes declaró: "En Puerto Vicio no hay crimen que no se pague". Luego se fue a comprar una torta.',
     'Tacos El Compa fue nombrada "La taquería más responsable de la ciudad" por tercer año consecutivo.',
     'Vecinos de La Colonia reportan a un sujeto que canta con un kazoo a las 3 AM. La policía no ha intervenido.',
@@ -98,7 +98,7 @@ export const CASSETTES = [
   { t: 'Cassette 10 — "Don Chuy"', b: 'Don Chuy por teléfono: "No, yo no mato a nadie. Yo nomás cobro. La gente sola se asusta... y eso es bien barato."' },
   { t: 'Cassette 11 — "Coqui, penal"', b: 'Coqui escribiendo una carta que nunca mandó: "Kazoo: cuando salga, ¿me vas a ir a recoger? No llegues tarde. (Vas a llegar tarde.)"' },
   { t: 'Cassette 12 — "Reseña #2"', b: 'Otro cliente de VendeRápido_5E: "El carro traía una cajita rara abajo del tablero. El vendedor dijo que era el estéreo." (reseña borrada)' },
-  { t: 'Cassette 13 — "El marathon"', b: 'Voz misteriosa: "Todo el mundo recuerda cómo terminó. Nadie sabe cómo empezó." (se escucha un kazoo desafinado)' },
+  { t: 'Cassette 13 — "El escape"', b: 'Voz misteriosa: "Todo el mundo recuerda cómo terminó. Nadie sabe cómo empezó." (se escucha un kazoo desafinado)' },
   { t: 'Cassette 14 — "El campo"', b: 'Ghenghis, solo: "Si todo sale mal... ahí va a estar. El árbol. La mochila. Por si acaso. Siempre hay que tener un por si acaso."' },
   { t: 'Cassette 15 — "Comandancia"', b: 'Reyes: "¿El vendedor del Marketplace? Sí. Nos ayuda. Cinco estrellas. Muy cooperativo." (click)' },
 ];

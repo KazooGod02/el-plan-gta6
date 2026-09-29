@@ -10,11 +10,12 @@ const KEYMAP = {
   ShiftLeft: 'run', ShiftRight: 'run',
   Tab: 'phone', KeyT: 'phone',
   KeyQ: 'weapon',
+  KeyM: 'map',
   Escape: 'pause', KeyP: 'pause',
   Backspace: 'back',
 };
 
-const ACTIONS = ['up', 'down', 'left', 'right', 'a', 'b', 'run', 'phone', 'weapon', 'pause', 'back'];
+const ACTIONS = ['up', 'down', 'left', 'right', 'a', 'b', 'run', 'phone', 'weapon', 'pause', 'back', 'map'];
 
 class Input {
   constructor() {
@@ -112,7 +113,7 @@ class Input {
       if (Math.abs(ax) > 0.25) px = ax;
       if (Math.abs(ay) > 0.25) py = ay;
       const map = {
-        a: b(0), b: b(2) || b(7), back: b(1), phone: b(3), pause: b(9), weapon: b(5) || b(4), run: b(6) || b(10),
+        a: b(0), b: b(2) || b(7), back: b(1), phone: b(3), pause: b(9), weapon: b(5) || b(4), run: b(6) || b(10), map: b(8),
         up: b(12) || ay < -0.5, down: b(13) || ay > 0.5, left: b(14) || ax < -0.5, right: b(15) || ax > 0.5,
       };
       for (const k in map) if (map[k]) { this.pad[k] = true; this.lastDevice = 'pad'; this.gesture(); }

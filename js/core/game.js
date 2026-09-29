@@ -15,6 +15,7 @@ export const G = {
   lockInput: 0,     // >0 when cutscene/dialog blocks player control
   paused: false,
   cheatsUsed: false,
+  res: 1,           // internal resolution multiplier of the main canvas
 };
 
 export function setScene(name, arg) {
