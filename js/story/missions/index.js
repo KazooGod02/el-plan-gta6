@@ -1,4 +1,13 @@
 import { PROLOGO } from './prologo.js';
+import { CAP1 } from './cap1.js';
+import { CAP2 } from './cap2.js';
+import { CAP3 } from './cap3.js';
+import { CAP4 } from './cap4.js';
+import { CAP5 } from './cap5.js';
+import { CAP6 } from './cap6.js';
+import { CAP7 } from './cap7.js';
+import { CAP8 } from './cap8.js';
+import { CAP9 } from './cap9.js';
 
 export const CHAPTERS = [
   { label: 'PRÓLOGO', title: 'CINCO ESTRELLAS', short: 'PRÓLOGO' },
@@ -13,4 +22,4 @@ export const CHAPTERS = [
   { label: 'CAPÍTULO 9', title: 'LA HUIDA', short: 'CAP. 9' },
 ];
 
-export const MISSIONS = [...PROLOGO];
+export const MISSIONS = [...PROLOGO, ...CAP1, ...CAP2, ...CAP3, ...CAP4, ...CAP5, ...CAP6, ...CAP7, ...CAP8, ...CAP9];

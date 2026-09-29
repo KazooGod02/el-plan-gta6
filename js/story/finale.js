@@ -39,7 +39,7 @@ export const finale = {
     }
     if (this.mode === 'marathon') {
       drawSky(ctx, 'night', this.t);
-      drawProp(ctx, { t: 'skyline', w: 360, neon: true, col: '#1a0a2a' }, -20, 180, this.t, {});
+      drawProp(ctx, { t: 'skyline', w: 360, neon: false, col: '#1a0a2a' }, -20, 180, this.t, {});
       const pulse = 1 + Math.sin(this.t * 3) * 0.02;
       font.text(ctx, 'GTA VI', W / 2 + 2, 22 + 2, '#3a0a3a', { align: 'center', scale: 4 });
       font.text(ctx, 'GTA VI', W / 2, 22, '#ff7ae0', { align: 'center', scale: 4, outline: '#2a0a2a' });
@@ -67,7 +67,7 @@ function shareCanvas() {
   if (shareCache && shareKey === key) return shareCache;
   const c = canvas(W, H), x = c.x;
   drawSky(x, 'dusk', 0);
-  drawProp(x, { t: 'skyline', w: 360, neon: true, col: '#2a1a4a' }, -20, 180, 0, {});
+  drawProp(x, { t: 'skyline', w: 360, neon: false, col: '#2a1a4a' }, -20, 180, 0, {});
   x.fillStyle = 'rgba(8,8,20,0.75)'; x.fillRect(10, 8, W - 20, H - 26);
   font.text(x, 'TERMINÉ "EL PLAN"', W / 2, 14, '#ffd23f', { align: 'center', scale: 2, outline: '#3a1a00' });
   font.text(x, 'La precuela 8-bit de la GTA VI Marathon', W / 2, 34, '#f4f4f0', { align: 'center' });

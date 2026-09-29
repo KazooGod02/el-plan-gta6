@@ -111,6 +111,7 @@ export const story = {
       });
       this.triggers.push(mk);
     }
+    if (!this.active && UI.fadeTarget > 0 && G.lockInput === 0) UI.fadeTarget = 0;
   },
   triggerPos(m) {
     const t = m.trigger;
@@ -136,6 +137,7 @@ export const story = {
     const self = this;
     function* wrapper() {
       if (m.chapterStart) {
+        if (UI.card) yield* wait(Math.max(0, UI.card.t - 0.3));
         const ch = CHAPTERS[m.chapter];
         yield* fadeOut(0.5);
         lock(true);
