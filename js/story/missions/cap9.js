@@ -32,17 +32,18 @@ export const CAP9 = [
       const ch = CHAPTERS[9];
       UI.showCard(ch.title, ch.label, 3, 'chapter'); audio.sfx('star');
       lock(false);
-      objective('¡Huye! Sal de la ciudad hacia la carretera vieja (Las Afueras)');
+      objective('¡Huye por la ruta tres! La terracería de Las Afueras, junto al campo');
       ctx.check(() => (c.player.car !== t && !t.dead && dist(c.player.x, c.player.y, t.x, t.y) > 200 ? 'Abandonaste a tus compas' : null));
-      ctx.check(() => (t.dead ? 'El Tsuru explotó' : null));
+      ctx.check(() => (t.dead ? (t.sunk ? 'El Tsuru se hundió. Con todo y la lana.' : 'El Tsuru explotó') : null));
       const lineSet = [
-        [8, [['coqui', '¡Arranca, arranca, ARRANCA!', 'angry'], ['kazoo', '¡ESO ESTOY HACIENDO!', 'shock']]],
+        [8, [['coqui', '¡Arranca, arranca, ARRANCA!', 'angry'], ['kazoo', '¡ESO ESTOY HACIENDO, PENDEJO!', 'shock']]],
         [22, [['coqui', 'Tranquilos. Está bien. El carro aguanta. Aguanta.', 'serious']]],
         [38, [['coqui', '¡¿Por qué nos siguen si ya los perdimos?!', 'angry'], ['ghenghis', '¡Porque así es la vida, wey! ¡JAJAJA!', 'laugh']]],
         [55, [['ghenghis', '¿Alguien más huele a quemado?', 'think'], ['kazoo', 'Es su personalidad.', 'sad']]],
         [72, [['kazoo', '¡Aguanta, Tsurito! ¡Aguanta!', 'shock']]],
         [90, [['coqui', 'Kazoo... ¿de dónde sacaste este carro?', 'serious'], ['kazoo', '¡AHORITA NO, COQUI!', 'angry']]],
-        [110, [['ghenghis', 'Oigan... si nos separamos... ya saben. Pa\' allá.', 'serious'], ['coqui', '¿Pa\' dónde?', 'think'], ['ghenghis', 'Pa\' donde sea. Jajaja.', 'laugh']]],
+        [110, [['coqui', '¡La ruta tres, Kazoo! ¡La terracería! ¡Ahí no nos encuentran!', 'angry'], ['ghenghis', '¿Y qué hay allá?', 'think'], ['coqui', '¡Nada! ¡Por eso!', 'angry']]],
+        [128, [['coqui', '¿Y tú por qué estás tan tranquilo, Ghenghis?', 'serious'], ['ghenghis', 'Porque ya sé cómo acaba esto. Jajaja.', 'laugh']]],
       ];
       const fin = P().caminoFin;
       const mk = c.addMarker({ x: fin.x, y: fin.y, r: 26, color: '#ffd23f', label: 'EL CAMINO', needCar: true });
@@ -54,7 +55,7 @@ export const CAP9 = [
           t.forceSmoke = t.hp < 30 ? 'black' : t.hp < 55 ? 'gray' : null;
         }
         if (li < lineSet.length && tt > lineSet[li][0]) { const L = lineSet[li][1]; li++; for (const q of L) { UI.say(q[0], q[1], { expr: q[2], auto: 1.4 + q[1].length / 17 }); const d = UI.dialog; while (UI.dialog === d) yield; } }
-        if (tt > 20 && S().unlocked.afueras && c.zone === 'afueras') objective('¡Toma el camino de terracería hacia el campo!');
+        if (tt > 20 && S().unlocked.afueras && c.zone === 'afueras' && UI.objective !== '¡Toma la terracería de la ruta tres, hacia el campo!') objective('¡Toma la terracería de la ruta tres, hacia el campo!');
       }
       c.removeMarker(mk);
       // ---------- the car dies

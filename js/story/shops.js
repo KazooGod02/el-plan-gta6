@@ -96,7 +96,7 @@ function* food(sh, who) {
   if (!pay(p)) return;
   heal(hp);
   s.stats.meals = (s.stats.meals || 0) + 1;
-  yield* say('kazoo', pick(['Mmm. Esto sí es vida.', 'Con esto aguanto otro día sin pagarle a Don Chuy.', `${n}... cinco estrellas. No, cuatro. No soy fácil.`]), 'happy');
+  yield* say('kazoo', pick(['Mmm. Esto sí es vida.', 'Con esto aguanto otro día sin pagarle al Jefe.', `${n}... cinco estrellas. No, cuatro. No soy fácil.`]), 'happy');
 }
 
 function* bar(sh, who) {

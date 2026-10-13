@@ -40,9 +40,9 @@ export const CAP3 = [
       yield* fadeIn(0.4);
       yield* walkPlayer(110);
       yield* talk([
-        ['coqui', 'Bienvenido a la oficina.', 'normal'],
+        ['coqui', 'Bienvenidos a la oficina.', 'normal'],
         ['ghenghis', 'Huele a gato muerto.', 'happy'],
-        ['coqui', 'Es el precio de la discreción.', 'serious'],
+        ['coqui', 'Huele a que aquí no viene nadie. Eso es lo que importa.', 'serious'],
       ]);
       co.facing = 1;
       yield* walkNpc(co, 196, 40);
@@ -51,30 +51,31 @@ export const CAP3 = [
       music('tension');
       r.camTarget = { x: 190 };
       yield* talk([
-        ['coqui', 'El plan. Último viernes del mes. Entramos a las 10:05, justo después de que llega el blindado. La bóveda está llena.', 'serious'],
-        ['coqui', 'Ghenghis: tú conoces el banco. Tú guías adentro, te encargas de los guardias... y cargas la mochila.', 'normal'],
+        ['coqui', 'El plan. Último viernes del mes. Entramos a las 10:05, justo después del blindado. La bóveda va a estar llena.', 'serious'],
+        ['coqui', 'Ghenghis: tú conoces el banco. Tú guías adentro, controlas a los guardias... y cargas la mochila.', 'normal'],
         ['ghenghis', '¿Por qué yo la mochila?', 'think'],
-        ['coqui', 'Porque eres el único que no la va a perder.', 'serious'],
-        ['kazoo', '¡Oye!', 'angry'],
-        ['coqui', 'Yo: la ruta. Entrada, salida, tiempos. Todo.', 'normal'],
+        ['coqui', 'Porque si alguien se va a quedar con la mochila, prefiero saber quién.', 'serious'],
+        ['ghenghis', 'Jajaja. Qué bonita confianza.', 'laugh'],
+        ['coqui', 'Yo: la ruta. Entrada, salida, tiempos. La ruta tres ya la vieron.', 'normal'],
         ['coqui', 'Kazoo: herramientas, disfraces... y el carro.', 'normal'],
         ['kazoo', '¿No que yo no el carro?', 'shock'],
-        ['coqui', 'Lo pensé mejor. No hay presupuesto para otro miembro.', 'sad'],
-        ['kazoo', '¡Wuuu! ¡Confían en mí!', 'happy'],
+        ['coqui', 'Lo pensé mejor. No hay lana para meter a otro. Y a otro no le confío.', 'sad'],
+        ['kazoo', '¿Y a mí sí?', 'happy'],
+        ['coqui', 'A ti te conozco. No es lo mismo.', 'serious'],
         ['coqui', 'Un carro. Confiable. Que no llame la atención.', 'serious'],
         ['kazoo', 'Confiable. Anotado.', 'smug'],
         ['coqui', 'No anotaste nada.', 'serious'],
         ['kazoo', 'Lo anoté aquí. (se toca la cabeza)', 'happy'],
         ['coqui', 'Eso me preocupa más.', 'sad'],
-        ['coqui', 'Regla número uno: nadie improvisa. NADIE. Si alguien improvisa, se cae todo.', 'angry'],
+        ['coqui', 'Regla número uno: nadie improvisa. NADIE. El que improvisa se cae. Y se lleva a todos.', 'angry'],
         ['ghenghis', '¿Y si improviso bien?', 'crazy'],
-        ['kazoo', '¡Eso mismo dije yo en 2019!', 'happy'],
-        ['coqui', 'Y mira cómo acabé.', 'serious'],
+        ['kazoo', 'Eso mismo dije yo en 2019.', 'happy'],
+        ['coqui', 'Y mira cómo acabaste: con un taco de mango y una deuda con el Jefe.', 'serious'],
         ['narrator', '(Silencio incómodo)', 'normal'],
         ['coqui', 'Necesitamos tres cosas. Máscaras: Disfraces Carnaval, en El Centro. Armas: la Tía Gris, aquí en El Puerto.', 'normal'],
         ['coqui', 'Y un taladro industrial. En la Bodega 7 hay uno. De noche no hay casi nadie.', 'normal'],
-        ['ghenghis', 'Yo conozco a la Tía Gris. Me da miedo. Me cae bien.', 'happy'],
-        ['coqui', 'Toma, Kazoo. Mil quinientos. Para las máscaras y lo que salga. No te lo gastes en el Marketplace.', 'serious'],
+        ['ghenghis', 'Yo conozco a la Tía Gris. Me da miedo. Me cae bien. En ese orden.', 'happy'],
+        ['coqui', 'Toma, Kazoo. Mil quinientos. Para las máscaras y lo que salga. Si te lo gastas en el Marketplace, te rompo las manos.', 'serious'],
         ['kazoo', '(¿Cómo sabe?)', 'shock'],
       ]);
       r.camTarget = null;
@@ -95,17 +96,17 @@ export const CAP3 = [
       r.addNpc({ id: 'clerk', look: 'clerk', x: 300, facing: -1 });
       yield* walkPlayer(250);
       yield* talk([
-        ['clerk', 'Bienvenido a Disfraces Carnaval. ¿Buscas algo para fiesta?', 'normal'],
+        ['clerk', 'Bienvenido a Disfraces Carnaval. ¿Buscas algo para una fiesta?', 'normal'],
         ['kazoo', 'Sí. Para una fiesta. En un banco.', 'happy'],
         ['clerk', '...¿Una fiesta en un banco?', 'shock'],
-        ['kazoo', '¡Digo, CON el banco! Una fiesta... temática. De banco. Todos vamos de... clientes.', 'shock'],
-        ['clerk', 'No quiero saber. Las máscaras están ahí. Tres, ¿verdad? Todos los que vienen a comprar tres máscaras dicen lo mismo.', 'smug'],
+        ['kazoo', '¡Digo, una fiesta... temática! De banqueros. Todos vamos de... clientes.', 'shock'],
+        ['clerk', 'No quiero saber. Las máscaras están ahí. Tres, ¿verdad? Todos los que compran tres máscaras dicen lo mismo. La mitad sale después en las noticias.', 'smug'],
       ]);
       const res = yield* play('costume');
       const m = S().masks;
       yield* talk([
         ['clerk', 'Son $600. Sin factura, ¿verdad?', 'smug'],
-        ['kazoo', 'Sin factura.', 'normal'],
+        ['kazoo', 'Sin factura. Y sin cámaras, de preferencia.', 'normal'],
       ]);
       S().money = Math.max(0, S().money - 600); audio.sfx('coin');
       lock(false);
@@ -115,8 +116,8 @@ export const CAP3 = [
       yield* wait(1);
       chat('kazoo', 'Una ' + MASK_NAME[m.ghenghis] + ' jajaja');
       yield* wait(1.2);
-      if (m.ghenghis === 'payaso') chat('ghenghis', 'LA QUERÍA DE PAYASO. TE AMO');
-      else chat('ghenghis', 'yo quería la de payaso pero ok');
+      if (m.ghenghis === 'payaso') chat('ghenghis', 'LA DE PAYASO. TE AMO, CABRÓN');
+      else chat('ghenghis', 'yo quería la de payaso. me la vas a pagar jajaja');
       yield* wait(1);
       chat('coqui', 'Y la mía?');
       yield* wait(1);
@@ -129,7 +130,7 @@ export const CAP3 = [
   {
     id: 'c3_tia', chapter: 3, title: 'Regla número uno', requires: ['c3_escondite'], customRooms: true,
     trigger: { door: 'galpon', letter: 'T', color: '#a0b070', label: 'LA TÍA GRIS' },
-    rating: () => ({ by: 'La Tía Gris', stars: 3, text: 'Dudaste poquito. Poquito es mucho.' }),
+    rating: () => ({ by: 'La Tía Gris', stars: 3, text: 'Dudaste poquito. Poquito es lo que tarda una bala.' }),
     *run(ctx) {
       lock(true);
       roomAt('galpon', 40);
@@ -145,8 +146,8 @@ export const CAP3 = [
         ['tia', 'No es mucho.', 'serious'],
         ['tia', '¿Qué necesitan?', 'normal'],
         ['ghenghis', 'Tres. De las que no fallan.', 'serious'],
-        ['tia', 'Todas fallan, niño. Las que no fallan son las personas.', 'serious'],
-        ['tia', 'Antes de venderte algo, vas a disparar. Si no le atinas a una silueta, no te vendo ni una resortera.', 'smug'],
+        ['tia', 'Todas fallan, niño. Las que no fallan son las personas. Por eso hay tantos muertos.', 'serious'],
+        ['tia', 'Antes de venderte algo, vas a disparar. Si no le atinas a una silueta de cartón, no te vendo ni una resortera.', 'smug'],
         ['tia', 'Y escúchame bien, porque lo digo una vez.', 'serious'],
         ['tia', 'Regla número uno. Si te apuntan, tú disparas primero. Los que dudan no cuentan la historia.', 'angry'],
         ['kazoo', '¿Y la regla número dos?', 'think'],
@@ -155,12 +156,12 @@ export const CAP3 = [
       let res = null;
       for (let tries = 0; tries < 10; tries++) {
         res = yield* play('range', { time: 40 });
-        if (res.civ > 0) yield* say('tia', 'Le diste a un civil. En la vida real eso no se borra, niño.', 'angry');
+        if (res.civ > 0) yield* say('tia', 'Le diste a un civil. En la vida real eso no se borra con otra ronda, niño.', 'angry');
         if (res.score >= 400) break;
-        yield* say('tia', 'Otra vez. Y esta vez no cierres los ojos.', 'serious');
+        yield* say('tia', 'Otra vez. Y abre los ojos, que no estás rezando.', 'serious');
       }
-      if (res.perfect) yield* say('tia', '...Perfecto. No dudaste. Eso me asusta un poquito. Pero me gusta.', 'smug');
-      else yield* say('tia', 'Nada mal. Dudaste poquito. Poquito es mucho.', 'serious');
+      if (res.perfect) yield* say('tia', '...Perfecto. No dudaste ni tantito. Eso me asusta. Pero me gusta.', 'smug');
+      else yield* say('tia', 'Nada mal. Dudaste poquito. Poquito es lo que tarda una bala.', 'serious');
       yield* say('tia', 'Coqui ya pagó. Tres pistolas y balas. Te doy la tuya.', 'normal');
       S().weapons.pistol = (S().weapons.pistol || 0) + 36;
       S().weapon = 'pistol';
@@ -172,7 +173,7 @@ export const CAP3 = [
       yield* talk([
         ['tia', '¡NO SE LE APUNTA A LA GENTE, ANIMAL!', 'angry'],
         ['ghenghis', 'Jajaja, relájese, no está cargada.', 'laugh'],
-        ['tia', 'TODAS están cargadas. Siempre. Hasta las de juguete.', 'angry'],
+        ['tia', 'TODAS están cargadas. Siempre. Hasta la que te apunta de broma. Sobre todo esa.', 'angry'],
         ['kazoo', '...', 'serious'],
       ]);
       gh.pose = null;
@@ -198,7 +199,7 @@ export const CAP3 = [
       r.onDetected = (e) => { if (!r._caught) { r._caught = true; e.bark = '¡¿Quién anda ahí?!'; e.barkT = 2; G.story.fail('Un guardia te vio', 'fail'); } };
       music('tension');
       yield* fadeIn(0.5);
-      yield* say('narrator', 'Bodega 7. Medianoche. Tres guardias con linterna. Sin ruido, Kazoo.', 'normal');
+      yield* say('narrator', 'Bodega 7. Medianoche. Tres guardias con linterna. Sin hacer ruido, Kazoo.', 'normal');
       lock(false);
       toast('En lo oscuro solo te ven con la linterna o si estás muy cerca.', '#5adcf0', 5);
       objective('Toma el taladro del fondo de la bodega');
@@ -228,7 +229,7 @@ export const CAP3 = [
   },
   {
     id: 'c3_fin', chapter: 3, title: 'Casi listos', requires: ['c3_mascaras', 'c3_tia', 'c3_taladro'], customRooms: true,
-    rating: () => ({ by: 'Ghenghis', stars: 5, text: 'Esto va a salir mal. Qué emoción.' }),
+    rating: () => ({ by: 'Ghenghis', stars: 5, text: 'Esto va a salir mal. Qué emoción, jajaja.' }),
     *run(ctx) {
       lock(true);
       yield* fadeOut(0.4);
@@ -243,19 +244,19 @@ export const CAP3 = [
       const m = S().masks;
       yield* talk([
         ['ghenghis', '¿Cómo me veo?', 'happy'],
-        ['coqui', 'Como alguien que va a asaltar un banco... ' + (m.ghenghis === 'payaso' ? 'en una fiesta infantil.' : 'con mucha confianza.'), 'serious'],
+        ['coqui', 'Como alguien que va a asaltar un banco... ' + (m.ghenghis === 'payaso' ? 'en una fiesta infantil.' : 'con demasiadas ganas.'), 'serious'],
         ['coqui', 'Máscaras, listo. Armas, listo. Taladro, listo.', 'normal'],
-        ['coqui', 'Solo falta el carro.', 'serious'],
+        ['coqui', 'Falta el carro.', 'serious'],
         ['kazoo', 'Yo me encargo.', 'smug'],
         ['coqui', 'Confiable, Kazoo.', 'serious'],
         ['kazoo', 'Confiable. Anotado.', 'happy'],
         ['coqui', 'Y otra cosa: hay que ver el banco por dentro. De cerca. Las cámaras, la alarma, los guardias.', 'think'],
         ['ghenghis', 'A mí me conocen ahí. Me corrieron, ¿te acuerdas? Jajaja.', 'laugh'],
-        ['coqui', 'A mí me conoce media policía de Puerto Vicio.', 'serious'],
+        ['coqui', 'Y a mí me conoce media policía de Puerto Vicio.', 'serious'],
         ['narrator', 'Coqui y Ghenghis voltean a ver a Kazoo. Muy lentamente.', 'normal'],
         ['kazoo', '¿Qué? ...¿Yo?', 'shock'],
         ['coqui', 'Tú eres repartidor. Nadie ve a los repartidores.', 'normal'],
-        ['kazoo', '¡Eso es muy triste y muy cierto!', 'sad'],
+        ['kazoo', 'Eso es muy triste y muy cierto.', 'sad'],
       ]);
       gh.mask = null;
       yield* fadeOut(0.8);

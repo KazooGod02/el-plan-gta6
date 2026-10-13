@@ -26,7 +26,7 @@ export const CAP1 = [
       yield* talk([
         ['kazoo', '...¿Qué hora es?', 'think'],
         ['kazoo', '¡¿LAS NUEVE Y QUINCE?!', 'shock'],
-        ['kazoo', '¡Coqui sale a las diez! ¡El penal está hasta Las Afueras!', 'shock'],
+        ['kazoo', '¡Coqui sale a las diez y el penal está hasta la verga de lejos!', 'shock'],
       ]);
       lock(false);
       objective('Recoge a Coqui en el penal (Las Afueras)');
@@ -41,9 +41,9 @@ export const CAP1 = [
       const d0 = dist(pen.x, pen.y, gate.x, gate.y);
       const breaks = [0.72, 0.45, 0.2];
       const lines1 = [
-        ['kazoo', 'No, no, no, no... ¡ahorita no, bonita!', 'shock'],
+        ['kazoo', 'No, no, no, no... ¡ahorita no, pinche moto!', 'shock'],
         ['kazoo', '¡Cuatro punto ocho estrellas, wey! ¡CUATRO PUNTO OCHO!', 'angry'],
-        ['kazoo', 'Voy a dejarle una reseña de tres. No, de tres y media. No soy un monstruo.', 'sad'],
+        ['kazoo', 'Le voy a dejar una reseña de tres. No, de tres y media. No soy un animal.', 'sad'],
       ];
       let k = 0;
       while (!m.inside) {
@@ -76,21 +76,21 @@ export const CAP1 = [
       music('sad');
       yield* wait(0.8);
       yield* talk([
-        ['coqui', 'Tres años adentro. Tres años contando los días.', 'serious'],
+        ['coqui', 'Tres años adentro. Rayando la pared como pendejo, contando los días.', 'serious'],
         ['coqui', 'Y lo primero que veo cuando salgo... es tu cara. Tarde.', 'angry'],
         ['kazoo', '¡Coqui! Wey, perdón, la moto se...', 'shock'],
-        ['coqui', 'Dos horas, Kazoo. DOS HORAS. Le pregunté la hora al guardia tantas veces que me ofreció quedarme otra semana.', 'angry'],
+        ['coqui', 'Dos horas, Kazoo. DOS HORAS. Le pregunté la hora al custodio tantas veces que me ofreció quedarme otra semana.', 'angry'],
         ['kazoo', 'La moto tenía 4.8 estrellas, wey. Era un riesgo calculado.', 'normal'],
         ['coqui', '...Sigues comprando cosas en el Marketplace.', 'serious'],
         ['kazoo', 'Sigo comprando cosas en el Marketplace.', 'smug'],
         ['coqui', '...', 'serious'],
         ['coqui', 'Te extrañé, pendejo.', 'happy'],
-        ['kazoo', 'Yo también, wey. Un chingo.', 'happy'],
-        ['coqui', '¿Y en eso vamos a regresar? Los dos arriba de esa cosa parecemos cartel de circo.', 'smug'],
+        ['kazoo', 'Yo también, cabrón. Un chingo.', 'happy'],
+        ['coqui', '¿Y en eso nos vamos? Los dos encima de esa cosa parecemos anuncio de funeraria.', 'smug'],
         ['kazoo', 'Cabe uno y medio. Tú eres el medio.', 'happy'],
         ['coqui', 'Consigue un carro. Hay unos allá, en el estacionamiento de las visitas.', 'normal'],
         ['kazoo', '¿Robar un carro? ¿Afuera del penal? ¿El día que saliste?', 'shock'],
-        ['coqui', '"Tomar prestado". Y no me veas a mí. Yo no toco nada hoy.', 'serious'],
+        ['coqui', '"Tomar prestado". Y a mí no me veas. Hoy no toco nada. Hoy soy un ciudadano ejemplar.', 'serious'],
       ]);
       c.camTarget = null; UI.letterboxTarget = 0; music(null);
       coqui.state = 'follow';
@@ -101,7 +101,7 @@ export const CAP1 = [
       let warned = false;
       yield* until(() => {
         const car = c.player.car;
-        if (car && car.type === 'moto' && !warned && dist(car.x, car.y, coqui.x, coqui.y) < 90) { warned = true; c.say(coqui, 'No me subo a esa cosa. Un carro, Kazoo.', 3); }
+        if (car && car.type === 'moto' && !warned && dist(car.x, car.y, coqui.x, coqui.y) < 90) { warned = true; c.say(coqui, 'No me subo a esa madre. Un carro, Kazoo.', 3); }
         if (car && car.type !== 'moto' && !car.passengers.includes(coqui) && dist(car.x, car.y, coqui.x, coqui.y) > 120) objective('Regresa por Coqui');
         return car && car.passengers.includes(coqui);
       });
@@ -110,8 +110,8 @@ export const CAP1 = [
       const m2 = c.addMarker({ x: tu.x, y: tu.y + 20, r: 26, color: '#ffd23f', label: 'TALLER', needCar: true });
       const d1 = dist(c.pos().x, c.pos().y, tu.x, tu.y);
       const convo = [
-        [0.9, [['coqui', 'Llévame con el Tuercas.', 'serious'], ['kazoo', '¿El Tuercas? ¿Tu ex socio? ¿El del taller?', 'shock'], ['coqui', 'Sí. Ese.', 'serious']]],
-        [0.65, [['coqui', 'Antes de que me agarraran escondí la lana del último trabajo en su taller. Debajo del piso de su oficina.', 'normal'], ['kazoo', '¿Y crees que siga ahí?', 'think'], ['coqui', 'Más le vale.', 'angry']]],
+        [0.9, [['coqui', 'Llévame con el Tuercas.', 'serious'], ['kazoo', '¿El Tuercas? ¿Tu ex socio? ¿El del taller?', 'shock'], ['coqui', 'Ese mero.', 'serious']]],
+        [0.65, [['coqui', 'Antes de que me agarraran escondí la lana del último jale en su taller. Debajo del piso de su oficina.', 'normal'], ['kazoo', '¿Y crees que siga ahí?', 'think'], ['coqui', 'Más le vale. Por su salud.', 'angry']]],
         [0.35, [['coqui', '¿Sabes cómo me agarraron, Kazoo?', 'serious'], ['kazoo', 'Nunca me quisiste contar.', 'sad'], ['coqui', '...', 'serious']]],
       ];
       let ci = 0;
@@ -125,7 +125,7 @@ export const CAP1 = [
       c.removeMarker(m2);
       lock(true);
       while (ci < convo.length) { yield* lines(convo[ci][1]); ci++; }
-      yield* line('coqui', 'Hace tres años. Joyería Brillante, en El Centro. Era mi trabajo más fácil...', 'sad');
+      yield* line('coqui', 'Hace tres años. Joyería Brillante, en El Centro. El jale más fácil de mi vida...', 'sad');
       lock(false);
     },
   },
@@ -146,9 +146,9 @@ export const CAP1 = [
       yield* fadeIn(1);
       yield* wait(2);
       yield* talk([
-        ['tuercas', 'Rápido, Coqui. La alarma se reactiva en un minuto y medio.', 'shock'],
-        ['coqui', 'Relájate, Tuercas. Tengo todo calculado. Aquí nadie improvisa.', 'smug'],
-        ['tuercas', 'Sí, sí... yo vigilo la puerta de atrás. Tú agarra todo.', 'normal'],
+        ['tuercas', 'Rápido, Coqui. La alarma se reactiva en minuto y medio.', 'shock'],
+        ['coqui', 'Cálmate, Tuercas. Tengo todo calculado. Aquí nadie improvisa.', 'smug'],
+        ['tuercas', 'Sí, sí... yo cuido la puerta de atrás. Tú agarra todo.', 'normal'],
       ]);
       lock(false);
       toast('Juegas como COQUI', '#5a8ce0', 3);
@@ -171,7 +171,7 @@ export const CAP1 = [
       UI.timer = null;
       audio.sfx('alarm');
       r.shake(3);
-      yield* say('tuercas', '¡La alarma! ¡¿Quién la prendió?! ¡Vámonos por atrás! ¡Te espero afuera, Coqui!', 'shock');
+      yield* say('tuercas', '¡La alarma! ¡¿Quién la prendió?! ¡Salte por atrás! ¡Ahí te espero, Coqui!', 'shock');
       yield* walkNpc(tu, 560, 80);
       tu.hidden = true;
       objective('¡Escapa por la puerta trasera!');
@@ -188,9 +188,9 @@ export const CAP1 = [
       yield* talk([
         ['reyes', 'Buenas noches, señor Coqui. Qué bonitas joyas.', 'smug'],
         ['coqui', '¿Tuercas? ...¡TUERCAS!', 'shock'],
-        ['reyes', 'Tu amigo nos habló hace una hora. Muy cooperativo. Hasta nos dejó la puerta abierta.', 'smug'],
+        ['reyes', 'Tu socio nos llamó hace una hora. Muy cooperativo. Hasta nos dejó la puerta abierta.', 'smug'],
         ['coqui', '...', 'shock'],
-        ['reyes', 'Me presento. Comandante Reyes. Vamos a ser muy buenos amigos tú y yo.', 'serious'],
+        ['reyes', 'Comandante Reyes. Acostúmbrate a mi cara: la vas a ver en cada audiencia.', 'serious'],
       ]);
       r.p.pose = 'hands';
       audio.sfx('fail');
@@ -211,9 +211,9 @@ export const CAP1 = [
       if (coqui) { coqui.x = tq.x + 14; coqui.y = tq.y + 22; coqui.state = 'idle'; coqui.a = -Math.PI / 2; }
       yield* fadeIn(0.8);
       yield* talk([
-        ['coqui', 'Me vendió por dos años menos de condena. Dos años.', 'sad'],
-        ['kazoo', 'Qué hijo de...', 'angry'],
-        ['coqui', 'La gente no te traiciona de golpe, Kazoo. Te traiciona poquito a poquito. Y tú no te das cuenta.', 'serious'],
+        ['coqui', 'Me vendió por dos años menos de condena. Dos pinches años.', 'sad'],
+        ['kazoo', 'Hijo de su puta madre.', 'angry'],
+        ['coqui', 'La gente no te traiciona de golpe, Kazoo. Te traiciona poquito a poquito. Y tú ni cuenta te das.', 'serious'],
         ['coqui', 'Vamos por lo mío.', 'angry'],
       ]);
       lock(false);
@@ -221,7 +221,7 @@ export const CAP1 = [
   },
   {
     id: 'c1_tuercas', chapter: 1, title: 'Tabla floja', requires: ['c1_flashback'], lockRoom: true, customRooms: true, failPlace: 'tuercas',
-    rating: () => ({ by: 'Coqui', stars: 4, text: 'Casi te ven. Casi.' }),
+    rating: () => ({ by: 'Coqui', stars: 4, text: 'Casi te ven. Casi nos cuesta otros tres años.' }),
     *run(ctx) {
       const c = C(), tq = P().tuercas;
       lock(true);
@@ -230,11 +230,11 @@ export const CAP1 = [
       if (!coqui) coqui = ally('coqui', tq.x + 14, tq.y + 22, 'COQUI');
       coqui.state = 'idle';
       yield* talk([
-        ['coqui', 'Este es el plan. Yo entro por enfrente y lo entretengo. Tú entras por la puerta de atrás.', 'serious'],
+        ['coqui', 'El plan: yo entro por enfrente y lo entretengo. Tú te metes por la puerta de atrás.', 'serious'],
         ['coqui', 'Su oficina está al fondo. Debajo del escritorio hay una tabla floja. Ahí está la lana.', 'normal'],
         ['kazoo', '¿Y si me ven?', 'shock'],
         ['coqui', 'Que no te vean.', 'serious'],
-        ['kazoo', 'Gracias, Coqui. Muy útil.', 'sad'],
+        ['kazoo', 'Gracias, Coqui. Qué plan tan detallado.', 'sad'],
       ]);
       yield* fadeOut(0.5);
       c.removePed(coqui);
@@ -270,9 +270,9 @@ export const CAP1 = [
       r.stealth = false;
       chavo.frozen = true; primo.frozen = true;
       yield* talk([
-        ['kazoo', '¡Ya la tengo! Ahora sí... a ver...', 'happy'],
+        ['kazoo', 'Ya está. Ahora sí... a ver...', 'happy'],
         ['kazoo', '...', 'shock'],
-        ['kazoo', 'No hay nada. Nomás... un recibo de Elektra. De una sala. En 52 pagos.', 'shock'],
+        ['kazoo', 'No hay nada. Nomás un recibo de Elektra. De una sala. A 52 pagos.', 'shock'],
       ]);
       // Tuercas & Coqui come in
       const tuF = r.npc('tuercasF'), coF = r.npc('coquiF');
@@ -283,20 +283,20 @@ export const CAP1 = [
       chavo.facing = -1; primo.facing = 1;
       yield* talk([
         ['tuercas', '¡Chavo! ¡Primo! Tranquilos, tranquilos... es... es Coqui.', 'shock'],
-        ['tuercas', '¡Coqui, hermano! ¡Qué gusto! ¿Ya saliste? ¡Qué rápido pasa el tiempo!', 'happy'],
+        ['tuercas', '¡Coqui, hermano! ¿Ya saliste? ¡Qué rápido se pasa el tiempo!', 'happy'],
         ['coqui', 'Tres años, Tuercas. Para mí no pasó rápido.', 'serious'],
         ['kazoo', 'Coqui... no hay nada. Está vacío.', 'sad'],
         ['coqui', '¿Dónde está mi dinero?', 'angry'],
-        ['tuercas', 'Mira, mira... te lo iba a guardar, de verdad. Pero luego se me descompuso la grúa, y mi señora quería una sala, y luego el Marketplace tenía unas ofertas...', 'sad'],
-        ['kazoo', '...Las ofertas del Marketplace sí son muy buenas.', 'normal'],
+        ['tuercas', 'Mira, mira... te lo iba a guardar, te lo juro. Pero se me descompuso la grúa, y mi vieja quería una sala, y luego el Marketplace tenía unas ofertas...', 'sad'],
+        ['kazoo', '...Las ofertas del Marketplace sí están cabronas.', 'normal'],
         ['coqui', '¡KAZOO!', 'angry'],
         ['kazoo', 'Perdón.', 'sad'],
         ['tuercas', 'Me ofrecieron dos años menos, Coqui. Dos años. Tú habrías hecho lo mismo.', 'sad'],
         ['coqui', 'No. Yo no.', 'serious'],
       ]);
-      const ch = yield* ask('kazoo', '(Coqui aprieta los puños. ¿Qué le dices?)', ['"Déjalo, Coqui. No vale la pena."', '"Rómpele la cara."', '(No decir nada)']);
-      if (ch === 0) { trust(6); yield* talk([['kazoo', 'Déjalo, Coqui. No vale la pena. Tú no eres como él.', 'serious'], ['coqui', '...Tienes razón. No soy como él.', 'sad']]); }
-      else if (ch === 1) { trust(-3); yield* talk([['kazoo', 'Rómpele la cara, Coqui.', 'angry'], ['coqui', 'No. Eso es lo que haría él. Nosotros no somos así.', 'serious'], ['kazoo', '...Tienes razón.', 'sad']]); }
+      const ch = yield* ask('kazoo', '(Coqui aprieta los puños. ¿Qué le dices?)', ['"Déjalo, Coqui. No vale ni la bala."', '"Rómpele la madre."', '(No decir nada)']);
+      if (ch === 0) { trust(6); yield* talk([['kazoo', 'Déjalo, Coqui. No vale ni la bala. Tú no eres como él.', 'serious'], ['coqui', '...No. No soy como él.', 'sad']]); }
+      else if (ch === 1) { trust(-3); yield* talk([['kazoo', 'Rómpele la madre, Coqui.', 'angry'], ['coqui', 'Ganas no me faltan. Pero si lo toco, regreso adentro. Y este no vale tres años más.', 'serious'], ['kazoo', '...Ya.', 'sad']]); }
       else yield* talk([['kazoo', '...', 'normal'], ['coqui', '...', 'serious']]);
       yield* talk([
         ['coqui', 'Vámonos, Kazoo.', 'serious'],
@@ -314,11 +314,11 @@ export const CAP1 = [
       yield* talk([
         ['coqui', 'No tengo nada, Kazoo. Ni lana, ni casa, ni socio.', 'sad'],
         ['kazoo', 'Tienes socio. Y casa. Bueno... tengo un cuarto. Hay un sillón.', 'normal'],
-        ['kazoo', 'Bueno, no hay sillón. Hay piso. Pero es un piso muy bonito.', 'happy'],
-        ['coqui', 'Suena a lujo.', 'smug'],
+        ['kazoo', 'Bueno, no hay sillón. Hay piso. Pero el piso es tuyo.', 'happy'],
+        ['coqui', 'Suena mejor que mi celda.', 'smug'],
         ['kazoo', 'Coqui... ¿y ahora qué hacemos?', 'think'],
         ['coqui', '...', 'think'],
-        ['coqui', 'Ahora... necesitamos un plan.', 'serious'],
+        ['coqui', 'Ahora... necesitamos un plan. Y esta vez nadie me va a vender.', 'serious'],
       ]);
       music(null);
       c.removePed(co);

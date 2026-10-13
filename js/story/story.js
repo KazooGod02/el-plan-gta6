@@ -33,7 +33,7 @@ export const story = {
     on('busted', () => this.onDeath('busted'));
     on('collect', (k, i) => this.onCollect(k, i));
     on('wanted', (n) => { if (n >= 5) unlock('bro'); });
-    on('zone', (z) => { if (z === 'afueras') { const p = G.scenes.city.pos(); if (dist(p.x, p.y, MAP.places.arbol.x, MAP.places.arbol.y) < 300 && G.state.chapter < 6) unlock('paalla'); } });
+    on('zone', (z) => { if (z === 'afueras') { const p = G.scenes.city.pos(); if (dist(p.x, p.y, MAP.places.arbol.x, MAP.places.arbol.y) < 300 && !G.story.isDone('c2_banco')) unlock('paalla'); } });
     on('enterVehicle', () => { G.radioShowT = 3; });
   },
 
@@ -447,8 +447,8 @@ export const story = {
         r.addNpc({ id: 'tia', look: 'tia', x: 214, facing: -1, onTalk: talkMenu('tia', () => this.tiaMenu()) });
         break;
       case 'donchuy':
-        r.addNpc({ id: 'chuy', look: 'donchuy', x: 110, facing: 1, pose: 'sit', y: FLOOR - 4, onTalk: talkMenu('donchuy', () => this.chuyMenu()) });
-        r.addNpc({ look: 'thug', x: 60, facing: 1 }); r.addNpc({ look: 'thug', x: 290, facing: -1 });
+        this.jefeRoom(r);
+        r.addAction({ x: 238, r: 22, label: 'Hablar con El Jefe', fn: () => { if (!this.active || this.active.m.allowShops) runner.run(this.chuyMenu(), 'npc'); } });
         break;
       case 'escondite':
         r.prop('plan').plan = s.chapter >= 3;
@@ -474,6 +474,14 @@ export const story = {
     }
   },
 
+  // El Jefe's office: his men stand around, he stays in the chair with his back to you
+  jefeRoom(r) {
+    r.addNpc({ look: 'guarura', x: 64, facing: 1 });
+    r.addNpc({ look: 'guarura', x: 168, facing: -1 });
+    r.addNpc({ look: 'guarura', x: 212, facing: -1 });
+    r.addNpc({ look: 'guarura', x: 330, facing: -1 });
+  },
+
   teaserWatch(r, tvx) {
     let t = 0;
     const prev = r.onUpdate;
@@ -487,7 +495,7 @@ export const story = {
     const r = G.scenes.interior, s = G.state;
     const slots = { pan: { x: 88, y: 131 }, lava: { x: 176, y: 136 }, planta: { x: 140 }, kazoo: { x: 186, y: 136 }, tele: { x: 196 }, sillon: { x: 210 }, disco: { x: 230, y: 62 }, pato: { x: 110 }, arcade: { x: 330 }, trofeo: { x: 166, y: 136 }, cuadro: { x: 20, y: 110 }, poster: { x: 244, y: 104 } };
     const map = { pan: 'pan', lava: 'lava', planta: 'plant', kazoo: 'kazooGold', tele: 'tv', sillon: 'sofa', disco: 'disco', pato: 'pato', arcade: 'arcade', trofeo: 'trophy', cuadro: 'cuadro', poster: 'poster' };
-    for (const it of s.items) if (slots[it]) r.props.push({ t: map[it], ...slots[it], col: '#6a5a3a', stain: it === 'sillon', text: it === 'poster' ? 'VC' : undefined, col2: '#ff3cc8' });
+    for (const it of s.items) if (slots[it]) r.props.push({ t: map[it], ...slots[it], col: '#6a5a3a', stain: it === 'sillon', text: it === 'poster' ? 'LUCHA' : undefined, col2: '#ff3cc8' });
   },
 
   // ------------------------------------------------------------ free-roam menus
@@ -578,14 +586,14 @@ export const story = {
   *chuyMenu() {
     const s = G.state;
     const left = s.debt - s.paid;
-    if (left <= 0) { yield* say('donchuy', 'Kazoo, mijo. Estamos a mano. Qué raro se siente, ¿verdad? A mí también.', 'happy'); return; }
-    const c = yield* ask('donchuy', `Kazoo. Me debes ${money(left)}. ¿Vienes a abonar o a visitarme? Porque de visita no se aceptan.`, ['Abonar $500', 'Abonar $2,000', 'Abonar todo lo que traigo', 'Me voy']);
+    if (left <= 0) { yield* say('donchuy', 'Estamos a mano, Kazoo. Disfrútalo. En esta ciudad nadie dura mucho tiempo a mano conmigo.', 'serious'); return; }
+    const c = yield* ask('donchuy', `Me debes ${money(left)}. ¿Vienes a pagar o a hacerme perder el tiempo? Porque el tiempo también te lo cobro.`, ['Abonar $500', 'Abonar $2,000', 'Abonar todo lo que traigo', 'Me voy']);
     let amt = [500, 2000, s.money, 0][c];
     amt = Math.min(amt, s.money, left);
-    if (amt <= 0) { if (c < 3) yield* say('donchuy', 'No traes nada. Qué decepción. Otra más.', 'serious'); return; }
+    if (amt <= 0) { if (c < 3) yield* say('donchuy', 'No traes nada. Qué valiente. O qué pendejo. Casi siempre es lo mismo.', 'serious'); return; }
     s.money -= amt; s.paid += amt; audio.sfx('coin');
-    if (s.paid >= s.debt) { unlock('deuda'); yield* say('donchuy', '...Pagaste todo. Toda la vida cobrando y nunca me había pasado. Me dan ganas de llorar. No lo voy a hacer. Pero me dan.', 'shock'); }
-    else yield* say('donchuy', `Muy bien. Te faltan ${money(s.debt - s.paid)}. El reloj sigue caminando, mijo.`, 'smug');
+    if (s.paid >= s.debt) { unlock('deuda'); yield* say('donchuy', '...Todo. Veinte años cobrando y nadie me había pagado completo. ¿De dónde lo sacaste? ...No me digas. Prefiero no saber a quién le tengo que agradecer.', 'serious'); }
+    else yield* say('donchuy', `Te faltan ${money(s.debt - s.paid)}. El reloj sigue corriendo, Kazoo. Y el reloj es mío.`, 'serious');
   },
 
   // ------------------------------------------------------------ collectibles

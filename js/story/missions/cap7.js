@@ -8,7 +8,7 @@ import { FLOOR } from '../../interior/rooms.js';
 
 export const CAP7 = [
   {
-    id: 'c7_libre', chapter: 7, chapterStart: true, title: 'Pendientes', requires: ['c6_campo'], customRooms: true, allowShops: true,
+    id: 'c7_libre', chapter: 7, chapterStart: true, title: 'Pendientes', requires: ['c6_coqui'], customRooms: true, allowShops: true,
     rating: () => ({ by: 'Doña Mari', stars: 5, text: 'Cuídate, mijo.' }),
     onDoor(d, ctx) {
       const st = ctx.st;
@@ -20,17 +20,19 @@ export const CAP7 = [
       setDay(-1); setClock(9, 30);
       const st = ctx.st = { mari: false, chuy: false };
       if (G.scene !== C()) cityAt(P().pension, 10);
-      chat('coqui', 'Mañana es el día. Hoy descansen. En la noche: azotea de la pensión. Los tres.');
+      chat('coqui', 'Mañana es el día. Hoy descansen. En la noche: azotea de la pensión. Los tres. Y nadie llega acompañado.');
       yield* wait(1.2);
       chat('ghenghis', 'última cena jajaja');
       yield* wait(1.2);
       chat('coqui', 'No digas eso.');
+      yield* wait(1.2);
+      chat('ghenghis', 'ok. penúltima cena');
       yield* wait(1);
       toast('Día libre: haz lo que quieras antes de la noche', '#ffd23f', 4);
       const c = C();
       const mk1 = c.addMarker({ x: P().taqueria.x, y: P().taqueria.y, r: 14, letter: 'M', color: '#f07aa8', label: 'DOÑA MARI', onEnter: () => (st.goMari = !st.mari) });
-      const mk2 = c.addMarker({ x: P().donchuy.x, y: P().donchuy.y, r: 14, letter: 'D', color: '#c8a03c', label: 'DON CHUY', onEnter: () => (st.goChuy = !st.chuy) });
-      const upd = () => objective(`Pendientes: ${st.mari ? '✓' : '·'} Visitar a Doña Mari  ${st.chuy ? '✓' : '·'} Ver a Don Chuy`);
+      const mk2 = c.addMarker({ x: P().donchuy.x, y: P().donchuy.y, r: 14, letter: 'J', color: '#b8a070', label: 'EL JEFE', onEnter: () => (st.goChuy = !st.chuy) });
+      const upd = () => objective(`Pendientes: ${st.mari ? '✓' : '·'} Visitar a Doña Mari  ${st.chuy ? '✓' : '·'} Ver al Jefe`);
       upd();
       while (!(st.mari && st.chuy)) {
         yield;
@@ -77,47 +79,48 @@ export const CAP7 = [
         ['ghenghis', 'De todos modos esto va a salir mal.', 'normal'],
         ['coqui', 'Ya cállate.', 'angry'],
         ['ghenghis', 'No, déjame acabar.', 'serious'],
-        ['ghenghis', 'Va a salir mal. Pero qué chido que sea con ustedes.', 'happy'],
+        ['ghenghis', 'Va a salir mal. Pero qué chido que sea con ustedes. Si me van a meter un tiro, que sea entre amigos.', 'happy'],
         ['narrator', '(Silencio. La ciudad hace ruido allá abajo. Aquí arriba, no.)', 'normal'],
         ['kazoo', 'Wey, no digas cosas bonitas, me da miedo.', 'sad'],
-        ['coqui', 'Cuando me agarraron, pensé que nunca iba a volver a ver la ciudad así. Desde arriba. Con ustedes.', 'sad'],
+        ['coqui', 'Cuando me agarraron, pensé que nunca iba a volver a ver la ciudad así. Desde arriba.', 'sad'],
         ['kazoo', 'Tres años.', 'sad'],
-        ['coqui', 'Tres años.', 'sad'],
+        ['coqui', 'Tres años. Y a la semana de salir ya estoy otra vez viendo de quién cuidarme.', 'serious'],
       ]);
       const tr = S().trust;
       if (tr >= 60) {
         yield* talk([
           ['coqui', 'Kazoo. Ghenghis.', 'serious'],
-          ['coqui', '...Gracias. Por no ser el Tuercas.', 'sad'],
+          ['coqui', 'Mañana, pase lo que pase... no sean el Tuercas.', 'sad'],
           ['ghenghis', 'Jajaja. Bajita la mano, Coqui.', 'laugh'],
-          ['kazoo', 'Siempre, wey.', 'happy'],
+          ['kazoo', 'Nunca, wey.', 'happy'],
+          ['narrator', 'Coqui sonríe. Pero no deja de mirarlos a los dos.', 'normal'],
         ]);
         S().flags.azotea = 'bien';
       } else if (tr >= 40) {
-        yield* say('coqui', 'Oigan... ¿hay algo que me quieran decir?', 'think');
-        const ch = yield* ask('kazoo', '(Ghenghis te mira de reojo.)', ['"No, nada."', '(Mirar a Ghenghis)', '"Coqui... sí. Hay algo."']);
+        yield* say('coqui', 'Oigan... ¿hay algo más que me quieran decir? Los dos.', 'think');
+        const ch = yield* ask('kazoo', '(Ghenghis te mira de reojo.)', ['"No, nada."', '(Mirar a Ghenghis)', '"Coqui... lo del Jefe..."']);
         if (ch === 2) {
           yield* talk([
-            ['kazoo', 'Coqui... sí. Hay algo.', 'sad'],
-            ['ghenghis', '¡Que te queremos, wey! ¡Eso! ¡Jajaja! ¿Verdad, Kazoo?', 'laugh'],
-            ['kazoo', '...Eso. Que te queremos.', 'sad'],
+            ['kazoo', 'Coqui... lo del Jefe...', 'sad'],
+            ['ghenghis', '¡Que ya le pagamos la renta del miedo! Eso. Jajaja. ¿Verdad, Kazoo?', 'laugh'],
+            ['kazoo', '...Eso.', 'sad'],
             ['coqui', '...Ya.', 'serious'],
           ]);
-        } else yield* talk([['ghenghis', 'Que te queremos, wey. Jajaja.', 'laugh'], ['coqui', '...Ya.', 'serious']]);
+        } else yield* talk([['ghenghis', 'Que te queremos, wey. Jajaja.', 'laugh'], ['coqui', '...Ya. Eso dicen todos. Antes.', 'serious']]);
         S().flags.azotea = 'casi';
       } else {
         yield* talk([
           ['coqui', 'Si alguno de ustedes me está ocultando algo...', 'serious'],
-          ['coqui', 'mañana es el último día para decirlo.', 'angry'],
+          ['coqui', 'mañana es el último día para decirlo. Después ya no hay perdón. Hay plomo.', 'angry'],
           ['ghenghis', '¡Jajaja! Qué intenso, Coqui.', 'laugh'],
           ['kazoo', '...', 'sad'],
-          ['narrator', 'Coqui no se ríe.', 'normal'],
+          ['narrator', 'Coqui no se ríe. Mira a uno. Luego al otro.', 'normal'],
         ]);
         S().flags.azotea = 'mal';
       }
       yield* talk([
         ['kazoo', 'Oigan... ¿y si no lo hacemos?', 'think'],
-        ['coqui', '¿Y Don Chuy?', 'serious'],
+        ['coqui', '¿Y el Jefe?', 'serious'],
         ['ghenghis', '¿Y la renta?', 'normal'],
         ['coqui', '¿Y los tres años?', 'sad'],
         ['kazoo', '...Ya sé. Nomás preguntaba.', 'sad'],
@@ -154,10 +157,10 @@ function* mariScene() {
     ['kazoo', '¿Qué pasa, Doña Mari?', 'normal'],
     ['mari', 'Tú no naciste para meterte en broncas, Kazoo. Naciste para llegar tarde con los tacos fríos.', 'sad'],
     ['kazoo', '¿Quién dijo que me voy a meter en broncas?', 'shock'],
-    ['mari', 'Tu cara. Tu cara siempre dice todo.', 'serious'],
+    ['mari', 'Tu cara. Tu cara siempre dice todo. Y ahorita dice que vas a hacer una pendejada.', 'serious'],
     ['mari', 'Toma. Tacos para el camino. Por si te vas de viaje.', 'sad'],
     ['kazoo', '¿Qué viaje?', 'think'],
-    ['mari', 'El que sea.', 'sad'],
+    ['mari', 'El que sea. Y si es lejos, no me digas a dónde. Así no tengo que mentir.', 'sad'],
     ['mari', '...Y así te quiero, eh. Tarde y todo.', 'happy'],
   ]);
   S().flags.mariTacos = true;
@@ -174,28 +177,28 @@ function* chuyScene() {
   yield* fadeOut(0.3);
   roomAt('donchuy', 40);
   const r = R();
-  r.addNpc({ id: 'chuy', look: 'donchuy', x: 110, facing: 1, pose: 'sit', y: FLOOR - 4 });
-  r.addNpc({ look: 'thug', x: 60, facing: 1 }); r.addNpc({ look: 'thug', x: 290, facing: -1 });
+  r.noExit = true;
+  G.story.jefeRoom(r);
   yield* fadeIn(0.3);
-  yield* walkPlayer(150);
+  yield* walkPlayer(190);
   const s = S();
   if (s.paid >= s.debt) {
     yield* talk([
-      ['donchuy', 'Kazoo. Estamos a mano. Qué raro se siente, ¿verdad?', 'happy'],
-      ['donchuy', 'Te voy a decir algo gratis, porque ya no me debes nada.', 'serious'],
-      ['donchuy', 'Cuídate, mijo. Los viernes son mal día para los que tienen prisa.', 'serious'],
+      ['donchuy', 'Kazoo. Estamos a mano. Por eso te voy a decir algo gratis. Y yo nunca digo nada gratis.', 'serious'],
+      ['donchuy', 'Los viernes son mal día para los que tienen prisa.', 'serious'],
       ['kazoo', '...¿Por qué dice eso?', 'shock'],
-      ['donchuy', 'Por nada. Yo nomás cobro. Y escucho. Y en esta ciudad todos hablan. Hasta los vendedores de carros.', 'smug'],
+      ['donchuy', 'Porque en esta ciudad todos hablan. Hasta los vendedores de carros. Sobre todo ellos.', 'serious'],
+      ['donchuy', 'Mi veinte por ciento sigue en pie. Que estemos a mano no quiere decir que seamos amigos.', 'serious'],
     ]);
     s.flags.chuyWarning = true;
   } else {
     yield* talk([
-      ['donchuy', 'Kazoo. Mañana es viernes. Veintiún días. Qué casualidad que sea viernes, ¿no?', 'smug'],
-      ['kazoo', 'Mañana le pago todo, Don Chuy. Todo.', 'serious'],
-      ['donchuy', '¿Con qué?', 'think'],
-      ['kazoo', '...Con tacos.', 'sad'],
-      ['donchuy', 'Jajaja. Me caes bien, Kazoo. Qué lástima.', 'laugh'],
-      ['donchuy', 'Mañana. Aquí. Con todo. O mis muchachos te van a buscar. Y ellos no se ríen.', 'serious'],
+      ['donchuy', 'Mañana es viernes, Kazoo. Veintiún días. Mis cincuenta mil y mi veinte por ciento.', 'serious'],
+      ['kazoo', 'Mañana le pago todo, Jefe. Todo.', 'serious'],
+      ['donchuy', 'Ya lo sé. Por eso sigues respirando.', 'serious'],
+      ['donchuy', 'Y si los agarran, ustedes no me conocen. Nunca me han visto.', 'serious'],
+      ['kazoo', 'Técnicamente nunca le hemos visto la cara.', 'normal'],
+      ['donchuy', '...Por eso siguen vivos.', 'serious'],
     ]);
   }
   yield* fadeOut(0.3);

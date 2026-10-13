@@ -61,6 +61,14 @@ export class Vehicle {
     vl *= Math.max(0, 1 - grip * dt);
     const tr = (sp.style === 'moto' ? 3.4 : 2.7) * (this.handbrake ? 1.35 : 1);
     this.a += this.steer * tr * dt * clamp(vf / 55, -1, 1);
+    // hands off the wheel: settle the heading on the sprite's direction (and on the
+    // street's axis when close), or the car keeps creeping diagonally across the lanes
+    if (this.driver === 'player' && Math.abs(this.steer) < 0.05 && Math.abs(vf) > 8) {
+      const step = Math.PI / 16, quarter = Math.PI / 2;
+      const nq = Math.round(this.a / quarter) * quarter;
+      const target = Math.abs(angDiff(this.a, nq)) < 0.2 ? nq : Math.round(this.a / step) * step;
+      this.a += clamp(angDiff(this.a, target), -2.5 * dt, 2.5 * dt);
+    }
     const c2 = Math.cos(this.a), s2 = Math.sin(this.a);
     this.vx = c2 * vf - s2 * vl; this.vy = s2 * vf + c2 * vl;
     this.move(dt, city);

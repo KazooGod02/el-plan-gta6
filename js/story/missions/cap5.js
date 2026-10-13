@@ -22,15 +22,15 @@ export const CAP5 = [
       const co = r.addNpc({ id: 'coqui', look: 'coqui', x: 160, facing: -1 });
       yield* fadeIn(0.4);
       yield* talk([
-        ['coqui', 'Kazoo. Esto es todo lo que juntamos. Lo de Ghenghis, lo mío, lo que le sacamos a la Tía de cambio.', 'serious'],
+        ['coqui', 'Kazoo. Esto es todo lo que juntamos. Lo de Ghenghis, lo mío y lo que le sacamos de cambio a la Tía.', 'serious'],
         ['coqui', 'Ocho mil quinientos pesos.', 'serious'],
-        ['kazoo', '¡Wow! ¿Todo para mí?', 'happy'],
+        ['kazoo', 'Ah, chingón. ¿Todo para mí?', 'happy'],
         ['coqui', 'Para el CARRO. Un carro. Confiable. Que no llame la atención.', 'angry'],
         ['kazoo', 'Confiable.', 'smug'],
         ['coqui', 'Kazoo, mírame.', 'serious'],
         ['coqui', 'No. Lo. Compres. En. El. Marketplace.', 'angry'],
-        ['kazoo', 'Obvio, wey. Obvio. ¿Por quién me tomas?', 'happy'],
-        ['coqui', 'Por ti. Te tomo por ti. Ese es el problema.', 'serious'],
+        ['kazoo', 'Obvio, wey. ¿Por quién me tomas?', 'happy'],
+        ['coqui', 'Por ti. Ese es el problema.', 'serious'],
       ]);
       addMoney(8500);
       yield* walkNpc(co, 10, 50);
@@ -44,7 +44,7 @@ export const CAP5 = [
       yield* play('carmarket', { budget: 8500 });
       yield* talk([
         ['kazoo', 'Cinco estrellas. Quinientas reseñas.', 'happy'],
-        ['kazoo', 'Esto es básicamente un concesionario.', 'smug'],
+        ['kazoo', 'Esto es básicamente una agencia. Pero con mejores precios.', 'smug'],
       ]);
       lock(false);
     },
@@ -67,13 +67,13 @@ export const CAP5 = [
       UI.letterboxTarget = 1;
       yield* wait(0.8);
       yield* talk([
-        ['vendedor', '¡Tú debes ser Kazoo! ¡Mucho gusto, amigo! VendeRápido. Cinco estrellas. Quinientas reseñas.', 'happy'],
-        ['kazoo', 'Wow. ¿Quinientas?', 'shock'],
+        ['vendedor', '¡Tú debes ser Kazoo! Mucho gusto, amigo. VendeRápido. Cinco estrellas. Quinientas reseñas.', 'happy'],
+        ['kazoo', '¿Quinientas?', 'shock'],
         ['vendedor', 'Quinientas. Todas de cinco. ¿Sabes por qué?', 'happy'],
         ['kazoo', '¿Por qué?', 'think'],
         ['vendedor', 'Porque nunca nadie ha regresado a quejarse.', 'happy'],
-        ['kazoo', '...Eso es muy bueno, ¿verdad?', 'think'],
-        ['vendedor', '¡Buenísimo! Ahí está. Tsuru 2003. Como nuevo. ¿Una vuelta de prueba? Maneja tú, yo te acompaño.', 'happy'],
+        ['kazoo', '...Eso es bueno, ¿verdad?', 'think'],
+        ['vendedor', '¡Buenísimo! Ahí está. Tsuru 2003. Como nuevo. ¿Le damos una vuelta? Maneja tú, yo te acompaño.', 'happy'],
       ]);
       c.camTarget = null; UI.letterboxTarget = 0;
       tsuru.label = null;
@@ -103,8 +103,8 @@ export const CAP5 = [
           UI.subtitle = null;
           if (S().flags.knowsTracker) yield* lines([['kazoo', '...¿Qué fue ese bip?', 'think'], ['vendedor', 'El estéreo. Es un estéreo muy... sensible.', 'happy']]);
           tsuru.engineOff = false;
-          yield* line('vendedor', '¡Listo! Como nuevo. Hace un ruidito, pero es su personalidad.', 'happy');
-          yield* line('kazoo', '¡Yo digo lo mismo de mi moto!', 'happy');
+          yield* line('vendedor', '¡Listo! Hace un ruidito, pero es su personalidad.', 'happy');
+          yield* line('kazoo', 'Eso mismo digo de mi moto.', 'happy');
         }
       }
       lock(true);
@@ -122,8 +122,8 @@ export const CAP5 = [
       unlock('oferta');
       const stars = yield* ask('vendedor', 'Califica a VendeRápido_5E en el Marketplace:', ['★★★★★ (5)', '★★★★☆ (4)', '★★★☆☆ (3)', '★☆☆☆☆ (1)']);
       S().flags.sellerStars = [5, 4, 3, 1][stars];
-      if (stars === 0) yield* say('vendedor', '¡Cinco estrellas! Eres de los buenos, Kazoo. De los que no regresan.', 'happy');
-      else { yield* say('vendedor', '...¿' + S().flags.sellerStars + '? Hm. Bueno. Nadie es perfecto. Ni tú. Sobre todo tú.', 'serious'); dumb(); }
+      if (stars === 0) yield* say('vendedor', 'Cinco estrellas. Eres de los buenos, Kazoo. De los que no regresan.', 'happy');
+      else { yield* say('vendedor', '...¿' + S().flags.sellerStars + '? Hm. Bueno. Ya nos veremos. Bueno... tú no.', 'serious'); dumb(); }
       if (v2) c.removePed(v2);
       lock(false);
       chat('kazoo', 'Ya tengo carro');
@@ -131,7 +131,7 @@ export const CAP5 = [
       yield* wait(1.2); chat('kazoo', 'De un conocido');
       yield* wait(1.2); chat('ghenghis', 'qué conocido jajaja');
       yield* wait(1.2); chat('kazoo', 'Un conocido muy recomendado');
-      yield* wait(1.2); chat('coqui', 'Tráelo al escondite. Ya.');
+      yield* wait(1.2); chat('coqui', 'Tráelo al escondite. Ya. Y ven solo.');
     },
   },
   {
@@ -160,14 +160,14 @@ export const CAP5 = [
       const gh = r.addNpc({ id: 'ghenghis', look: 'ghenghis', x: 420, facing: -1 });
       yield* fadeIn(0.3);
       yield* talk([
-        ['ghenghis', '¡JAJAJA! ¿ESO es el carro?', 'laugh'],
+        ['ghenghis', 'JAJAJA. ¿ESO es el carro? ¿En eso vamos a huir? Mejor nos vamos caminando.', 'laugh'],
         ['kazoo', 'Tsuru 2003. Como nuevo.', 'smug'],
         ['coqui', '¿De dónde lo sacaste?', 'serious'],
       ]);
       const ch = yield* ask('kazoo', '(Coqui te está mirando fijamente.)', ['"De un conocido. Muy recomendado."', '"Del Mark... de un conocido."', '"Del Marketplace, wey. Cinco estrellas."']);
       if (ch === 0) yield* talk([['kazoo', 'De un conocido. Muy recomendado.', 'normal'], ['coqui', '...', 'serious']]);
       if (ch === 1) { trust(-3); yield* talk([['kazoo', 'Del Mark... de un conocido.', 'shock'], ['coqui', '¿Del qué?', 'angry'], ['kazoo', 'Del... Marcos. Un conocido. Se llama Marcos.', 'sad']]); dumb(); }
-      if (ch === 2) { trust(-5); yield* talk([['kazoo', 'Del Marketplace, wey. Cinco estrellas.', 'happy'], ['coqui', '¡¿DEL QUÉ?!', 'angry'], ['kazoo', '¡Es broma! Es broma. Jajaja. De un conocido. Qué risa.', 'shock'], ['coqui', 'No es gracioso, Kazoo.', 'serious']]); }
+      if (ch === 2) { trust(-5); yield* talk([['kazoo', 'Del Marketplace, wey. Cinco estrellas.', 'happy'], ['coqui', '¡¿DEL QUÉ?!', 'angry'], ['kazoo', '¡Es broma! Es broma. De un conocido. Qué risa.', 'shock'], ['coqui', 'No es gracioso, Kazoo. Nada de esto es gracioso.', 'serious']]); }
       car.hoodOpen = true;
       audio.sfx('door');
       yield* talk([

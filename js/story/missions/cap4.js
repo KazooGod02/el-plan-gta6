@@ -20,10 +20,10 @@ export const CAP4 = [
       yield* fadeIn(0.4);
       yield* talk([
         ['mari', 'Kazoo, llegó un pedido raro. Quince tacos para la gerencia del Banco Federal.', 'think'],
-        ['kazoo', '(¡Perfecto!) Claro, Doña Mari. Con gusto.', 'happy'],
+        ['kazoo', '(Perfecto.) Claro, Doña Mari. Con gusto.', 'happy'],
         ['mari', '¿Con gusto? ¿Tú? ¿Estás enfermo?', 'shock'],
         ['kazoo', 'Estoy... motivado.', 'smug'],
-        ['mari', 'Eso es peor.', 'serious'],
+        ['mari', 'Eso es peor. La última vez que estuviste motivado abriste un negocio de tacos de mango.', 'serious'],
       ]);
       yield* fadeOut(0.3);
       const tq = P().taqueria, c = C();
@@ -130,7 +130,7 @@ export const CAP4 = [
             ['manager', 'Por fin. ¿Por qué tardaste tanto?', 'angry'],
             ['kazoo', 'Había fila.', 'normal'],
             ['manager', 'Pues sí. Es un banco.', 'serious'],
-            ['manager', 'Ahí déjalos en el escritorio. Toma, $50 de propina. No te lo gastes todo.', 'smug'],
+            ['manager', 'Ahí déjalos en el escritorio. Toma, $50 de propina. No te lo gastes todo en un solo vicio.', 'smug'],
           ]);
           addMoney(50);
           yield* say('narrator', 'Sobre el escritorio hay una hoja: "BLINDADO — VIERNES 29 — 10:00 AM. Bóveda al 100%."', 'normal', { name: 'LA HOJA' });
@@ -157,7 +157,7 @@ export const CAP4 = [
       cityAt(bk, 18);
       const ry = C().spawnPed('reyes', bk.x + 10, bk.y + 4, { state: 'idle', mission: true });
       yield* fadeIn(0.3);
-      C().say(ry, '¡Gracias por el taco, muchacho!', 3);
+      C().say(ry, 'Gracias por el taco, muchacho. Nos vemos pronto.', 3);
       yield* wait(1.5);
       // Coqui watches from across the street
       const car = C().spawnVehicle('sedan', bk.x + 70, bk.y + 48, Math.PI, { mission: true, color: '#1a1a2e' });
@@ -191,16 +191,16 @@ export const CAP4 = [
       const gh = r.addNpc({ id: 'ghenghis', look: 'ghenghis', x: 250, facing: -1 });
       yield* fadeIn(0.3);
       yield* talk([
-        ['kazoo', 'Seis cámaras. Todas fotografiadas. Tres guardias. Y el botón de la alarma está detrás del mostrador.', 'happy'],
-        ['ghenghis', '¡La cámara cuatro sigue chueca! ¡Mi legado! ¡Jajaja!', 'laugh'],
+        ['kazoo', 'Seis cámaras, todas fotografiadas. Tres guardias. Y el botón de la alarma está detrás del mostrador.', 'happy'],
+        ['ghenghis', 'La cuatro sigue chueca. Mi legado. Jajaja.', 'laugh'],
       ]);
       if (S().flags.schedule) yield* say('kazoo', 'Y el blindado llega el viernes 29, a las diez.', 'smug');
       if (S().flags.alarmCut) yield* say('kazoo', 'Ah, y le aflojé el cable a la alarma. De nada.', 'smug');
       yield* say('coqui', '...¿Qué platicaste con la policía?', 'serious');
       const ch = yield* ask('kazoo', '(Coqui no parpadea.)', ['"Nada. Me pidió un taco."', '"Me preguntó por ti, Coqui. Le dije que no te conocía."', '"¿Me estabas espiando?"']);
-      if (ch === 0) { trust(-6); yield* talk([['kazoo', 'Nada. Me pidió un taco.', 'normal'], ['coqui', '...Un taco. Media hora para un taco.', 'serious']]); }
-      if (ch === 1) { trust(8); yield* talk([['kazoo', 'Me preguntó por ti, Coqui. Le dije que no te conocía. Bueno, le dije que eras un perro.', 'sad'], ['coqui', '...¿Un perro?', 'shock'], ['kazoo', 'Salió así.', 'sad'], ['coqui', '...Gracias por decirme la verdad.', 'normal']]); }
-      if (ch === 2) { trust(-2); yield* talk([['kazoo', '¿Me estabas espiando?', 'angry'], ['coqui', 'Te estaba cuidando.', 'serious'], ['kazoo', 'Se parece mucho.', 'serious']]); }
+      if (ch === 0) { trust(-6); yield* talk([['kazoo', 'Nada. Me pidió un taco.', 'normal'], ['coqui', '...Un taco. Veinte minutos platicando con la policía por un taco.', 'serious']]); }
+      if (ch === 1) { trust(8); yield* talk([['kazoo', 'Me preguntó por ti, Coqui. Le dije que no te conocía. Bueno, le dije que eras un perro.', 'sad'], ['coqui', '...¿Un perro?', 'shock'], ['kazoo', 'Salió así.', 'sad'], ['coqui', '...Por lo menos me dices la verdad. Eso cuenta.', 'normal']]); }
+      if (ch === 2) { trust(-2); yield* talk([['kazoo', '¿Me estabas espiando?', 'angry'], ['coqui', 'Te estaba cuidando.', 'serious'], ['kazoo', 'Se parece mucho.', 'serious'], ['coqui', 'Después del Tuercas, todo se parece.', 'serious']]); }
       yield* talk([
         ['coqui', 'Viernes 29. 10:05. Ese es el día.', 'serious'],
         ['ghenghis', 'Qué emoción. Nos van a agarrar. Jajaja.', 'laugh'],
@@ -227,7 +227,7 @@ function* reyesTalk(ctx, reyes, suspicion, st) {
   ];
   yield* talk([
     ['reyes', 'Oye tú. El de los tacos.', 'serious'],
-    ['kazoo', '(Es ella. La Comandante Reyes. La que agarró a Coqui.)', 'shock'],
+    ['kazoo', '(Es ella. La Comandante Reyes. La que encerró a Coqui.)', 'shock'],
   ]);
   UI.meter = { label: 'SOSPECHA', v: st.susp / 100, col: '#f08c28' };
   for (let i = 0; i < Q.length; i++) {

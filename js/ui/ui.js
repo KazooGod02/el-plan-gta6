@@ -10,9 +10,9 @@ import { LOOKS } from '../data/cast.js';
 import { MAP, TS, MW, MH } from '../world/map.js';
 
 const BAD = [
-  [/\bpendejos?\b/gi, 'p#%&$'], [/\bverga\b/gi, 'v#%&$'], [/\bcabr[oó]n(es)?\b/gi, 'c#%&$'], [/\bchingad[oa]s?\b/gi, 'ch#%&$'],
-  [/\bchingues\b/gi, 'ch#%&$'], [/\bputa\b/gi, 'p#%&'], [/\bputo\b/gi, 'p#%&'], [/\bmierda\b/gi, 'm#%&$'], [/\bculero\b/gi, 'c#%&$'],
-  [/\bpinche\b/gi, 'p#%&$'], [/\bmadres\b/gi, 'm#%&$'], [/\bcabrona\b/gi, 'c#%&$'],
+  [/\bpendej[oa]s?\b/gi, 'p#%&$'], [/\bpendejadas?\b/gi, 'p#%&$'], [/\bvergas?\b/gi, 'v#%&$'], [/\bcabr[oó]n(es)?\b/gi, 'c#%&$'], [/\bcabronas?\b/gi, 'c#%&$'],
+  [/\bching\w*/gi, 'ch#%&$'], [/\bput[oa]s?\b/gi, 'p#%&'], [/\bmierdas?\b/gi, 'm#%&$'], [/\bculer[oa]s?\b/gi, 'c#%&$'],
+  [/\bpinches?\b/gi, 'p#%&$'], [/\bmadres\b/gi, 'm#%&$'], [/\bmamadas?\b/gi, 'm#%&$'], [/\bcag(ad[oa]|aste|ó)\b/gi, 'c#%&$'],
 ];
 export function censor(s) {
   if (!G.settings?.streamer) return s;

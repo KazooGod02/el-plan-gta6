@@ -23,7 +23,7 @@ export function spawnTsuruWithCrew(place, dy = 30) {
 export const CAP8 = [
   {
     id: 'c8_entrada', chapter: 8, chapterStart: true, title: '¡Todos al suelo!', requires: ['c7_azotea'], customRooms: true, lockRoom: true, failPlace: 'escondite',
-    rating: () => ({ by: 'Coqui', stars: 4, text: 'Diez y cinco. Exacto.' }),
+    rating: () => ({ by: 'Coqui', stars: 4, text: 'Diez y cinco. Exacto. Por una vez.' }),
     *run(ctx) {
       setDay(0); setClock(9, 20);
       lock(true);
@@ -37,18 +37,21 @@ export const CAP8 = [
       music('tension');
       yield* talk([
         ['coqui', 'Es hoy.', 'serious'],
-        ['coqui', 'Diez y cinco. Ni un minuto antes, ni uno después. Entramos, bóveda, mochila, salimos. Nadie improvisa.', 'serious'],
-        ['ghenghis', 'Nadie improvisa. Jajaja. Qué nervios.', 'laugh'],
+        ['coqui', 'Diez y cinco. Ni un minuto antes, ni uno después. Entramos, bóveda, mochila, y salimos por la ruta tres. Nadie improvisa.', 'serious'],
+        ['ghenghis', 'Nadie improvisa. Jajaja. Qué nervios, me tiembla hasta el alma.', 'laugh'],
         ['kazoo', '¿Y si algo sale mal?', 'think'],
         ['coqui', 'Nada va a salir mal.', 'serious'],
         ['ghenghis', 'Todo va a salir mal. Pero con estilo.', 'happy'],
+        ['coqui', 'Ustedes dos van adelante. Yo atrás. Donde los vea.', 'serious'],
+        ['kazoo', '¿Por qué atrás?', 'think'],
+        ['coqui', 'Costumbre.', 'serious'],
         ['coqui', 'Máscaras.', 'serious'],
       ]);
       audio.sfx('select');
       co.mask = m.coqui; gh.mask = m.ghenghis; r.p.mask = m.kazoo;
       UI.flash(0.4);
       yield* wait(0.8);
-      yield* say('ghenghis', m.ghenghis === 'payaso' ? '¡JAJAJA! ¡Me veo increíble!' : 'Me veo serio. No me gusta. Jajaja.', 'laugh');
+      yield* say('ghenghis', m.ghenghis === 'payaso' ? '¡JAJAJA! ¡Me veo increíble! Parezco la pesadilla de un niño.' : 'Me veo serio. No me gusta. Jajaja.', 'laugh');
       S().weapons.pistol = Math.max(S().weapons.pistol || 0, 60);
       yield* fadeOut(0.4);
       const c = C();
@@ -61,7 +64,7 @@ export const CAP8 = [
       lock(false);
       objective('Maneja al Banco Federal. ¡Llega antes de las 10:05!');
       UI.timer = { label: 'HORA', t: 190 };
-      ctx.check(() => (t.dead ? '¡Destruiste el Tsuru!' : null));
+      ctx.check(() => (t.dead ? (t.sunk ? '¡Hundiste el Tsuru!' : '¡Destruiste el Tsuru!') : null));
       ctx.check(() => (UI.timer && UI.timer.t <= 0 ? 'Llegaste tarde (otra vez)' : null));
       let said = 0, tt = 0;
       const bk = P().banco;
@@ -83,7 +86,7 @@ export const CAP8 = [
   },
   {
     id: 'c8_boveda', chapter: 8, title: 'La bóveda', requires: ['c8_entrada'], customRooms: true, lockRoom: true, failPlace: 'banco',
-    rating: () => ({ by: 'Ghenghis', stars: 5, text: 'Cinco años cuidé esa puerta. Qué bonita por dentro.' }),
+    rating: () => ({ by: 'Ghenghis', stars: 5, text: 'Cinco años cuidé esa puerta. Valió cada minuto dormido.' }),
     *run(ctx) {
       lock(true);
       UI.fade = 1; UI.fadeTarget = 1;
@@ -93,20 +96,24 @@ export const CAP8 = [
       const m = S().masks;
       r.p.mask = m.kazoo;
       const gh = r.addNpc({ id: 'ghenghis', look: 'ghenghis', x: 20, facing: 1, mask: m.ghenghis, bag: true });
-      for (const [id, fac, sw] of [['bcam1', 1, 2.4], ['bcam2', -1, 2.8], ['bcam3', 1, 2.2]]) {
+      // the cameras stay off while Ghenghis explains: nobody gets caught mid-sentence
+      const cams = [];
+      for (const [id, fac, sw] of [['bcam1', 1, 3.2], ['bcam2', -1, 3.6], ['bcam3', 1, 3.0]]) {
         const pr = r.prop(id);
-        r.addEnemy({ kind: 'camera', x: pr.x + 5, y: FLOOR, facing: fac, vision: 100, sweep: sw, invisible: true, look: 'guard' });
+        cams.push(r.addEnemy({ kind: 'camera', x: pr.x + 5, y: FLOOR, facing: fac, vision: 92, sweep: sw, invisible: true, look: 'guard', disabled: true }));
       }
       r.stealth = true;
       r.onDetected = () => { if (!r._caught) { r._caught = true; G.story.fail('Una cámara te vio', 'fail'); } };
       music('tension');
       yield* fadeIn(0.4);
       yield* talk([
-        ['ghenghis', 'El sótano. Tres cámaras que se mueven. Cuando voltee para el otro lado, pasas. Camina, no corras...', 'serious'],
-        ['ghenghis', 'Y si te va a ver, métete a un locker o agáchate detrás de las cajas. Yo te sigo. A mí ya me conocen. Jajaja.', 'laugh'],
+        ['ghenghis', 'El sótano. Tres cámaras que giran. Cuando volteen para el otro lado, pasas. Camina, no corras.', 'serious'],
+        ['ghenghis', 'Si te va a ver, métete a un locker o agáchate detrás de las cajas. La barrita de arriba de cada cámara te dice qué tanto te está viendo.', 'normal'],
+        ['ghenghis', 'Hasta el fondo está la puerta de la bóveda. Yo voy detrás de ti. A mí ya me conocen. Jajaja.', 'laugh'],
       ]);
+      for (const e of cams) { e.disabled = false; e.susp = 0; }
       lock(false);
-      objective('Llega a la bóveda sin que te vean las cámaras');
+      objective('Llega a la puerta de la bóveda (al fondo) sin que te vean las cámaras');
       gh.hidden = true;
       yield* until(() => r.p.x > 560);
       lock(true);
@@ -118,11 +125,12 @@ export const CAP8 = [
         ['ghenghis', 'Cinco años cuidé esta puerta. Y nunca supe qué había adentro.', 'sad'],
         ['kazoo', 'Pues vamos a ver.', 'serious'],
       ]);
-      r.p.x = 600; r.p.facing = 1;
+      yield* walkPlayer(590, 40);
+      r.p.facing = 1;
       objective('Taladra la puerta: presiona A cuando la aguja esté en lo verde');
       const vault = r.prop('vault');
       const prev = r.onUpdate;
-      r.onUpdate = (dt) => { if (prev) prev(dt); vault.spin = (vault.spin || 0) + dt * 6; if (G.minigames.active) vault.heat = G.minigames.active.heat; };
+      r.onUpdate = (dt) => { if (prev) prev(dt); if (!vault.open) vault.spin = (vault.spin || 0) + dt * 6; if (G.minigames.active) vault.heat = G.minigames.active.heat; };
       music('heist');
       lock(false);
       yield* play('drill', { goal: 1 });
@@ -132,20 +140,63 @@ export const CAP8 = [
       yield* wait(0.8);
       yield* talk([
         ['ghenghis', '...', 'shock'],
-        ['ghenghis', 'JAJAJAJAJA. ¡MIRA ESO! ¡MÍRALO!', 'laugh'],
-        ['kazoo', '¡Llena la mochila! ¡Rápido!', 'happy'],
+        ['ghenghis', 'Abrió. Cinco años y abrió en diez minutos. Qué vergüenza de puerta.', 'laugh'],
       ]);
       lock(false);
-      objective('¡Llena la mochila! (presiona A muchas veces)');
-      let total = 0;
-      yield* mash(24, 'MOCHILA', () => { total += Math.floor(rand(38000, 52000)); audio.sfx('coin'); UI.toast('$' + total.toLocaleString('es-MX'), '#46d470', 0.6); });
+      objective('Entra a la bóveda');
+      let inside = false;
+      r.addAction({ x: 632, r: 20, label: 'Entrar a la bóveda', fn: () => { inside = true; } });
+      yield* until(() => inside);
+      // ---- the vault itself: a room full of money, gold and safe-deposit boxes
+      lock(true);
+      yield* fadeOut(0.4);
+      roomAt('bovedaIn', 50);
+      const rv = R();
+      rv.noExit = true;
+      rv.p.mask = m.kazoo;
+      const g2 = rv.addNpc({ id: 'ghenghis', look: 'ghenghis', x: 24, facing: 1, mask: m.ghenghis, bag: true });
+      yield* fadeIn(0.5);
+      yield* wait(0.6);
+      yield* talk([
+        ['ghenghis', '...', 'shock'],
+        ['ghenghis', 'JAJAJAJAJA. ¡MIRA ESO! ¡MÍRALO, KAZOO!', 'laugh'],
+        ['kazoo', 'No mames... hay más lana aquí que en todo Puerto Vicio.', 'shock'],
+        ['ghenghis', 'Hay más lana aquí que vergüenza en mi familia. ¡Llena la mochila! ¡De todo, de todo!', 'crazy'],
+      ]);
+      g2.follow = true; g2.followDist = 26;
+      lock(false);
+      const piles = [
+        { id: 'boxes1', x: 93, label: 'Vaciar cajas de seguridad', hide: false },
+        { id: 'gold', x: 160, label: 'Agarrar el oro', hide: true },
+        { id: 'pallet', x: 212, label: 'Agarrar los fajos', hide: true },
+        { id: 'cart', x: 275, label: 'Vaciar el carrito', hide: false },
+        { id: 'boxes2', x: 334, label: 'Vaciar cajas de seguridad', hide: false },
+        { id: 'bags', x: 389, label: 'Agarrar los costales', hide: true },
+      ];
+      let total = 0, done = 0, busy = null;
+      const upd = () => objective(`Llena la mochila: saca de cada pila (${done}/${piles.length})`);
+      upd();
+      for (const pl of piles) {
+        pl.act = rv.addAction({ x: pl.x, r: 18, label: pl.label, fn: () => { if (!busy) busy = pl; } });
+      }
+      while (done < piles.length) {
+        yield;
+        if (!busy) continue;
+        const pl = busy;
+        pl.act.disabled = true;
+        yield* mash(5, 'MOCHILA', () => { total += Math.floor(rand(40000, 60000)); audio.sfx('coin'); UI.toast('$' + total.toLocaleString('es-MX'), '#46d470', 0.6); });
+        if (pl.hide) { const pr = rv.prop(pl.id); if (pr) pr.hidden = true; }
+        done++; busy = null; upd();
+        if (done === 3) UI.say('ghenghis', pick(['¡Eso! ¡Más! ¡La mochila aguanta!', 'Jajaja, ya no cierra. ¡Empújale!']), { auto: 2.6 });
+      }
       S().flags.botin = total;
       lock(true);
       // the alarm
       audio.sfx('alarm');
-      r.shake(3);
+      rv.shake(3);
       const cut = S().flags.alarmCut;
-      yield* say('coqui', cut ? '(radio) Kazoo. La cajera apretó algo... pero no sonó nada. ¿Tú hiciste eso? ¡Bien hecho! Tenemos más tiempo, ¡suban ya!' : '(radio) ¡KAZOO! ¡La cajera apretó la alarma! ¡La policía viene en camino! ¡SUBAN YA!', cut ? 'happy' : 'angry', { name: 'COQUI (RADIO)' });
+      yield* say('coqui', cut ? '(radio) Kazoo. La cajera apretó algo... pero no sonó nada. ¿Tú le moviste? Bien hecho. Tenemos más tiempo, ¡suban ya!' : '(radio) ¡KAZOO! ¡La cajera apretó la alarma! ¡La policía viene en camino! ¡SUBAN YA, CABRÓN!', cut ? 'happy' : 'angry', { name: 'COQUI (RADIO)' });
+      yield* say('ghenghis', 'Jajaja. Ya valió. Te dije que iba a salir mal.', 'laugh');
       G.story._alarmTime = cut ? 150 : 95;
       music(null);
       lock(false);
@@ -153,7 +204,7 @@ export const CAP8 = [
   },
   {
     id: 'c8_alarma', chapter: 8, title: 'Tiroteo en el Federal', requires: ['c8_boveda'], customRooms: true, lockRoom: true, failPlace: 'banco',
-    rating: () => ({ by: 'Coqui', stars: 3, text: 'Salimos. Eso es lo que cuenta.' }),
+    rating: () => ({ by: 'Coqui', stars: 3, text: 'Salimos vivos. Eso es lo que cuenta.' }),
     *run(ctx) {
       lock(true);
       UI.fade = 1; UI.fadeTarget = 1;
@@ -165,15 +216,15 @@ export const CAP8 = [
       r.infiniteAmmo = true;
       S().weapons.pistol = Math.max(S().weapons.pistol || 0, 60);
       S().weapon = 'pistol';
-      const co = r.addNpc({ id: 'coqui', look: 'coqui', x: 700, facing: -1, mask: m.coqui, shooter: true, basePose: 'aim', pose: 'aim' });
-      const gh = r.addNpc({ id: 'ghenghis', look: 'ghenghis', x: 850, facing: -1, mask: m.ghenghis, bag: true, shooter: true, basePose: 'aim', pose: 'aim' });
+      const co = r.addNpc({ id: 'coqui', look: 'coqui', x: 856, facing: -1, mask: m.coqui, shooter: true, basePose: 'aim', pose: 'aim' });
+      const gh = r.addNpc({ id: 'ghenghis', look: 'ghenghis', x: 876, facing: -1, mask: m.ghenghis, bag: true, shooter: true, basePose: 'aim', pose: 'aim' });
       for (let i = 0; i < 5; i++) r.addNpc({ look: [3, 8, 13, 19, 25][i], x: 240 + i * 70, facing: 1, pose: 'down' });
       const time = G.story._alarmTime || 110;
       UI.timer = { label: 'REFUERZOS', t: time };
       ctx.check(() => (UI.timer && UI.timer.t <= 0 ? 'Llegaron los refuerzos' : null));
       music('chase');
       yield* fadeIn(0.4);
-      yield* say('coqui', '¡Ya están aquí! ¡Agáchate detrás de algo y dispara! ¡Hay que llegar a la puerta!', 'angry');
+      yield* say('coqui', '¡Ya llegaron! ¡Agáchate detrás de algo y dispara! ¡Hay que llegar a la puerta! ¡Nosotros te cubrimos!', 'angry');
       lock(false);
       toast('ABAJO = cubrirte. ESPACIO = disparar.', '#5adcf0', 5);
       objective('Abre paso hasta la salida');
@@ -184,8 +235,14 @@ export const CAP8 = [
         audio.sfx('door'); wi++;
       };
       spawnWave();
+      // Coqui and Ghenghis stay right behind Kazoo (never in front of him)
       const prev = r.onUpdate;
-      r.onUpdate = (dt) => { if (prev) prev(dt); if (UI.timer) UI.timer.t -= dt; co.facing = -1; gh.facing = -1; if (Math.abs(co.x - (r.p.x + 40)) > 10) co.x += Math.sign(r.p.x + 40 - co.x) * 50 * dt; if (Math.abs(gh.x - (r.p.x + 70)) > 10) gh.x += Math.sign(r.p.x + 70 - gh.x) * 50 * dt; };
+      r.onUpdate = (dt) => {
+        if (prev) prev(dt);
+        if (UI.timer) UI.timer.t -= dt;
+        co.facing = -1; gh.facing = -1;
+        for (const [n, off] of [[co, 28], [gh, 48]]) { const tx = r.p.x + off; if (Math.abs(n.x - tx) > 8) n.x += Math.sign(tx - n.x) * 60 * dt; }
+      };
       while (true) {
         yield;
         const alive = r.enemies.filter((e) => e.state !== 'down').length;
@@ -220,13 +277,13 @@ function* hostagePhase(ctx) {
   const g2 = r.addNpc({ look: 'guard', x: 780, facing: -1 });
   yield* fadeIn(0.3);
   music('heist');
-  yield* say('ghenghis', '¡TODOS AL SUELO! ¡ESTO ES UN ASALTO! ¡JAJAJA!', 'crazy');
+  yield* say('ghenghis', '¡TODOS AL SUELO! ¡ESTO ES UN ASALTO! ¡EL QUE SE MUEVA SE MUERE! ...JAJAJA.', 'crazy');
   audio.sfx('shot'); r.shake(3);
   for (const h of hostages) h.pose = 'down';
   g1.pose = 'hands'; g2.pose = 'hands'; teller.pose = 'hands';
   yield* talk([
     ['coqui', '¡Nadie se mueve y nadie sale lastimado!', 'angry'],
-    ['kazoo', '¡Buenos días a todos! ...Digo, ¡AL SUELO!', 'shock'],
+    ['kazoo', '¡Buenos días a todos! ...Digo, ¡AL SUELO, CABRONES!', 'shock'],
     ['coqui', 'Ghenghis, los guardias y el gerente. Kazoo, que nadie se levante. Yo cuido la puerta.', 'serious'],
   ]);
   g1.pose = 'down'; g2.pose = 'down';
@@ -236,8 +293,8 @@ function* hostagePhase(ctx) {
   r.p.facing = 1;
   yield* say('ghenghis', 'Oye, Kazoo... ¡bang! Jajaja.', 'crazy');
   yield* talk([
-    ['kazoo', '¡WEY! ¡NO ME APUNTES!', 'angry'],
-    ['ghenghis', 'Jajaja, tranquilo, tranquilo.', 'laugh'],
+    ['kazoo', '¡WEY! ¡NO ME APUNTES, PENDEJO!', 'angry'],
+    ['ghenghis', 'Jajaja, tranquilo, tranquilo. Esta sí está cargada, eh.', 'laugh'],
     ['coqui', '¡CONCÉNTRENSE!', 'angry'],
   ]);
   gh.pose = null;
@@ -248,7 +305,7 @@ function* hostagePhase(ctx) {
   const rising = new Set();
   r.onShout = () => {
     audio.sfx('hurt', { vol: 0.4 });
-    r.p.bark = pick(['¡AL SUELO!', '¡QUIETOS!', '¡ABAJO!', '¡NI SE MUEVAN!']); r.p.barkT = 1;
+    r.p.bark = pick(['¡AL SUELO!', '¡QUIETOS!', '¡ABAJO, CABRÓN!', '¡NI SE MUEVAN!']); r.p.barkT = 1;
     for (const h of rising) if (Math.abs(h.x - r.p.x) < 64) { rising.delete(h); h.pose = 'down'; h.bark = pick(['¡Perdón, perdón!', 'Ya, ya...', 'Nomás me picaba la pierna']); h.barkT = 1.2; }
   };
   const prevUpd = r.onUpdate;
@@ -281,8 +338,8 @@ function* hostagePhase(ctx) {
   }
   UI.timer = null; UI.meter = null; r.onShout = null;
   lock(true);
-  yield* say('ghenghis', '(desde el fondo) ¡YA TENGO LAS LLAVES DEL GERENTE! ¡KAZOO, A LA BÓVEDA!', 'laugh');
-  yield* say('coqui', 'Ve. Yo me quedo con ellos. Rápido.', 'serious');
+  yield* say('ghenghis', '(desde el fondo) ¡YA TENGO LAS LLAVES DEL GERENTE! ¡KAZOO, AL SÓTANO!', 'laugh');
+  yield* say('coqui', 'Ve. Yo me quedo con ellos. Y Kazoo... no te tardes.', 'serious');
   yield* fadeOut(0.3);
   void co;
 }

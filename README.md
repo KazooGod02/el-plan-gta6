@@ -1,6 +1,6 @@
 # EL PLAN — Precuela 8-bit de "El Escape"
 
-Juego 8-bit hecho para la **GTA VI Marathon de KazooGod02**. Cuenta los 21 días antes del trailer "El Escape": cómo Kazoo, Coqui y Ghenghis planearon el atraco al Banco Federal de Puerto Vicio.
+Juego 8-bit de **KazooGod02**. Cuenta los 21 días antes del trailer "El Escape": cómo Kazoo, Coqui y Ghenghis planearon el atraco al Banco Federal de Puerto Vicio.
 
 **Jugar:** https://kazoogod02.github.io/el-plan-gta6/
 
@@ -19,8 +19,8 @@ Juego 8-bit hecho para la **GTA VI Marathon de KazooGod02**. Cuenta los 21 días
 | Teléfono | Tab / T | Y |
 | Pausa | Esc / P | Start |
 
-## Configurar el marathon
-Edita `js/config.js`: fecha del marathon, link del stream, hashtag y capítulos por fecha (lanzamiento por episodios).
+## Configurar el lanzamiento
+Edita `js/config.js`: fecha del tráiler, link del canal, hashtag y capítulos por fecha (lanzamiento por episodios).
 
 ## Documentos
 - [HISTORIA.md](HISTORIA.md) — la historia completa.

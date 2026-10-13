@@ -323,7 +323,7 @@ export const phone = {
   },
 
   r_debt(ctx) {
-    this.header(ctx, 'DEUDA — DON CHUY', '#ff6a6a');
+    this.header(ctx, 'DEUDA — EL JEFE', '#ff6a6a');
     const s = G.state;
     const left = Math.max(0, s.debt - s.paid);
     font.text(ctx, 'Le debes:', SX + SW / 2, SY + 22, '#f4f4f0', { align: 'center' });
@@ -333,7 +333,7 @@ export const phone = {
     font.text(ctx, `Pagado: ${money(s.paid)}`, SX + SW / 2, SY + 68, '#a8a8b8', { align: 'center' });
     const days = Math.max(0, 0 - s.day);
     font.text(ctx, left ? `Plazo: ${days} días` : '¡LIBRE!', SX + SW / 2, SY + 84, '#ffd23f', { align: 'center' });
-    font.wrap('Paga en la casa de Don Chuy (La Colonia). Él acepta efectivo, miedo y tacos no.', SW - 8).forEach((l, i) => font.text(ctx, l, SX + 4, SY + 100 + i * 9, '#c8c8d8'));
+    font.wrap('Se paga en la casa del Jefe (La Colonia). Acepta efectivo. Excusas no.', SW - 8).forEach((l, i) => font.text(ctx, l, SX + 4, SY + 100 + i * 9, '#c8c8d8'));
   },
 
   r_radio(ctx) {

@@ -18,6 +18,7 @@ import { RADIO_STATIONS, NEWS } from './data/strings.js';
 import { MAP } from './world/map.js';
 import { pick } from './core/util.js';
 import { finale } from './story/finale.js';
+import { trailer } from './story/trailer.js';
 
 const canvas = document.getElementById('game');
 const ctx = canvas.getContext('2d');
@@ -26,7 +27,7 @@ G.canvas = canvas; G.ctx = ctx;
 G.settings = loadSettings();
 G.global = loadGlobal();
 G.ui = UI; G.story = story; G.phone = phone; G.bigmap = bigmap; G.radioNext = radioNext; G.minigames = minigames;
-G.scenes = { title, city, interior, credits, finale };
+G.scenes = { title, city, interior, credits, finale, trailer };
 audio.setVolumes(G.settings.music, G.settings.sfx);
 
 // The game is laid out in 320x180 logical pixels but drawn at a higher internal
@@ -167,6 +168,7 @@ function render() {
   if (drunk) ctx.restore();
   if (minigames.active) minigames.render(ctx);
   if (G.scene === city || G.scene === interior || G.scene === finale) { UI.render(ctx); drawRadio(ctx); }
+  else if (G.scene === trailer) UI.render(ctx);
   else if (UI.fade > 0.001) { ctx.fillStyle = `rgba(0,0,0,${UI.fade})`; ctx.fillRect(0, 0, W, H); }
   phone.render(ctx);
   bigmap.render(ctx);

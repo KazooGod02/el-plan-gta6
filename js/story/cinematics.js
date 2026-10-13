@@ -70,6 +70,20 @@ export const VIGNETTES = [
     },
   },
   {
+    cap: 'Día -17 · La ruta tres',
+    draw(c, t) {
+      sky(c, 'night', t); ground(c, '#3a3a20', '#2a2a14');
+      drawProp(c, { t: 'moon' }, 20, 6, t);
+      drawProp(c, { t: 'bigtree', col: '#0e2414' }, 98, FL, t);
+      drawProp(c, { t: 'carside', col: '#1a1a2e' }, 18, FL, t);
+      person(c, 'coqui', t % 3 < 1.5 ? 'aim' : 'idle', 92, 1);
+      person(c, 'ghenghis', 'idle', 74, 1);
+      person(c, 'kazoo', 'idle', 58, 1);
+      drawProp(c, { t: 'grassfg', w: PW }, 0, PH, t);
+      if (t > 1.2) bubble(c, 96, 6, t > 3.2 ? 'Nada. Por eso.' : 'Ruta tres. Aquí.');
+    },
+  },
+  {
     cap: 'El plan · "Nadie improvisa"',
     draw(c, t) {
       R(c, 0, 0, PW, FL, '#5a5a5e');
@@ -120,16 +134,26 @@ export const VIGNETTES = [
       font.text(c, '★★★★', 150, 6, '#ffd23f', { align: 'right', outline: '#101018' });
     },
   },
-  {
-    cap: 'El árbol solitario · Plan B',
-    draw(c, t) {
-      sky(c, 'dusk', t); ground(c, '#6f9a3e', '#5a8030');
-      drawProp(c, { t: 'bigtree' }, 96, FL, t);
-      drawProp(c, { t: 'hole', d: 6 }, 64, FL, t);
-      person(c, 'ghenghis', Math.floor(t * 2.5) % 2 ? 'punch' : 'idle', 54, 1);
-      drawProp(c, { t: 'shovel' }, 66 + (Math.floor(t * 2.5) % 2 ? 2 : 0), FL - 2, t);
-      drawProp(c, { t: 'bag' }, 80, FL, t);
-      drawProp(c, { t: 'grassfg', w: PW }, 0, PH, t);
-    },
-  },
 ];
+
+// El Jefe gets his own scene, right before the robbery
+VIGNETTES.splice(5, 0, {
+  cap: 'Día -4 · El Jefe',
+  draw(c, t) {
+    R(c, 0, 0, PW, FL, '#1e1a22');
+    for (let y = 6; y < FL; y += 14) for (let x = (y % 28) ? 0 : 8; x < PW; x += 16) R(c, x + 3, y, 3, 3, '#2a2430');
+    drawProp(c, { t: 'bigwindow', w: 44, h: 52 }, 104, 14, t);
+    c.globalCompositeOperation = 'lighter';
+    const g = c.createRadialGradient(126, 40, 4, 126, 40, 70);
+    g.addColorStop(0, 'rgba(255,236,190,0.45)'); g.addColorStop(1, 'rgba(0,0,0,0)');
+    c.fillStyle = g; c.fillRect(0, 0, PW, PH);
+    c.globalCompositeOperation = 'source-over';
+    ground(c, '#2a2028', '#1a1418');
+    drawProp(c, { t: 'bosschair', smoke: true }, 113, FL, t);
+    person(c, 'guarura', 'idle', 150, -1);
+    person(c, 'guarura', 'idle', 84, -1);
+    person(c, 'kazoo', 'idle', 36, 1);
+    person(c, 'ghenghis', 'idle', 18, 1);
+    if (t > 1.4) bubble(c, 120, 2, t > 3.4 ? 'El veinte por ciento.' : 'Viernes. Diez y cinco.');
+  },
+});

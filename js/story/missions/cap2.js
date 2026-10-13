@@ -6,12 +6,12 @@ import { wait, until, say, talk, ask, fadeOut, fadeIn, lock, objective, toast, c
 import { P, C, R, S, line, lines, ally, unlockZone, cityAt, roomAt, talkAlong, finishTalk } from './common.js';
 import { play } from '../../minigames/index.js';
 import { FLOOR } from '../../interior/rooms.js';
-import { dist } from '../../core/util.js';
+import { TS } from '../../world/map.js';
 
 export const CAP2 = [
   {
     id: 'c2_bar', chapter: 2, chapterStart: true, title: 'La Última Risa', requires: ['c1_tuercas'], customRooms: true,
-    rating: () => ({ by: 'Ghenghis', stars: 5, text: '¡Nadie me había ganado! Jajaja.' }),
+    rating: () => ({ by: 'Ghenghis', stars: 5, text: 'Nadie me había ganado. Te voy a cobrar eso algún día.' }),
     onDoor(d) { if (d.room === 'bar') return false; return false; },
     *run(ctx) {
       lock(true);
@@ -25,20 +25,24 @@ export const CAP2 = [
       yield* talk([
         ['kazoo', '¿Dormiste algo?', 'think'],
         ['coqui', 'Desde las cinco estoy despierto. Tres años levantándome a las cinco. El cuerpo no olvida.', 'serious'],
-        ['coqui', 'Estuve pensando. Necesitamos dinero. Mucho. Tú le debes 50 mil a Don Chuy, y yo no tengo ni para unos tenis.', 'normal'],
-        ['kazoo', '...¿Cómo sabes lo de Don Chuy?', 'shock'],
-        ['coqui', 'Tienes el aviso de desalojo pegado en la puerta, Kazoo. Y 14 llamadas perdidas de "NO CONTESTAR (CHUY)".', 'smug'],
+        ['coqui', 'Estuve pensando. Necesitamos lana. Mucha. Tú le debes cincuenta mil al Jefe, y yo no tengo ni para unos calzones.', 'normal'],
+        ['kazoo', '...¿Cómo sabes lo del Jefe?', 'shock'],
+        ['coqui', 'Tienes un aviso de desalojo en la puerta y catorce llamadas perdidas de "NO CONTESTAR (JEFE)". Y anoche un carro negro se estacionó enfrente dos horas.', 'smug'],
+        ['kazoo', '...¿Dos horas?', 'shock'],
+        ['coqui', 'Dos horas y diez minutos. Las conté.', 'serious'],
         ['coqui', 'El Banco Federal.', 'serious'],
-        ['kazoo', '¿EL BANCO FEDERAL? ¿Estás loco?', 'shock'],
+        ['kazoo', '¿EL BANCO FEDERAL? ¿Estás pendejo?', 'shock'],
         ['coqui', 'Estoy quebrado. Se parece mucho.', 'serious'],
-        ['coqui', 'Pero necesitamos a alguien que conozca el banco por dentro. Los guardias, las cámaras, los horarios.', 'think'],
+        ['coqui', 'Pero necesitamos a alguien que conozca el banco por dentro. Guardias, cámaras, horarios.', 'think'],
         ['kazoo', '...Conozco a alguien. Ghenghis. Era guardia ahí. Lo corrieron.', 'think'],
         ['coqui', '¿Por qué lo corrieron?', 'serious'],
-        ['kazoo', 'Se quedó dormido en la caseta. Él dice que estaba meditando.', 'normal'],
+        ['kazoo', 'Lo encontraron dormido en la caseta. Él dice que estaba meditando.', 'normal'],
         ['coqui', '...¿Es de confianza?', 'serious'],
-        ['kazoo', 'Es de confianza. Está medio loco. Pero de confianza.', 'happy'],
+        ['kazoo', 'Está medio loco. Pero de confianza.', 'happy'],
+        ['coqui', 'Eso mismo decía yo del Tuercas.', 'serious'],
+        ['kazoo', '...', 'sad'],
         ['coqui', '¿Dónde lo encontramos?', 'normal'],
-        ['kazoo', 'En La Última Risa. El bar de El Centro. Prácticamente vive ahí.', 'normal'],
+        ['kazoo', 'En La Última Risa, el bar de El Centro. Prácticamente vive ahí. Le deberían cobrar renta.', 'normal'],
       ]);
       r.removeNpc(co);
       lock(false);
@@ -59,23 +63,23 @@ export const CAP2 = [
       rb.room.music = 'bar';
       rb.addNpc({ id: 'cantinero', look: 'bartender', x: 320, facing: -1 });
       const cq = rb.addNpc({ id: 'coqui', look: 'coqui', x: 24, facing: 1 });
-      const gh = rb.addNpc({ id: 'ghenghis', look: 'ghenghis', x: 70, facing: -1, pose: 'idle' });
+      rb.addNpc({ id: 'ghenghis', look: 'ghenghis', x: 70, facing: -1, pose: 'idle' });
       rb.addNpc({ look: 11, x: 440, facing: 1 }); rb.addNpc({ look: 21, x: 480, facing: -1, pose: 'sit', y: FLOOR - 2 });
       yield* fadeIn(0.4);
       yield* walkNpc(cq, 30, 40);
       yield* talk([
-        ['narrator', 'En la maquinita de Kazoo Kart, alguien se ríe solo. Muy fuerte.', 'normal'],
+        ['narrator', 'En la maquinita de Kazoo Kart, alguien se ríe solo. Muy fuerte. Nadie se le acerca.', 'normal'],
         ['kazoo', '¡Ghenghis!', 'happy'],
-        ['ghenghis', '¡KAZOO! ¡Mi compa! ¿Vienes a perder otra vez? ¡Jajaja!', 'laugh'],
+        ['ghenghis', '¡KAZOO! ¿Vienes a perder otra vez? Jajaja.', 'laugh'],
         ['coqui', 'Venimos a hablar de negocios.', 'serious'],
-        ['ghenghis', '¿Y este quién es? ¿Tu contador? ¿Tu papá? ¿Tu contador-papá?', 'crazy'],
+        ['ghenghis', '¿Y este quién es? ¿Tu contador? ¿Tu papá? ¿Tu agente de libertad condicional?', 'crazy'],
         ['kazoo', 'Es Coqui.', 'normal'],
-        ['ghenghis', '¡El famoso Coqui! ¡El que cayó! ¡JAJAJA!', 'laugh'],
+        ['ghenghis', '¡El famoso Coqui! ¡El que cayó porque su socio lo vendió! ¡JAJAJA!', 'laugh'],
         ['coqui', '...', 'angry'],
         ['kazoo', 'Wey...', 'sad'],
-        ['ghenghis', 'Ya, ya. Perdón. Me río de todo. Es una condición. Mi doctor dice que es "nervios". Yo digo que es talento.', 'happy'],
-        ['ghenghis', 'Si quieren hablar, primero me ganan en Kazoo Kart. Mi récord: 3,000. Nadie me gana. NADIE.', 'crazy'],
-        ['coqui', 'No tenemos tiempo para...', 'angry'],
+        ['ghenghis', 'Ya, ya. Perdón. Me río de todo. Mi doctor dice que son nervios. Yo digo que la vida es un chiste y nadie más se ríe.', 'happy'],
+        ['ghenghis', '¿Quieren hablar? Primero me ganan en Kazoo Kart. Mi récord: 3,000. Nadie me gana.', 'crazy'],
+        ['coqui', 'No tenemos tiempo para pendejadas.', 'angry'],
         ['kazoo', 'Yo le gano.', 'smug'],
       ]);
       let target = 3000, tries = 0;
@@ -83,26 +87,28 @@ export const CAP2 = [
         const score = yield* play('kart', { target, time: 50 });
         if (score >= target) break;
         tries++;
-        if (tries === 1) yield* say('ghenghis', '¡JAJAJA! ¡Otra, otra! Me encanta verte perder.', 'laugh');
-        else { target = 2000; yield* say('ghenghis', 'Ándale, te la dejo en 2,000. Me das lástima. Jajaja.', 'happy'); }
+        if (tries === 1) yield* say('ghenghis', '¡JAJAJA! ¡Otra! Verte perder es como ver un choque en cámara lenta.', 'laugh');
+        else { target = 2000; yield* say('ghenghis', 'Ándale, te la dejo en 2,000. Me das lástima. Y yo no le tengo lástima a nadie.', 'happy'); }
       }
       yield* talk([
         ['ghenghis', '...', 'shock'],
         ['ghenghis', 'Nadie me había ganado. Nunca.', 'shock'],
-        ['ghenghis', '¡JAJAJA! ¡Me caes bien, Kazoo! Siempre me has caído bien. Pero ahorita más.', 'laugh'],
+        ['ghenghis', 'Jajaja. Me caes bien, Kazoo. Siempre me has caído bien. Algún día eso te va a salir caro.', 'laugh'],
         ['coqui', 'Queremos el Banco Federal.', 'serious'],
-        ['ghenghis', '¿Robar el Banco Federal? Jajaja. Wey, nos van a agarrar.', 'laugh'],
+        ['ghenghis', '¿El Federal? Jajaja. Wey, nos van a agarrar.', 'laugh'],
         ['coqui', '¿Entonces no?', 'serious'],
         ['ghenghis', 'No, sí. Nomás digo que nos van a agarrar. De todos modos esto iba a pasar algún día.', 'normal'],
         ['kazoo', '¿Qué cosa?', 'think'],
         ['ghenghis', 'Todo, wey. Todo.', 'serious'],
+        ['ghenghis', 'Pero antes de que me digan que sí, vamos a revisar el banco. Yo les enseño por dónde. Nadie roba lo que no ha visto.', 'serious'],
+        ['coqui', '...Por fin alguien que piensa.', 'normal'],
       ]);
       lock(false);
     },
   },
   {
     id: 'c2_pelea', chapter: 2, title: 'Tres caídas', requires: ['c2_bar'], customRooms: true, lockRoom: true, failPlace: 'bar',
-    rating: () => ({ by: 'El Cantinero', stars: 3, text: 'Rompieron dos sillas. Las cobro.' }),
+    rating: () => ({ by: 'El Cantinero', stars: 3, text: 'Rompieron dos sillas y un diente. Las sillas las cobro.' }),
     *run(ctx) {
       lock(true);
       if (G.scene !== R() || R().roomId !== 'bar') { roomAt('bar', 60); }
@@ -111,20 +117,20 @@ export const CAP2 = [
       r.npcs = r.npcs.filter((n) => n.id !== 'ghenghis' && n.id !== 'coqui' && n.id !== 'kazoo');
       if (!r.npc('cantinero')) r.addNpc({ id: 'cantinero', look: 'bartender', x: 320, facing: -1 });
       r.p.x = 90; r.p.facing = -1;
-      const cq = r.addNpc({ id: 'coqui', look: 'coqui', x: 40, facing: 1 });
+      r.addNpc({ id: 'coqui', look: 'coqui', x: 40, facing: 1 });
       const gh = r.addNpc({ id: 'ghenghis', look: 'ghenghis', x: 64, facing: 1 });
       audio.sfx('door');
       const thugs = [];
       for (let i = 0; i < 4; i++) thugs.push(r.addNpc({ look: 'thug', x: 180 + i * 18, facing: -1 }));
       music('tension');
       yield* talk([
-        ['thug', '¡KAZOO! ¡Te estábamos buscando!', 'angry', { name: 'MALANDRO' }],
+        ['thug', '¡KAZOO! ¡Te andábamos buscando, cabrón!', 'angry', { name: 'MALANDRO' }],
         ['kazoo', '¡Hola! ...¿Quién eres?', 'shock'],
-        ['thug', '¡La apuesta del fut, wey! ¡La del América! ¡Cinco mil!', 'angry', { name: 'MALANDRO' }],
+        ['thug', '¡La apuesta del fut, pendejo! ¡La del América! ¡Cinco mil!', 'angry', { name: 'MALANDRO' }],
         ['kazoo', '...Ah. Esa apuesta.', 'sad'],
-        ['coqui', '¿Apostaste cinco mil pesos que no tienes?', 'angry'],
+        ['coqui', '¿Apostaste cinco mil pesos que no tienes? ¿Debiéndole al Jefe?', 'angry'],
         ['kazoo', '¡El América iba ganando! ¡Hasta el minuto 94!', 'sad'],
-        ['ghenghis', '...Jejeje. Déjamelos a mí.', 'crazy'],
+        ['ghenghis', '...Jejeje. Déjenmelos a mí.', 'crazy'],
       ]);
       // switch to Ghenghis
       for (const t of thugs) r.removeNpc(t);
@@ -145,18 +151,19 @@ export const CAP2 = [
       music('bar');
       yield* wait(0.8);
       yield* talk([
-        ['ghenghis', '¡JAJAJA! ¿Vieron eso? ¡Ni sudé!', 'laugh'],
+        ['ghenghis', '¡JAJAJA! ¿Vieron? ¡Ni sudé!', 'laugh'],
         ['coqui', '...Está bien. Estás adentro.', 'serious'],
-        ['ghenghis', '¡Sí! ¡Equipo!', 'happy'],
+        ['ghenghis', 'Equipo. Qué bonito. Ya nomás falta ver quién traiciona a quién. Jajaja.', 'happy'],
+        ['coqui', 'No es chistoso.', 'serious'],
       ]);
       // the finger-gun seed
       const ghN = r.addNpc({ id: 'ghenghis', look: 'ghenghis', x: r.p.x, facing: -1 });
       r.p.look = 'kazoo'; r.p.x = kz.x; r.removeNpc(kz);
       ghN.pose = 'aim'; ghN.facing = Math.sign(r.p.x - ghN.x) || -1;
-      yield* say('ghenghis', 'Y tú, Kazoo... ¡bang! ¡Jajaja!', 'crazy');
+      yield* say('ghenghis', 'Y tú, Kazoo... ¡bang! Jajaja.', 'crazy');
       yield* talk([
         ['kazoo', '...No me apuntes, wey. Ni de broma.', 'serious'],
-        ['ghenghis', '¡Jajaja! Relájate, es de dedo.', 'laugh'],
+        ['ghenghis', 'Relájate, es de dedo. Todavía.', 'laugh'],
         ['kazoo', 'Aun así.', 'serious'],
       ]);
       ghN.pose = null;
@@ -165,7 +172,7 @@ export const CAP2 = [
   },
   {
     id: 'c2_banco', chapter: 2, title: 'Visita guiada', requires: ['c2_pelea'], customRooms: true,
-    rating: () => ({ by: 'Coqui', stars: 4, text: 'Por fin tenemos equipo.' }),
+    rating: () => ({ by: 'Coqui', stars: 4, text: 'Ruta tres. Ahora sí tenemos por dónde correr.' }),
     *run(ctx) {
       lock(true);
       const c = C(), bar = P().bar;
@@ -176,44 +183,98 @@ export const CAP2 = [
       const coqui = ally('coqui', bar.x - 12, bar.y + 16, 'COQUI');
       const gh = ally('ghenghis', bar.x + 12, bar.y + 16, 'GHENGHIS');
       yield* fadeIn(0.4);
-      yield* say('ghenghis', 'Vamos a darles el tour. Súbanse. Yo les enseño el banco... desde afuera. Adentro ya no me dejan entrar.', 'laugh');
+      yield* say('ghenghis', 'Súbanse. Les enseño el banco... desde afuera. Adentro ya no me dejan entrar. Ni a sacar dinero.', 'laugh');
       lock(false);
+      const both = () => c.player.car && c.player.car.passengers.includes(coqui) && c.player.car.passengers.includes(gh);
+      // only touch the objective when it changes, or it would blink forever
+      const setObj = (t) => { if (UI.objective !== t) objective(t); };
+      const keepBoth = (goal) => () => setObj(both() ? goal : 'Sube a los dos al carro');
       objective('Sube a los dos al carro');
-      yield* until(() => c.player.car && c.player.car.passengers.includes(coqui) && c.player.car.passengers.includes(gh));
+      yield* until(both);
       v.label = null;
       objective('Pasa despacio frente al Banco Federal');
       const bk = P().banco;
-      yield* goTo(bk.x, bk.y + 40, { r: 40, needCar: true, label: 'BANCO FEDERAL' });
+      // Ghenghis starts the tour on the way; arriving early just waits for him to finish
       const tour = talkAlong([
-        ['ghenghis', 'Ahí está. El Banco Federal. Mi ex. Jajaja.', 'laugh'],
-        ['ghenghis', 'El último viernes del mes, la bóveda guarda la lana de los blindados. Mucha lana.', 'serious'],
-        ['ghenghis', 'Tres guardias. Seis cámaras. La cámara cuatro está chueca desde que la acomodé con el hombro.', 'normal'],
+        ['ghenghis', 'El Banco Federal. Mi ex. Me dejó por quedarme dormido.', 'laugh'],
+        ['ghenghis', 'El último viernes del mes la bóveda guarda la lana de los blindados. Mucha lana.', 'serious'],
+        ['ghenghis', 'Tres guardias. Seis cámaras. La cuatro está chueca desde que la acomodé con el hombro.', 'normal'],
         ['coqui', '¿Con el hombro?', 'think'],
         ['ghenghis', 'Me estaba estirando.', 'happy'],
         ['coqui', 'Eso nos deja un punto ciego.', 'serious'],
-        ['ghenghis', 'Y la puerta de la bóveda... taladro industrial. Unos quince minutos.', 'normal'],
+        ['ghenghis', 'Y la puerta de la bóveda... taladro industrial. Unos quince minutos, si nadie la caga.', 'normal'],
         ['coqui', 'Necesitamos máscaras. Armas. Un taladro. Y un carro.', 'think'],
-        ['kazoo', '¡Yo me encargo del carro!', 'happy'],
-        ['coqui', '...No. Tú no.', 'serious'],
-        ['kazoo', '¡Oye!', 'angry'],
-        ['ghenghis', '¡JAJAJA!', 'laugh'],
+        ['kazoo', 'Yo me encargo del carro.', 'happy'],
+        ['coqui', 'No. Tú no.', 'serious'],
+        ['kazoo', '¿Por qué no?', 'angry'],
+        ['coqui', 'Porque te conozco.', 'serious'],
+        ['ghenghis', 'JAJAJA.', 'laugh'],
       ]);
+      yield* goTo(bk.x, bk.y + 40, { r: 40, needCar: true, label: 'BANCO FEDERAL' });
+      objective('Da una vuelta despacio por el banco');
+      yield* finishTalk(tour);
+      let pending = talkAlong([
+        ['coqui', 'Ya vimos el banco. Ahora hay que trazar de una vez la ruta de escape. Si salimos de ahí con la lana, no va a haber tiempo de pensar.', 'serious'],
+        ['coqui', 'Tengo tres opciones. Maneja. Yo te digo.', 'normal'],
+      ]);
+      // ---- the escape route: three options, Coqui only likes the third one
+      const routes = [
+        { x: 84 * TS, y: 4 * TS + 8, label: 'RUTA 1', obj: 'Ruta 1: sal por el norte de El Centro', talk: [
+          ['coqui', 'No. Esto es el Centro: semáforos, cámaras en cada esquina y la comandancia a cuatro cuadras.', 'serious'],
+          ['ghenghis', 'Imagínate huir en el tráfico de las diez. Jajaja. Nos agarran sacando el boleto del estacionamiento.', 'laugh'],
+          ['coqui', 'Siguiente.', 'serious'],
+        ] },
+        { x: P().gasolinera.x, y: P().gasolinera.y, label: 'RUTA 2', obj: 'Ruta 2: la carretera vieja, por la gasolinera', talk: [
+          ['coqui', 'Tampoco. Carretera recta, abierta, sin dónde meterse. Nos ven desde un helicóptero a tres kilómetros.', 'serious'],
+          ['kazoo', '¿Y si vamos bien rápido?', 'think'],
+          ['coqui', '¿En qué? ¿En tu moto de cuatro punto ocho?', 'smug'],
+          ['coqui', 'Hay un camino más. Sigue la carretera hacia el campo.', 'normal'],
+        ] },
+      ];
+      for (const rt of routes) {
+        objective(rt.obj);
+        yield* goTo(rt.x, rt.y, { r: 34, needCar: true, label: rt.label, check: keepBoth(rt.obj) });
+        yield* finishTalk(pending);
+        pending = talkAlong(rt.talk);
+      }
+      objective('Ruta 3: el camino de terracería de Las Afueras');
+      const campo = P().campo;
+      yield* goTo(campo.x, campo.y, { r: 30, needCar: true, label: 'RUTA 3', check: keepBoth('Ruta 3: el camino de terracería de Las Afueras') });
+      yield* finishTalk(pending);
+      lock(true);
+      const car = c.player.car;
+      if (car) { car.vx *= 0.2; car.vy *= 0.2; }
+      UI.letterboxTarget = 1;
+      c.camTarget = { x: P().arbol.x - 30, y: P().arbol.y - 10 };
+      music('sad');
+      yield* wait(1.2);
+      yield* talk([
+        ['coqui', 'Aquí.', 'serious'],
+        ['coqui', 'Terracería, árboles, nadie. Un camino que ni la policía conoce. Si algo sale mal, aquí se pierde cualquiera.', 'serious'],
+        ['ghenghis', '¿Y qué hay más allá?', 'think'],
+        ['coqui', 'Nada. Por eso.', 'serious'],
+        ['kazoo', 'Pa\' allá no hay nada... me gusta. Se parece a mi cuenta de banco.', 'smug'],
+        ['coqui', 'Ruta tres. Apréndansela. Si nos separamos, por aquí. Nadie improvisa.', 'serious'],
+        ['ghenghis', 'Nadie improvisa. Jajaja. Ya los quiero ver el día que todo se vaya a la verga.', 'laugh'],
+      ]);
+      S().flags.ruta = true;
+      c.camTarget = null; UI.letterboxTarget = 0; music(null);
+      lock(false);
       objective('Deja a Ghenghis en su casa (La Colonia)');
       const home = { x: 44 * 16, y: 91 * 16 + 8 };
-      yield* goTo(home.x, home.y, { r: 30, needCar: true, label: 'CASA DE GHENGHIS' });
+      yield* goTo(home.x, home.y, { r: 30, needCar: true, label: 'CASA DE GHENGHIS', check: keepBoth('Deja a Ghenghis en su casa (La Colonia)') });
       lock(true);
-      yield* finishTalk(tour);
       yield* lines([
-        ['coqui', 'En tres días. En El Puerto. Hay un taller abandonado. Ahí nos vemos.', 'serious'],
-        ['ghenghis', 'Un taller abandonado. Qué romántico. Jajaja. Ahí estaré.', 'laugh'],
+        ['coqui', 'En tres días. En El Puerto hay un taller abandonado. Ahí nos vemos.', 'serious'],
+        ['ghenghis', 'Un taller abandonado. Qué romántico. Si no llego, búsquenme en la cajuela de alguien. Jajaja.', 'laugh'],
       ]);
-      const car = c.player.car;
-      if (car) { const i = car.passengers.indexOf(gh); if (i >= 0) car.passengers.splice(i, 1); }
+      const car2 = c.player.car;
+      if (car2) { const i = car2.passengers.indexOf(gh); if (i >= 0) car2.passengers.splice(i, 1); }
       c.removePed(gh);
       lock(false);
       yield* fadeOut(0.8);
       setDay(-14); setClock(9, 30);
-      if (car) { const i = car.passengers.indexOf(coqui); if (i >= 0) car.passengers.splice(i, 1); }
+      if (car2) { const i = car2.passengers.indexOf(coqui); if (i >= 0) car2.passengers.splice(i, 1); }
       c.removePed(coqui);
       unlockZone('puerto');
       yield* wait(0.4);

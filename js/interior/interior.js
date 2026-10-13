@@ -211,7 +211,12 @@ export const interior = {
       const target = this.enemies.find((e) => e.state !== 'down' && Math.abs(e.x - n.x) < 220);
       if (target && n.shootT <= 0) {
         n.shootT = rand(1.1, 1.8); n.facing = Math.sign(target.x - n.x); n.pose = 'shoot'; n.poseT = 0.15;
-        this.bullets.push({ x: n.x + n.facing * 12, y: n.y - 15, vx: n.facing * 380, owner: 'ally', dmg: 14, life: 1 });
+        // friendly fire never touches Kazoo, and it shouldn't even look like it: if he's in
+        // the line of fire the shot starts on the far side of him
+        let bx = n.x + n.facing * 12;
+        const p = this.p;
+        if (Math.sign(p.x - n.x) === n.facing && Math.sign(target.x - p.x) === n.facing) bx = p.x + n.facing * 14;
+        this.bullets.push({ x: bx, y: n.y - 15, vx: n.facing * 380, owner: 'ally', dmg: 14, life: 1 });
         audio.sfx('shot', { vol: 0.6 });
       }
       if (n.poseT > 0) { n.poseT -= dt; if (n.poseT <= 0) n.pose = n.basePose || 'aim'; }
@@ -235,6 +240,18 @@ export const interior = {
     return true;
   },
 
+  // cameras only see what's inside the red cone they draw on the floor
+  cameraSees(e) {
+    const p = this.p;
+    if (p.hidden || !p.visible) return false;
+    const dx = p.x - e.x;
+    if (Math.sign(dx) !== e.facing) return false;
+    const ad = Math.abs(dx);
+    if (ad < 10 || ad > e.vision) return false;
+    if (p.crouch && p.covered) return false;
+    return true;
+  },
+
   updateEnemy(e, dt) {
     e.anim += dt;
     if (e.hitT > 0) e.hitT -= dt;
@@ -247,8 +264,9 @@ export const interior = {
       if (e.disabled) return;
       e.sweepT = (e.sweepT ?? (e.sweep || 2.5)) - dt;
       if (e.sweepT <= 0) { e.facing = -e.facing; e.sweepT = e.sweep || 2.5; }
-      const seenC = !p.dead && this.canSee(e);
-      if (seenC) e.susp += dt * 1.6; else e.susp = Math.max(0, e.susp - dt * 0.5);
+      // a camera needs a couple of seconds of you standing in its cone before it raises the alarm
+      const seenC = !p.dead && this.cameraSees(e);
+      if (seenC) e.susp += dt * (e.alertRate || 0.5); else e.susp = Math.max(0, e.susp - dt * 0.6);
       if (e.susp >= 1) { e.susp = 1; e.bark = '!'; e.barkT = 1; if (this.onDetected) this.onDetected(e); e.susp = 0; }
       return;
     }
@@ -403,8 +421,7 @@ export const interior = {
     for (const q of this.props) if (q.front && !q.hidden) drawProp(ctx, q, X(q.x), q.y ?? FLOOR, t, env);
     if (this.extraDraw) this.extraDraw(ctx, cx);
     // bullets
-    ctx.fillStyle = '#fff08c';
-    for (const b of this.bullets) ctx.fillRect(X(b.x) - 1, Math.round(b.y), 3, 1);
+    for (const b of this.bullets) { ctx.fillStyle = b.owner === 'ally' ? '#9af0ff' : '#fff08c'; ctx.fillRect(X(b.x) - 1, Math.round(b.y), 3, 1); }
     for (const f of this.fx) { ctx.fillStyle = f.col; ctx.fillRect(X(f.x), Math.round(f.y), f.s || 1, f.s || 1); }
 
     // darkness
@@ -420,12 +437,15 @@ export const interior = {
         ctx.fillStyle = '#2a1a1a'; ctx.fillRect(x, y, 16, 3);
         ctx.fillStyle = '#d8323c'; ctx.fillRect(x, y, Math.round(16 * f), 3);
       }
+      // cameras show their meter right above the camera, everyone else over their head
+      const iy = e.kind === 'camera' ? 88 : e.y;
+      if (e.kind === 'camera' && e.disabled) continue;
       if (e.susp > 0.05 && e.state !== 'attack') {
-        const w = 12, x = X(e.x) - 6, y = e.y - 32;
+        const w = e.kind === 'camera' ? 16 : 12, x = X(e.x) - w / 2, y = iy - 32;
         ctx.fillStyle = '#101018'; ctx.fillRect(x - 1, y - 1, w + 2, 4);
         ctx.fillStyle = e.susp > 0.7 ? '#d8323c' : '#ffd23f'; ctx.fillRect(x, y, Math.round(w * e.susp), 2);
       }
-      if (e.bark) font.text(ctx, e.bark, X(e.x), e.y - 42, e.bark === '!' ? '#d8323c' : '#ffd23f', { align: 'center', outline: '#101018', scale: e.bark.length === 1 ? 2 : 1 });
+      if (e.bark) font.text(ctx, e.bark, X(e.x), iy - 42, e.bark === '!' ? '#d8323c' : '#ffd23f', { align: 'center', outline: '#101018', scale: e.bark.length === 1 ? 2 : 1 });
     }
     for (const n of this.npcs) if (n.bark && !n.hidden) bubble(ctx, X(n.x), (n.y ?? FLOOR) - 30, n.bark);
     // someone getting up: show how long until they bolt
@@ -472,8 +492,8 @@ export const interior = {
     ctx.fillStyle = `rgba(6,6,20,${dim})`; ctx.fillRect(0, 0, W, H);
     ctx.globalCompositeOperation = 'lighter';
     for (const q of this.props) if (q.light || q.t === 'lamp' || q.t === 'window') {
-      const x = q.x - cx + 4, y = (q.y ?? FLOOR) - (q.t === 'lamp' ? 24 : -10);
-      glow(ctx, x, y, q.t === 'window' ? 26 : 44, `rgba(255,220,150,${dim * 0.35})`);
+      const x = q.x - cx + (q.glowX ?? 4), y = (q.y ?? FLOOR) - (q.glowY ?? (q.t === 'lamp' ? 24 : -10));
+      glow(ctx, x, y, q.glowR || (q.t === 'window' ? 26 : 44), q.glowCol ? q.glowCol(dim) : `rgba(255,220,150,${dim * 0.35})`);
     }
     for (const e of this.enemies) if (e.flashlight && e.state !== 'down') {
       const x = e.x - cx, y = e.y - 16, len = e.vision;

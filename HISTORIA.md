@@ -1,5 +1,5 @@
 # EL PLAN
-### Una precuela 8-bit de "El Escape" — GTA VI Marathon de KazooGod02
+### Una precuela 8-bit de "El Escape", de KazooGod02
 
 > "Todo el mundo recuerda cómo terminó. Nadie sabe cómo empezó."
 
@@ -16,7 +16,7 @@ Ciudad costera ficticia, calurosa y corrupta. Palmeras, neón, taquerías 24 h y
 
 | Zona | Qué hay | Se desbloquea |
 |---|---|---|
-| **La Colonia** | Cuarto de Kazoo, taquería "El Compa", tiendita, casa de Don Chuy | Prólogo |
+| **La Colonia** | Cuarto de Kazoo, taquería "El Compa", tiendita, casa del Jefe | Prólogo |
 | **El Centro** | Banco Federal de Puerto Vicio, bar "La Última Risa", tienda de disfraces, comandancia | Cap. 2 |
 | **El Puerto** | Bodegas, el taller abandonado (escondite), el galpón de La Tía Gris | Cap. 3 |
 | **Las Afueras** | Carretera vieja, el penal, **el campo** (donde termina el trailer) | Cap. 1 / Cap. 6 |
@@ -30,7 +30,7 @@ Una app dentro del juego que Kazoo revisa todo el tiempo. Es el gag recurrente y
 
 ### KAZOO — el protagonista
 - 20 y tantos, repartidor en una moto que compró (por supuesto) en el Marketplace.
-- Le debe **$50,000** a Don Chuy por un negocio fallido: "Kazoo's Tacos Gourmet" (duró 9 días).
+- Le debe **$50,000** al Jefe por un negocio fallido: "Kazoo's Tacos Gourmet" (duró 9 días).
 - Hace chistes para no sentir nada. Improvisa en todo. Es leal, pero cuando se asusta reacciona sin pensar.
 - **Lo que siembra para el trailer:** confía demasiado en las estrellas, bromea en el peor momento y aprende a "disparar primero".
 
@@ -49,7 +49,7 @@ Una app dentro del juego que Kazoo revisa todo el tiempo. Es el gag recurrente y
 ### Secundarios
 | Personaje | Rol |
 |---|---|
-| **Don Chuy** | Prestamista de La Colonia. Sonríe mientras amenaza. Motiva el atraco. |
+| **El Jefe** | El que controla todo lo ilegal en Puerto Vicio. Nadie le ha visto la cara: siempre está de espaldas en su silla, a contraluz y rodeado de guaruras. Kazoo le debe $50,000. Se entera del atraco y exige su 20%. |
 | **La Tía Gris** | Vende armas en El Puerto y les enseña a tirar. Su regla: *"Si te apuntan, tú disparas primero. Los que dudan no cuentan la historia."* |
 | **El Tuercas** | Ex socio de Coqui y soplón. Vive con miedo. |
 | **Comandante Reyes** | Policía obsesionada con Coqui desde el caso anterior. Siempre está un paso atrás... hasta el final. |
@@ -61,13 +61,13 @@ Una app dentro del juego que Kazoo revisa todo el tiempo. Es el gag recurrente y
 ## 3. LÍNEA DE TIEMPO (21 días antes del trailer)
 
 ```
-Día -21  Kazoo recibe la amenaza de Don Chuy
+Día -21  Kazoo recibe la amenaza del Jefe
 Día -20  Coqui sale del penal
-Día -17  Ghenghis se une
+Día -17  Ghenghis se une y Coqui traza la ruta de escape (ruta tres: el campo)
 Día -14  Nace el plan
 Día -10  Reconocimiento del banco
 Día  -7  Kazoo compra el carro en el Marketplace
-Día  -4  Plan B secreto (el campo)
+Día  -4  El Jefe se entera del plan
 Día  -1  La noche antes
 Día   0  El atraco → La huida → EL TRAILER
 ```
@@ -83,7 +83,7 @@ Kazoo despierta en su cuarto. Hay un aviso de desalojo pegado en la puerta y le 
 
 **Gameplay (tutorial):** caminar, hablar, usar el teléfono y las primeras entregas en moto para Doña Mari.
 
-**Escena clave:** Don Chuy lo espera afuera de la taquería.
+**Escena clave:** dos guaruras del Jefe lo esperan afuera de la taquería y lo llevan a su despacho. El Jefe le habla de espaldas, desde su silla.
 > **DON CHUY:** Kazoo, mijo. 50 mil. Tres semanas.
 > **KAZOO:** ¿Y si le pago en tacos? Me sobraron como 400.
 > **DON CHUY:** *(sonríe)* Tres semanas, Kazoo.
@@ -122,6 +122,8 @@ Coqui necesita a alguien que conozca el banco por dentro. Kazoo lo lleva con su 
 **Dato clave:** Ghenghis explica que el **último viernes del mes** la bóveda guarda el efectivo de los blindados. Además, la cámara 4 tiene un punto ciego desde que él "la acomodó" con el hombro.
 
 **Semilla:** Ghenghis le apunta a Kazoo con el dedo en forma de pistola: *"Bang."* Se ríe. A Kazoo no le da risa.
+
+**La ruta de escape:** Ghenghis propone ir a revisar el banco. Después del recorrido, Coqui dice: *"Hay que trazar de una vez la ruta de escape"*. Prueban tres: la del Centro ("semáforos, cámaras y la comandancia a cuatro cuadras") y la carretera vieja ("nos ven desde un helicóptero") no le gustan. La tercera, el camino de terracería con el árbol en Las Afueras, sí: *"¿Y qué hay más allá?" "Nada. Por eso."* Por eso en el trailer terminan caminando hacia el campo.
 
 ---
 
@@ -187,29 +189,24 @@ Elijas lo que elijas, todo te regresa al Tsuru. Es un chiste de diseño: "Este v
 
 ---
 
-### CAPÍTULO 6 — "La Otra Mochila" (~10 min)
-De noche, Ghenghis le cae a Kazoo con una idea.
-> **GHENGHIS:** Wey. Esto va a salir mal.
-> **KAZOO:** Gracias, qué motivador.
-> **GHENGHIS:** No, en serio. Hay que tener un plan B. Una mochila con ropa, agua y lana escondida. Por si nos separamos.
-> **KAZOO:** ¿Y Coqui?
-> **GHENGHIS:** Si le decimos, va a pensar que lo vamos a traicionar. Ya lo conoces.
+### CAPÍTULO 6 — "El Jefe" (~10 min)
+De noche, dos guaruras se llevan a Kazoo y a Ghenghis al despacho del Jefe. Él ya lo sabe todo: el día, la hora, el banco y el Tsuru.
+> **EL JEFE:** En Puerto Vicio no se roba ni un chicle sin que yo me entere.
 
-**Misión:** Kazoo y Ghenghis llevan la mochila de emergencia a **EL CAMPO** en Las Afueras y la entierran junto a un árbol solitario.
+No los detiene: quiere sus 50 mil y el 20% de la bóveda. Y un favor para ver si son serios: llevar un carro negro al muelle sin policía, sin un rasguño y sin abrir la cajuela. "Ni una palabra al de los lentes."
 
-**Ironía dramática:** en el camino de regreso, el jugador ve (y Kazoo no) una silueta en la loma. **Es Coqui.** Los siguió y los vio enterrar algo.
+En el camino, Ghenghis pregunta medio en broma: *"Si un día el Jefe me paga por meterte un tiro... ¿tú crees que lo haría?"*
 
-**Por eso en el trailer:**
-- Coqui pregunta "¿planeaban largarse con el dinero?" porque *los vio*.
-- Kazoo señala "pa allá" y dice "no sé we la neta"... **está mintiendo** para proteger el plan B.
-- Al final Kazoo corre hacia el campo: **va por la mochila**.
+**Paranoia:** del otro lado del muelle, Coqui los ve con la gente del Jefe. Al día siguiente los confronta a los dos: *"El Tuercas también empezó con favores."* Desde aquí Coqui sospecha de **ambos**.
+
+**Por eso en el trailer:** Coqui les dice "¿Lo planearon, verdad, putos? Se iban a ir con el dinero" a los dos.
 
 ---
 
 ### CAPÍTULO 7 — "La Noche Antes" (~8 min)
 Es un capítulo tranquilo y emocional. La ciudad queda libre para completar pendientes.
 
-- Don Chuy le recuerda la deuda: *"Mañana es viernes, Kazoo. Qué casualidad, ¿no?"*
+- El Jefe le recuerda la deuda: *"Mañana es viernes, Kazoo. Qué casualidad, ¿no?"*
 - Doña Mari le regala tacos "por si se va de viaje". Ella sospecha algo.
 - **Escena en la azotea:** los tres, con cervezas y la ciudad de fondo.
 > **GHENGHIS:** De todos modos esto va a salir mal.
@@ -218,7 +215,7 @@ Es un capítulo tranquilo y emocional. La ciudad queda libre para completar pend
 > *(silencio)*
 > **KAZOO:** Wey, no digas cosas bonitas, me da miedo.
 
-Coqui mira a los dos. Sabe lo de la mochila, pero no dice nada. Casi habla, y luego no.
+Coqui mira a los dos. No les cree del todo. Casi dice algo, y luego no.
 
 ---
 
@@ -254,7 +251,7 @@ Los tres se bajan. Se oyen sirenas a lo lejos.
 Se oyen respiraciones y pasos. Una mochila se mueve.
 > **GHENGHIS (fuera de cuadro):** ¡Córranle, córranle!
 
-**CORTE BRUSCO.** Aparece el texto *"CONTINUARÁ..."*, luego el logo de GTA VI MARATHON de KazooGod02, la fecha y hora y el link del canal.
+**CORTE BRUSCO.** Aparece el texto *"CONTINUARÁ..."* y la tarjeta de "El Escape".
 
 ---
 
@@ -275,8 +272,8 @@ Oficina de la comandancia. VendeRápido_5E está sentado frente a Reyes.
 
 | Actividad | Descripción | Recompensa |
 |---|---|---|
-| **Repartos de Doña Mari** | Entregas cronometradas en moto por toda la ciudad | Dinero para abonar a Don Chuy |
-| **Abonos a Don Chuy** | Si le pagas todo antes del Cap. 8, cambia un diálogo del final | Escena extra |
+| **Repartos de Doña Mari** | Entregas cronometradas en moto por toda la ciudad | Dinero para abonar al Jefe |
+| **Abonos al Jefe** | Si le pagas todo antes del Cap. 8, cambia un diálogo del final | Escena extra |
 | **Cassettes perdidos (15)** | Grabaciones escondidas con lore: el pasado de Coqui, el despido de Ghenghis, los primeros "clientes" de VendeRápido_5E... | Galería de lore |
 | **Estrellas doradas (10)** | Escondidas en el mapa. Si juntas todas, desbloqueas una pista del rastreador *antes* del final | Final "Lo sabía" |
 | **Arcade "Kazoo Kart"** | Minijuego de carreras en el bar | Récord y logro |
@@ -295,7 +292,7 @@ Oficina de la comandancia. VendeRápido_5E está sentado frente a Reyes.
 | Cap. 3 — El Plan | 12 |
 | Cap. 4 — Reconocimiento | 12 |
 | Cap. 5 — Marketplace | 12 |
-| Cap. 6 — La Otra Mochila | 10 |
+| Cap. 6 — El Jefe | 10 |
 | Cap. 7 — La Noche Antes | 8 |
 | Cap. 8 — El Atraco | 18 |
 | Cap. 9 — La Huida + post-créditos | 10 |
@@ -313,9 +310,9 @@ Oficina de la comandancia. VendeRápido_5E está sentado frente a Reyes.
 | "Hace 10 minutos me dijiste que estaba bien" | Cap. 5: Coqui revisa el carro |
 | "Del marketplace... tenía 5 estrellas" | Prólogo, Cap. 1, Cap. 5 y post-créditos |
 | "De todos modos esto iba a pasar" | Cap. 2 y Cap. 7 (Ghenghis) |
-| "¿Planeaban largarse con el dinero?" | Cap. 4 (Kazoo con la policía) + Cap. 6 (Coqui los ve) |
-| "Pa allá... no sé we la neta" | Cap. 6: Kazoo sabe del campo y miente |
+| "¿Lo planearon? Se iban a ir con el dinero" | Cap. 4 (Kazoo con la policía) + Cap. 6 (Coqui ve a los dos con la gente del Jefe) |
+| "Pa'llá... no sé we la neta" | Cap. 2: la ruta tres va hacia el campo, donde "no hay nada" |
 | Ghenghis gira el arma y Kazoo dispara | Cap. 2 ("bang" de broma), Cap. 3 (regla de La Tía Gris) y Cap. 8 |
 | La policía llega justo a tiempo | Cap. 5 (rastreador) + post-créditos |
-| Kazoo corre al campo | Cap. 6: ahí está la mochila del plan B |
-| "¡CORRE!" de Coqui | Cap. 7: Coqui sabe del plan B y lo protege |
+| Kazoo corre al campo | Cap. 2: es la ruta de escape que eligió Coqui |
+| "¡CORRE!" de Coqui | Cap. 7: aunque sospecha, en la azotea les pide que no sean el Tuercas |

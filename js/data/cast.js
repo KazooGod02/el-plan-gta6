@@ -5,7 +5,9 @@ export const LOOKS = {
   kazoo:    { name: 'KAZOO', skin: '#c48a5e', hair: 'curly', hc: '#241410', shirt: '#e0a82e', pants: '#34466e', shoes: '#f0f0f0', body: 'normal', voice: 430, color: '#e0a82e' },
   coqui:    { name: 'COQUI', skin: '#e0b48c', hair: 'librito', hc: '#161010', shirt: '#3c64a0', pants: '#b49664', shoes: '#5a3218', body: 'wide', glasses: true, voice: 290, color: '#5a8ce0' },
   ghenghis: { name: 'GHENGHIS', skin: '#d29c72', hair: 'side', hc: '#3a2414', shirt: '#b8323c', pants: '#26262e', shoes: '#101010', body: 'normal', crazy: true, voice: 360, color: '#e0504a', flannel: true },
-  donchuy:  { name: 'DON CHUY', skin: '#b87a4b', hair: 'slick', hc: '#9a9aa2', shirt: '#f0ece0', pants: '#3a3a44', shoes: '#101010', body: 'big', mustache: true, chain: true, voice: 170, color: '#c8a03c' },
+  // El Jefe (the id stays 'donchuy' for old saves): nobody has seen his face, only his shadow
+  donchuy:  { name: 'EL JEFE', skin: '#b87a4b', hair: 'slick', hc: '#9a9aa2', shirt: '#1a1a22', pants: '#1a1a22', shoes: '#101010', body: 'big', voice: 140, color: '#b8a070', silhouette: true },
+  guarura:  { name: 'GUARURA', skin: '#a8704a', hair: 'bald', hc: '#1a1a1a', shirt: '#16161c', pants: '#16161c', shoes: '#0a0a0a', body: 'wide', shades: true, voice: 210, color: '#8a8a9a' },
   mari:     { name: 'DOÑA MARI', skin: '#c98c5e', hair: 'bun', hc: '#5a4a4a', shirt: '#d05a8c', pants: '#3c3c64', shoes: '#3a2418', body: 'fem', apron: true, voice: 540, color: '#f07aa8' },
   tia:      { name: 'LA TÍA GRIS', skin: '#e0b890', hair: 'short', hc: '#c8c8d0', shirt: '#5a6a3a', pants: '#4a4a32', shoes: '#2a2a1a', body: 'fem', voice: 250, color: '#a0b070', scar: true },
   tuercas:  { name: 'EL TUERCAS', skin: '#d09a6a', hair: 'cap', hc: '#2a1a10', cap: '#c83c28', shirt: '#2c4c8c', pants: '#2c4c8c', shoes: '#3a2a1a', body: 'thin', mustache: true, voice: 410, color: '#6a8cc8', grease: true },

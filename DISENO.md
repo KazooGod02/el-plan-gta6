@@ -1,5 +1,5 @@
 # EL PLAN — Documento de Diseño del Juego
-### Precuela 8-bit de "El Escape" — GTA VI Marathon de KazooGod02
+### Precuela 8-bit de "El Escape", de KazooGod02
 
 > Historia completa en [HISTORIA.md](HISTORIA.md). Este documento define **cómo se juega**.
 
@@ -36,7 +36,7 @@ Una ciudad de 4 zonas conectadas (≈ 6×6 pantallas cada una) que se desbloquea
 
 | Zona | Estética | Lugares |
 |---|---|---|
-| **La Colonia** | Casas de colores, cables, perros | Cuarto de Kazoo, taquería de Doña Mari, casa de Don Chuy, tiendita, canchita |
+| **La Colonia** | Casas de colores, cables, perros | Cuarto de Kazoo, taquería de Doña Mari, casa del Jefe, tiendita, canchita |
 | **El Centro** | Edificios, neón, tráfico pesado | Banco Federal, bar La Última Risa, tienda de disfraces, comandancia, cine |
 | **El Puerto** | Grúas, contenedores, humedad | Taller-escondite, galpón de La Tía Gris, muelle, bodegas |
 | **Las Afueras** | Terracería, palmeras, nada | Penal, carretera vieja, **EL CAMPO** y su árbol solitario, gasolinera abandonada |
@@ -80,7 +80,7 @@ El mismo ícono que las estrellas del Marketplace. Es un chiste visual que se pa
 | ⭐⭐⭐⭐⭐ | Helicóptero con reflector y pantalla con viñeta roja. Tu "reseña" como criminal: *"5 estrellas, excelente servicio"* |
 
 ### Muerte / Arresto
-Pantalla estilo GTA con un letrero 8-bit **"TE MORISTE WEY"** o **"TE AGARRARON"**. Reapareces en la clínica o en la comandancia, y Don Chuy te cobra "comisión".
+Pantalla estilo GTA con un letrero 8-bit **"TE MORISTE WEY"** o **"TE AGARRARON"**. Reapareces en la clínica o en la comandancia, y El Jefe te cobra "comisión".
 
 ---
 
@@ -93,7 +93,7 @@ Se abre con una tecla o botón. Es un celular pixelado con la pantalla estrellad
 | 🛒 **Marketplace** | Comprar objetos absurdos y vehículos, y leer reseñas. Aquí está el perfil de **VendeRápido_5E** (con reseñas que, leídas con atención, dan miedo). |
 | 🗺️ **Mapa** | Mapa de la ciudad con marcadores. |
 | 📷 **Cámara** | Para el reconocimiento del banco y para el modo foto. |
-| 💸 **Deuda** | Contador de lo que le debes a Don Chuy, con cuenta regresiva. |
+| 💸 **Deuda** | Contador de lo que le debes al Jefe, con cuenta regresiva. |
 | 📻 **Radio** | Cambiar la estación dentro del carro. |
 | 🏆 **Logros** | Lista de logros. |
 | ⚙️ **Ajustes** | Volumen, controles, modo streamer y subtítulos. |
@@ -108,7 +108,7 @@ Chiptune generado en vivo, con varias estaciones:
 | **Vicio 8.8 FM** | Synthwave 8-bit, la estación "oficial" |
 | **La Cumbia 16-Bit** | Cumbia en chiptune, y ruidosa |
 | **Corridos del Puerto** | Corridos 8-bit sobre... ¿Coqui? (cuentan su historia del penal) |
-| **Radio Noticias PV** | Locutor en texto que **comenta lo que hiciste**: *"Un sujeto en moto de reparto causó caos en el Centro..."*. Da conferencias de la Comandante Reyes que cambian con la historia y **anuncios de la GTA VI Marathon** como comerciales dentro del juego. |
+| **Radio Noticias PV** | Locutor en texto que **comenta lo que hiciste**: *"Un sujeto en moto de reparto causó caos en el Centro..."*. Da conferencias de la Comandante Reyes que cambian con la historia y comerciales de negocios de la ciudad. |
 | **Silencio** | Para los valientes |
 
 ---
@@ -132,7 +132,7 @@ Chiptune generado en vivo, con varias estaciones:
 
 ## 7. PROGRESIÓN Y ECONOMÍA
 - **Dinero:** repartos, minijuegos y robos pequeños. Se usa para abonar la deuda, comprar armas, ropa y cosas del Marketplace.
-- **Deuda de Don Chuy ($50,000):** si la pagas **completa** antes del atraco, Don Chuy aparece en el Cap. 7 y te devuelve un objeto ("pal viaje"). Final alternativo mínimo sin romper la historia.
+- **Deuda del Jefe ($50,000):** si la pagas **completa** antes del atraco, El Jefe aparece en el Cap. 7 y te devuelve un objeto ("pal viaje"). Final alternativo mínimo sin romper la historia.
 - **Guardarropa de Kazoo:** outfits desbloqueables (incluido **el outfit exacto del trailer**, que se desbloquea al pasar el Cap. 8).
 - **Cuarto de Kazoo:** se va llenando con lo que compres en el Marketplace (almohada de pan, lámpara de lava, un kazoo dorado...).
 
@@ -199,7 +199,7 @@ Se desbloquea al terminar el juego: timer en pantalla y splits por capítulo. Es
 ### 📸 Tarjeta final para compartir
 Al terminar, el juego genera una **imagen descargable** con tus estadísticas:
 > Tiempo: 2:07:33 · Muertes: 14 · Veces que compraste en Marketplace: 23 · Confianza de Coqui: ??? · Cassettes: 12/15
-> **#KazooGTA6Marathon**
+> **#ElPlanKazoo**
 
 Así la comunidad lo comparte solo.
 

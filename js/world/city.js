@@ -5,7 +5,7 @@ import { audio } from '../core/audio.js';
 import * as font from '../core/font.js';
 import { canvas, rotIndex, shade } from '../core/gfx.js';
 import { clamp, dist, dist2, angleTo, angDiff, rand, randi, pick, chance, lerp } from '../core/util.js';
-import { MAP, T, MW, MH, TS, buildMap, tileAt, solidFootPx, solidCarPx, isWalkway, zoneOf, ZONE_NAMES, applyBarriers, idx, edgeBlocked } from './map.js';
+import { MAP, T, MW, MH, TS, buildMap, tileAt, solidFootPx, solidCarPx, solidSwimPx, isWaterPx, isWalkway, zoneOf, ZONE_NAMES, applyBarriers, idx, edgeBlocked } from './map.js';
 import { buildTiles, drawMap, refreshTiles, miniColor } from './tiles.js';
 import { Vehicle, Ped, randomCivilian } from './entities.js';
 import { topSprites, TOP_DIRS, VEHICLES } from '../data/sprites.js';
@@ -143,9 +143,14 @@ export const city = {
     }
     p.a = v.a;
     v.driver = null; v.throttle = 0; v.steer = 0; v.handbrake = true; v.ai = 'parked';
+    // a forced exit (missions, cutscenes) stops the car dead; a normal one lets it roll a
+    // little. Either way it can't run over the people who just got out of it.
+    if (force) { v.vx = 0; v.vy = 0; } else { v.vx *= 0.25; v.vy *= 0.25; }
+    v.noHitT = 1.5;
     for (const a of v.passengers) {
       a.x = v.x + rand(-10, 10); a.y = v.y + rand(-10, 10);
       if (solidFootPx(a.x, a.y)) { a.x = p.x; a.y = p.y; }
+      if (solidFootPx(a.x, a.y)) { const sh = shoreNear(a.x, a.y); a.x = sh.x; a.y = sh.y; }
       this.peds.push(a);
     }
     v.passengers = [];
@@ -156,9 +161,10 @@ export const city = {
 
   tryEnterVehicle() {
     const p = this.player;
+    if (isWaterPx(p.x, p.y)) return false;
     let best = null, bd = 26;
     for (const v of this.vehicles) {
-      if (v.dead || v.wreck || v.locked) continue;
+      if (v.dead || v.wreck || v.locked || v.sinking) continue;
       const d = dist(p.x, p.y, v.x, v.y);
       if (d < bd) { bd = d; best = v; }
     }
@@ -431,28 +437,40 @@ export const city = {
     if (G.drunkT > 0 && (ax || ay)) { const f = Math.min(1, G.drunkT / 8) * 0.4; ax += Math.sin(G.time * 2.3) * f; ay += Math.cos(G.time * 1.9) * f; }
     const mag = Math.hypot(ax, ay);
     const run = input.down('run') || mag > 0.95 && input.stick.on;
-    const sp = (run ? 92 * shoeSpeed() : 52) * (G.cheatFast ? 1.6 : 1);
+    const swim = isWaterPx(p.x, p.y);
+    if (swim && !p.wasSwim) this.splash(p.x, p.y);
+    p.wasSwim = swim;
+    const sp = (swim ? (run ? 44 : 32) : run ? 92 * shoeSpeed() : 52) * (G.cheatFast ? 1.6 : 1);
     if (mag > 0.15) {
       p.a = Math.atan2(ay, ax);
       const nx = ax / Math.max(1, mag) * sp * dt, ny = ay / Math.max(1, mag) * sp * dt;
       this.movePlayer(nx, ny);
       p.moving = true; p.anim += dt * (run ? 1.6 : 1);
       p.stepT -= dt * (run ? 1.6 : 1);
-      if (p.stepT <= 0) { p.stepT = 0.32; audio.sfx('step', { vol: 0.5 }); }
+      if (p.stepT <= 0) { p.stepT = swim ? 0.55 : 0.32; if (swim) audio.sfx('splash', { vol: 0.25 }); else audio.sfx('step', { vol: 0.5 }); }
       // walking into a door
-      if (ay < -0.5 && p.doorCd <= 0) this.tryDoor();
+      if (ay < -0.5 && p.doorCd <= 0 && !swim) this.tryDoor();
     } else p.moving = false;
 
     if (p.punchT > 0) p.punchT -= dt;
     if (p.shootT > 0) p.shootT -= dt;
 
     const dlg = !!G.ui?.dialog;
+    if (swim) {
+      if (input.pressed('a') && !dlg) G.ui?.toast('Nada hasta una orilla con espacio para salir', '#5adcf0', 2);
+      return;
+    }
     if (input.pressed('a') && !dlg) {
       if (!this.tryInteract()) if (!this.tryEnterVehicle()) this.tryDoor();
     }
     if (input.pressed('weapon')) this.cycleWeapon();
     const w = G.state.weapon;
     if (!dlg && (w === 'fists' ? input.pressed('b') : input.down('b'))) this.attack();
+  },
+
+  splash(x, y) {
+    this.sfxAt('splash', x, y);
+    for (let i = 0; i < 14; i++) this.particles.push({ x: x + rand(-4, 4), y: y + rand(-4, 4), vx: rand(-40, 40), vy: rand(-50, 10), life: rand(0.3, 0.6), max: 0.6, col: i % 2 ? '#9ad0f0' : '#e8f4ff', size: randi(1, 2), drag: 2 });
   },
 
   tryInteract() {
@@ -479,7 +497,8 @@ export const city = {
 
   movePlayer(dx, dy) {
     const p = this.player, r = 3.5;
-    const free = (x, y) => !solidFootPx(x - r, y - r) && !solidFootPx(x + r, y - r) && !solidFootPx(x - r, y + r) && !solidFootPx(x + r, y + r) && !this.carAt(x, y);
+    // Kazoo can walk off a dock into the water and swim; he only climbs out where the shore is free
+    const free = (x, y) => !solidSwimPx(x - r, y - r) && !solidSwimPx(x + r, y - r) && !solidSwimPx(x - r, y + r) && !solidSwimPx(x + r, y + r) && !this.carAt(x, y);
     if (G.cheatGhost) { p.x += dx; p.y += dy; return; }
     if (free(p.x + dx, p.y)) p.x += dx;
     if (free(p.x, p.y + dy)) p.y += dy;
@@ -508,7 +527,7 @@ export const city = {
 
   attack() {
     const p = this.player, s = G.state;
-    if (this.noWeapons) return;
+    if (this.noWeapons || isWaterPx(p.x, p.y)) return;
     if (s.weapon === 'fists') {
       if (p.punchT > 0) return;
       p.punchT = 0.35;
@@ -580,6 +599,9 @@ export const city = {
   },
 
   updateVehicle(v, dt) {
+    if (v.noHitT > 0) v.noHitT -= dt;
+    if (!v.sinking && !v.wreck && isWaterPx(v.x, v.y)) { v.sinking = 0.001; v.throttle = 0; this.splash(v.x, v.y); if (v === this.player.car) this.shake(2); }
+    if (v.sinking) { this.sinkStep(v, dt); return; }
     if (v.wreck) { v.vx *= 0.9; v.vy *= 0.9; v.fire -= dt; if (v.fire > 0 && chance(0.3)) this.particles.push({ x: v.x + rand(-6, 6), y: v.y + rand(-4, 4), vx: rand(-5, 5), vy: rand(-25, -10), life: 1.2, max: 1.2, col: '#3a3a3a', size: 3, smoke: true }); return; }
     if (v.ai === 'traffic' && v.driver) v.trafficStep(dt, this);
     else if (v.ai === 'police') { this.policeDrive(v, dt); v.physics(dt, this); }
@@ -602,6 +624,29 @@ export const city = {
         if (this.player.car === v) { this.exitCar(true); this.hurtPlayer(200); }
       }
     }
+  },
+
+  // a car that went into the water: it floats for a moment, everybody swims out, it goes under
+  sinkStep(v, dt) {
+    v.sinking += dt;
+    const k = Math.max(0, 1 - 2.2 * dt);
+    v.vx *= k; v.vy *= k;
+    v.x += v.vx * dt; v.y += v.vy * dt;
+    if (chance(0.35)) this.particles.push({ x: v.x + rand(-6, 6), y: v.y + rand(-4, 4), vx: rand(-4, 4), vy: rand(-12, -4), life: 0.6, max: 0.6, col: '#c8e8ff', size: 1, drag: 1 });
+    const p = this.player;
+    if (p.car === v && v.sinking > 0.6) {
+      p.car = null; p.x = v.x; p.y = v.y; p.a = v.a;
+      v.driver = null; audio.setEngine(false);
+      G.ui?.toast('¡El carro se hunde! Nada hasta la orilla', '#5adcf0', 3);
+      emit('exitVehicle', v);
+    }
+    if (v.passengers.length && v.sinking > 0.8) {
+      // the others swim out on their own and wait on the shore
+      for (const a of v.passengers) { const sh = shoreNear(v.x, v.y); a.x = sh.x; a.y = sh.y; a.state = a.ally ? 'follow' : 'flee'; a.timer = 5; this.peds.push(a); }
+      v.passengers = [];
+    }
+    if (v.sinking > 1.5 && !v.dead) { v.dead = true; v.sunk = true; v.fire = Infinity; v.hp = 0; }
+    if (v.sinking > 4.5) this.removeVehicle(v);
   },
 
   scriptDriveStep(v, dt) {
@@ -660,8 +705,10 @@ export const city = {
     const vs = this.vehicles;
     for (let i = 0; i < vs.length; i++) {
       const a = vs[i];
+      if (a.sinking) continue;
       for (let j = i + 1; j < vs.length; j++) {
         const b = vs[j];
+        if (b.sinking) continue;
         const dx = b.x - a.x, dy = b.y - a.y;
         if (dx * dx + dy * dy > 1600) continue;
         // two circles per vehicle
@@ -712,7 +759,7 @@ export const city = {
         for (const q of this.peds) {
           if (q.state === 'dead' || q.state === 'down' && sp < 60) continue;
           if (this.inCarRect(a, q.x, q.y, 3)) {
-            if (q.ally || q.invuln) { q.x += a.vx * 0.05; q.y += a.vy * 0.05; continue; }
+            if (q.ally || q.invuln || a.noHitT > 0) { q.x += a.vx * 0.05; q.y += a.vy * 0.05; continue; }
             q.state = 'down'; q.timer = 3; q.a = Math.atan2(a.vy, a.vx);
             q.x += a.vx * 0.12; q.y += a.vy * 0.12;
             if (solidFootPx(q.x, q.y)) { q.x -= a.vx * 0.12; q.y -= a.vy * 0.12; }
@@ -723,7 +770,7 @@ export const city = {
           }
         }
         const p = this.player;
-        if (!p.car && !p.dead && a !== p.car && this.inCarRect(a, p.x, p.y, 3)) {
+        if (!p.car && !p.dead && a !== p.car && !(a.noHitT > 0) && this.inCarRect(a, p.x, p.y, 3)) {
           this.hurtPlayer(sp * 0.25);
           p.x += a.vx * 0.1; p.y += a.vy * 0.1;
           if (solidFootPx(p.x, p.y)) { p.x -= a.vx * 0.1; p.y -= a.vy * 0.1; }
@@ -770,6 +817,7 @@ export const city = {
       case 'follow': {
         const tgt = q.followTarget || pos;
         const d = dist(q.x, q.y, tgt.x, tgt.y);
+        if (isWaterPx(tgt.x, tgt.y)) { q.moving = false; break; }
         if (d > 22) q.goTo(tgt.x, tgt.y, d > 60 ? 95 : 60, dt, false); else q.moving = false;
         if (q.stuck > 1.5 && d > 40) { q.x = tgt.x - Math.cos(p.a) * 14; q.y = tgt.y - Math.sin(p.a) * 14; if (solidFootPx(q.x, q.y)) { q.x = tgt.x; q.y = tgt.y; } q.stuck = 0; }
         if (d > 400) { q.x = tgt.x; q.y = tgt.y; }
@@ -1083,6 +1131,17 @@ export const city = {
     for (const v of this.vehicles) {
       if (!vis(v.x, v.y)) continue;
       const s = v.sprite(t);
+      if (v.sinking) {
+        const k = Math.min(1, v.sinking / 4.5);
+        ctx.globalAlpha = Math.max(0, 1 - k * 0.9);
+        ctx.drawImage(s, Math.round(v.x - cx - s.width / 2), Math.round(v.y - cy - s.height / 2));
+        ctx.globalAlpha = 0.25 + k * 0.5; ctx.fillStyle = '#2a5a9e';
+        ctx.fillRect(Math.round(v.x - cx - s.width / 2), Math.round(v.y - cy - s.height / 2), s.width, s.height);
+        ctx.globalAlpha = 0.7; ctx.strokeStyle = '#c8e8ff'; ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.ellipse(Math.round(v.x - cx), Math.round(v.y - cy), 10 + k * 8 + Math.sin(t * 6) * 1.5, 7 + k * 5, 0, 0, Math.PI * 2); ctx.stroke();
+        ctx.globalAlpha = 1;
+        continue;
+      }
       ctx.globalAlpha = 0.3; ctx.fillStyle = '#000';
       ctx.drawImage(s, Math.round(v.x - cx - s.width / 2 + 2), Math.round(v.y - cy - s.height / 2 + 2));
       ctx.globalAlpha = 1;
@@ -1091,7 +1150,18 @@ export const city = {
     }
     // player on foot
     const p = this.player;
-    if (!p.car && !p.hidden) {
+    if (!p.car && !p.hidden && isWaterPx(p.x, p.y) && !p.dead) {
+      // swimming: only the head shows, with rings around it
+      const s = topSprites(p.look), img = s[0][rotIndex(p.a, TOP_DIRS)];
+      const sx = Math.round(p.x - cx), sy = Math.round(p.y - cy), st = p.moving ? Math.floor(p.anim * 6) % 2 : 0;
+      ctx.strokeStyle = 'rgba(200,232,255,0.7)'; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.ellipse(sx + 0.5, sy + 0.5, 6 + Math.sin(t * 5) * 1, 4, 0, 0, Math.PI * 2); ctx.stroke();
+      ctx.save(); ctx.beginPath(); ctx.arc(sx, sy, 3.5, 0, Math.PI * 2); ctx.clip();
+      ctx.drawImage(img, sx - img.width / 2, sy - img.height / 2);
+      ctx.restore();
+      ctx.fillStyle = '#e8f4ff';
+      ctx.fillRect(sx + Math.round(Math.cos(p.a + (st ? 1.3 : -1.3)) * 5), sy + Math.round(Math.sin(p.a + (st ? 1.3 : -1.3)) * 5), 2, 1);
+    } else if (!p.car && !p.hidden) {
       const s = topSprites(p.look);
       const fr = p.dead ? 3 : p.moving ? 1 + (Math.floor(p.anim * 8) % 2) : 0;
       const img = fr === 3 ? s[3][0] : s[fr][rotIndex(p.a, TOP_DIRS)];
@@ -1210,6 +1280,17 @@ function clearLine(x0, y0, x1, y1) {
   const d = Math.hypot(x1 - x0, y1 - y0), n = Math.ceil(d / 12);
   for (let i = 1; i < n; i++) { const t = i / n; if (solidCarPx(x0 + (x1 - x0) * t, y0 + (y1 - y0) * t) && tileAt(Math.floor((x0 + (x1 - x0) * t) / TS), Math.floor((y0 + (y1 - y0) * t) / TS)) !== T.WATER) return false; }
   return true;
+}
+
+// nearest dry, walkable spot to a point in the water (for people swimming out of a sunk car)
+function shoreNear(x, y) {
+  const tx0 = Math.floor(x / TS), ty0 = Math.floor(y / TS);
+  for (let r = 1; r < 16; r++) for (let dy = -r; dy <= r; dy++) for (let dx = -r; dx <= r; dx++) {
+    if (Math.max(Math.abs(dx), Math.abs(dy)) !== r) continue;
+    const px = (tx0 + dx) * TS + 8, py = (ty0 + dy) * TS + 8;
+    if (!solidFootPx(px, py)) return { x: px, y: py };
+  }
+  return { x, y };
 }
 
 function isVisible(c, x, y, m) { return x > c.cam.x - m && y > c.cam.y - m && x < c.cam.x + W + m && y < c.cam.y + H + m; }
@@ -1357,14 +1438,17 @@ function drawProp(ctx, pr, x, y, t) {
     const cs = [['#1e5a28', 24, 0, -14], ['#28702e', 18, -8, -18], ['#28702e', 16, 9, -20], ['#3a8a3a', 12, 0, -24], ['#4a9a44', 6, -6, -26]];
     for (const [c, r, ox, oy] of cs) { ctx.fillStyle = c; ctx.beginPath(); ctx.ellipse(x + ox, y + oy, r, r * 0.8, 0, 0, Math.PI * 2); ctx.fill(); }
   } else if (pr.type === 'billboard') {
-    ctx.fillStyle = '#3a3a44'; ctx.fillRect(x - 30, y + 8, 3, 16); ctx.fillRect(x + 27, y + 8, 3, 16);
-    ctx.fillStyle = '#101018'; ctx.fillRect(x - 46, y - 22, 92, 32);
-    ctx.fillStyle = '#1a0a2a'; ctx.fillRect(x - 45, y - 21, 90, 30);
-    const g = ctx.createLinearGradient(0, y - 21, 0, y + 9); g.addColorStop(0, '#ff3cc8'); g.addColorStop(1, '#2a0a4a');
-    ctx.fillStyle = g; ctx.fillRect(x - 45, y - 21, 90, 30);
-    font.text(ctx, 'EL ESCAPE', x, y - 18, '#fff08c', { align: 'center', outline: '#2a0a2a' });
-    font.text(ctx, 'KAZOOGOD02', x, y - 9, '#5adcf0', { align: 'center', outline: '#2a0a2a' });
-    font.text(ctx, countdownText(), x, y, '#f4f4f0', { align: 'center', outline: '#2a0a2a' });
+    const ad = ADS[(pr.ad || 0) % ADS.length];
+    ctx.fillStyle = '#3a3a44'; ctx.fillRect(x - 34, y + 8, 3, 16); ctx.fillRect(x + 31, y + 8, 3, 16);
+    ctx.fillStyle = '#101018'; ctx.fillRect(x - 56, y - 22, 112, 32);
+    const g = ctx.createLinearGradient(0, y - 21, 0, y + 9); g.addColorStop(0, ad.bg[0]); g.addColorStop(1, ad.bg[1]);
+    ctx.fillStyle = g; ctx.fillRect(x - 55, y - 21, 110, 30);
+    ctx.fillStyle = ad.c[0]; ctx.fillRect(x - 55, y - 21, 110, 1);
+    // dark lettering goes without the outline so it stays readable
+    const ol = (c) => (parseInt(c.slice(1, 3), 16) < 80 ? {} : { outline: '#101018' });
+    font.text(ctx, ad.t[0], x, y - 18, ad.c[0], { align: 'center', ...ol(ad.c[0]) });
+    font.text(ctx, ad.t[1], x, y - 9, ad.c[1], { align: 'center', ...ol(ad.c[1]) });
+    font.text(ctx, ad.t[2], x, y, ad.c[2] || ad.c[1], { align: 'center', ...ol(ad.c[2] || ad.c[1]) });
   } else if (pr.type === 'tower') {
     ctx.fillStyle = '#5a5a64'; ctx.fillRect(x - 6, y - 6, 12, 12); ctx.fillStyle = '#3a3a44'; ctx.fillRect(x - 7, y - 8, 14, 3);
     if (Math.floor(t * 2) % 2) { ctx.fillStyle = '#fff08c'; ctx.fillRect(x - 1, y - 1, 2, 2); }
@@ -1374,6 +1458,19 @@ function drawProp(ctx, pr, x, y, t) {
     font.text(ctx, 'CERESO PV', x + 32, y - 8, '#f4f4f0', { align: 'center', outline: '#101018' });
   }
 }
+
+// what the billboards around Puerto Vicio advertise
+const ADS = [
+  { t: ['CERVEZA LA SIRENA', 'BIEN FRÍA', 'COMO TU EX'], bg: ['#1e6e9e', '#0a2a4a'], c: ['#fff08c', '#f4f4f0'] },
+  { t: ['LIC. TREVIÑO', '¿TE AGARRARON?', 'TEL. 555-0199'], bg: ['#8c1c28', '#2a0a10'], c: ['#ffd23f', '#f4f4f0'] },
+  { t: ['BANCO FEDERAL', 'SU DINERO,', 'SIEMPRE SEGURO'], bg: ['#1e2c50', '#0a0e1e'], c: ['#c8a040', '#f4f4f0'] },
+  { t: ['POLLOS EL ALEGRE', 'EL POLLO MÁS', 'FELIZ DE PV'], bg: ['#f08c28', '#8c3a10'], c: ['#fff08c', '#f4f4f0'] },
+  { t: ['MARKETPLACE PV', 'TODO TIENE', '5 ESTRELLAS'], bg: ['#3c64dc', '#141e4a'], c: ['#ffd23f', '#f4f4f0'] },
+  { t: ['FUNERARIA DESCANSO', 'PAQUETES 2X1', 'TRAIGA A UN AMIGO'], bg: ['#3a2a4a', '#0e0a14'], c: ['#c8c8d8', '#a8a8b8'] },
+  { t: ['CINE VICIO', 'ESTRENO:', 'AMOR EN EL PENAL'], bg: ['#d8323c', '#4a0a14'], c: ['#ffd23f', '#f4f4f0'] },
+  { t: ['CLÍNICA PV', 'TE COSEMOS', 'SIN PREGUNTAS'], bg: ['#28b4a0', '#0a3a34'], c: ['#f4f4f0', '#101018'] },
+  { t: ['PINTA Y OLVIDA', 'CARRO NUEVO,', 'VIDA NUEVA'], bg: ['#ffd23f', '#a0700a'], c: ['#101018', '#2a1a00'] },
+];
 
 export function countdownText() {
   if (!CONFIG.marathonDate) return 'PRÓXIMAMENTE';

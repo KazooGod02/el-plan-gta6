@@ -13,6 +13,8 @@ import { UI } from './ui.js';
 import { CONFIG } from '../config.js';
 import { countdownText } from '../world/city.js';
 import { VIGNETTES, PW, PH } from '../story/cinematics.js';
+import { SONGS } from '../data/music.js';
+import { trailerCode } from '../story/trailer.js';
 
 // ---------------------------------------------------------------- options list (shared)
 function optionsRows() {
@@ -73,12 +75,29 @@ function drawControls(ctx) {
 }
 
 // ---------------------------------------------------------------- TITLE
+// First a fake PC boot (BIOS checks, "abriendo MAINGAME.EXE"), then the menu over a
+// beach at sunset. Nothing on this screen gives the story away.
+const BOOT = [
+  [0.0, 'PV-BIOS v2.06   (C) 2003 PUERTO VICIO SYSTEMS INC.', '#c8c8d0'],
+  [0.5, 'PROCESADOR: 8-BIT @ 4.77 MHz ............ OK', '#a8a8b8'],
+  [0.9, 'MEMORIA: 640K .............................. OK', '#a8a8b8'],
+  [1.3, 'DETECTANDO UNIDADES ....................... C: D:', '#a8a8b8'],
+  [1.8, 'TARJETA DE VIDEO: VGA 320x180 ............. OK', '#a8a8b8'],
+  [2.3, 'SONIDO: CHIPTUNE 4 CANALES ................ OK', '#a8a8b8'],
+  [3.0, 'C:\\> INICIALIZANDO...', '#f4f4f0'],
+  [3.8, 'C:\\> ABRIENDO MAINGAME.EXE', '#f4f4f0'],
+];
+const BOOT_END = 6.2;
+let comboBuf = '';
+
 export const title = {
   name: 'title',
   song: 'title',
   enter() {
-    this.t = 0; this.sel = 0; this.mode = G.titleStarted ? 'menu' : 'press'; this.opt = { sel: 0 }; this.slotSel = 0; this.confirm = null;
-    UI.fade = 1; UI.fadeTarget = 0; UI.hud = false; UI.letterbox = 0; UI.letterboxTarget = 0; UI.objective = ''; UI.dialog = null;
+    this.t = 0; this.sel = 0; this.mode = G.titleStarted ? 'menu' : 'boot'; this.opt = { sel: 0 }; this.slotSel = 0; this.confirm = null;
+    this.song = this.mode === 'boot' ? null : 'title';
+    comboBuf = '';
+    UI.fade = this.mode === 'boot' ? 0 : 1; UI.fadeTarget = 0; UI.hud = false; UI.letterbox = 0; UI.letterboxTarget = 0; UI.objective = ''; UI.dialog = null;
     G.lockInput = 0; G.paused = false;
   },
   items() {
@@ -92,9 +111,23 @@ export const title = {
     out.push({ id: 'options', t: 'OPCIONES' }, { id: 'controls', t: 'CÓMO JUGAR' }, { id: 'credits', t: 'CRÉDITOS' });
     return out;
   },
+  toMenu() { G.titleStarted = true; this.mode = 'menu'; this.t = 0; this.song = 'title'; UI.fade = 1; UI.fadeTarget = 0; audio.init(); },
+  // the secret: a button sequence typed on the menu
+  combo() {
+    for (const [a, l] of [['up', 'U'], ['down', 'D'], ['left', 'L'], ['right', 'R'], ['a', 'A'], ['b', 'B']]) if (input.pressed(a)) comboBuf = (comboBuf + l).slice(-9);
+    if (comboBuf.length === 9 && trailerCode(comboBuf)) { comboBuf = ''; input.consume('a'); audio.sfx('star'); setScene('trailer'); return true; }
+    return false;
+  },
   update(dt) {
     this.t += dt;
-    if (this.mode === 'press') { if (input.anyPressed && (input.pressed('a') || input.pressed('b') || input.pressed('pause') || this.t > 0.2 && input.anyPressed)) { input.anyPressed = false; G.titleStarted = true; this.mode = 'menu'; audio.init(); audio.sfx('select'); } return; }
+    if (audio.songName !== this.song && !G.state) { if (this.song) audio.play(this.song, SONGS); else audio.stop(); }
+    if (this.mode === 'boot') {
+      const before = BOOT.filter((b) => b[0] <= this.t - dt).length, now = BOOT.filter((b) => b[0] <= this.t).length;
+      if (now > before) audio.sfx('type');
+      if (this.t > 0.3 && (input.pressed('a') || input.pressed('b') || input.pressed('pause'))) { input.consume('a'); this.toMenu(); return; }
+      if (this.t > BOOT_END) this.toMenu();
+      return;
+    }
     if (this.mode === 'options') { if (updateOptions(this.opt)) this.mode = 'menu'; return; }
     if (this.mode === 'controls' || this.mode === 'credits') { if (input.cancel() || input.pressed('a')) this.mode = 'menu'; return; }
     if (this.mode === 'slots') {
@@ -111,6 +144,7 @@ export const title = {
       }
       return;
     }
+    if (this.combo()) return;
     const items = this.items();
     this.sel = clamp(this.sel, 0, items.length - 1);
     if (input.pressed('down')) { this.sel = (this.sel + 1) % items.length; audio.sfx('move'); }
@@ -129,169 +163,113 @@ export const title = {
   },
   render(ctx) {
     const t = this.t;
-    // ---- background: the city at dusk, dimmed on the left so the menu reads well
-    drawSky(ctx, 'dusk', t);
-    drawProp(ctx, { t: 'skyline', w: 520, neon: false, col: '#2a1a4a' }, -((t * 6) % 140), 150, t, {});
-    ctx.fillStyle = '#12091e'; ctx.fillRect(0, 150, W, 30);
-    const g = ctx.createLinearGradient(0, 0, 190, 0);
-    g.addColorStop(0, 'rgba(8,4,18,0.88)'); g.addColorStop(0.75, 'rgba(8,4,18,0.55)'); g.addColorStop(1, 'rgba(8,4,18,0)');
-    ctx.fillStyle = g; ctx.fillRect(0, 0, 190, H);
-    // ---- right: rotating character art
-    drawHeroArt(ctx, t);
-    // ---- left: logo
-    const bob = Math.round(Math.sin(t * 2) * 1.5);
-    font.text(ctx, 'EL PLAN', 12 + 3, 10 + bob + 3, '#3a0a3a', { scale: 4 });
-    font.text(ctx, 'EL PLAN', 12, 10 + bob, '#ffd23f', { scale: 4, outline: '#5a1a00' });
-    font.text(ctx, 'UNA PRECUELA DE "EL ESCAPE"', 13, 44, '#f4f4f0', { outline: '#2a0a2a' });
-    ctx.fillStyle = '#ff3cc8'; ctx.fillRect(13, 55, 60, 1); ctx.fillStyle = '#ffd23f'; ctx.fillRect(13, 55, 24, 1);
-    // ---- bottom-right signature, small and see-through
-    ctx.globalAlpha = 0.55;
+    if (this.mode === 'boot') { drawBoot(ctx, t); return; }
+    drawBeach(ctx, G.time);
+    // logo: centered, clean
+    const lx = W / 2;
+    font.text(ctx, 'EL PLAN', lx + 2, 14 + 2, 'rgba(20,6,30,0.6)', { align: 'center', scale: 4 });
+    font.text(ctx, 'EL PLAN', lx, 14, '#fff4e0', { align: 'center', scale: 4, outline: '#2a0a2a' });
+    ctx.fillStyle = '#ff3cc8'; ctx.fillRect(lx - 44, 46, 88, 1);
+    font.text(ctx, 'PUERTO VICIO', lx, 50, '#ffd890', { align: 'center', outline: '#2a0a2a' });
+    ctx.globalAlpha = 0.6;
     font.text(ctx, '@KazooGod02', W - 5, H - 11, '#f4f4f0', { align: 'right', outline: '#101018' });
     ctx.globalAlpha = 1;
-    if (CONFIG.marathonDate) font.text(ctx, 'EL ESCAPE: ' + countdownText(), 13, H - 11, '#5adcf0', { outline: '#101018' });
-
-    if (this.mode === 'press') {
-      if (Math.floor(t * 2) % 2 === 0) font.text(ctx, input.isTouch ? 'TOCA LA PANTALLA' : 'PRESIONA CUALQUIER BOTÓN', 13, 76, '#f4f4f0', { outline: '#101018' });
-      return;
-    }
+    if (CONFIG.marathonDate) font.text(ctx, 'EL ESCAPE: ' + countdownText(), 5, H - 11, '#5adcf0', { outline: '#101018' });
     if (this.mode === 'menu') {
       const items = this.items();
-      this.selY = this.selY ?? 0;
-      const y0 = 66, step = 13;
+      const step = 13, bw = 132, y0 = Math.round(H / 2 + 2 - (items.length * step) / 2 + 10);
+      ctx.fillStyle = 'rgba(10,6,24,0.55)'; ctx.fillRect(Math.round(lx - bw / 2), y0 - 7, bw, items.length * step + 9);
+      this.selY = this.selY ?? y0;
       this.selY += (y0 + this.sel * step - this.selY) * 0.3;
-      // highlight bar slides between entries
       const hy = Math.round(this.selY) - 3;
-      ctx.fillStyle = 'rgba(255,210,63,0.16)'; ctx.fillRect(8, hy, 150, 12);
-      ctx.fillStyle = '#ffd23f'; ctx.fillRect(8, hy, 2, 12);
+      ctx.fillStyle = 'rgba(255,210,63,0.18)'; ctx.fillRect(Math.round(lx - bw / 2), hy, bw, 12);
+      ctx.fillStyle = '#ffd23f'; ctx.fillRect(Math.round(lx - bw / 2), hy, 2, 12); ctx.fillRect(Math.round(lx + bw / 2) - 2, hy, 2, 12);
       items.forEach((it, i) => {
-        const y = y0 + i * step, sel = i === this.sel;
-        const x = sel ? 18 + Math.round(Math.sin(t * 6) * 1) : 14;
-        font.text(ctx, sel ? '► ' + it.t : it.t, x, y, sel ? '#ffd23f' : '#d8d8e8', { outline: '#101018' });
+        const sel = i === this.sel;
+        font.text(ctx, it.t, lx, y0 + i * step, sel ? '#ffd23f' : '#f4f4f0', { align: 'center', outline: '#101018' });
       });
     }
     if (this.mode === 'options') drawOptions(ctx, this.opt, 90);
     if (this.mode === 'controls') drawControls(ctx);
     if (this.mode === 'slots') {
-      ctx.fillStyle = 'rgba(8,8,20,0.94)'; ctx.fillRect(8, 60, 200, 100);
-      ctx.fillStyle = '#ffd23f'; ctx.fillRect(8, 60, 2, 100);
-      font.text(ctx, this.slotMode === 'load' ? 'CARGAR PARTIDA' : 'NUEVA PARTIDA: ELIGE RANURA', 16, 66, '#ffd23f');
+      const bx = Math.round(lx - 104);
+      ctx.fillStyle = 'rgba(8,8,20,0.94)'; ctx.fillRect(bx, 64, 208, 100);
+      ctx.fillStyle = '#ffd23f'; ctx.fillRect(bx, 64, 2, 100);
+      font.text(ctx, this.slotMode === 'load' ? 'CARGAR PARTIDA' : 'NUEVA PARTIDA: ELIGE RANURA', bx + 8, 70, '#ffd23f');
       const slots = listSlots();
       slots.forEach((m, i) => {
-        const y = 82 + i * 18, sel = i === this.slotSel;
+        const y = 86 + i * 18, sel = i === this.slotSel;
         const txt = m ? `${i + 1}. ${m.chapter || '—'} · ${fmt(m.play)}` : `${i + 1}. VACÍA`;
-        font.text(ctx, (sel ? '► ' : '  ') + txt, 16, y, sel ? '#ffd23f' : '#f4f4f0');
-        if (m) font.text(ctx, new Date(m.t).toLocaleDateString('es-MX'), 200, y + 9, '#a8a8b8', { align: 'right' });
+        font.text(ctx, (sel ? '► ' : '  ') + txt, bx + 8, y, sel ? '#ffd23f' : '#f4f4f0');
+        if (m) font.text(ctx, new Date(m.t).toLocaleDateString('es-MX'), bx + 200, y + 9, '#a8a8b8', { align: 'right' });
       });
-      if (this.confirm !== null && this.slotMode === 'new') font.text(ctx, '¿Sobrescribir? Presiona A otra vez', 16, 146, '#d8323c');
+      if (this.confirm !== null && this.slotMode === 'new') font.text(ctx, '¿Sobrescribir? Presiona A otra vez', bx + 8, 150, '#d8323c');
     }
   },
 };
 
-// ---------------------------------------------------------------- title art
-// Loading-screen style panels of the three leads, swapping every few seconds with a
-// wipe + RGB glitch, a light sweep over the face, halftone dots and speed lines.
-const HEROES = [
-  { id: 'kazoo', name: 'KAZOO', tag: 'EL QUE DEBE', col: '#e0a82e', col2: '#ff3cc8', exprs: ['happy', 'smug'] },
-  { id: 'coqui', name: 'COQUI', tag: 'EL QUE SALIÓ', col: '#3c64dc', col2: '#5adcf0', exprs: ['serious', 'angry'] },
-  { id: 'ghenghis', name: 'GHENGHIS', tag: 'EL QUE CUIDABA', col: '#d8323c', col2: '#ffd23f', exprs: ['laugh', 'crazy'] },
-];
-const HERO_T = 4.6;
-let artBuf = null;
-function heroCanvas(hero, expr, sweep) {
-  // the face (4x) plus a light sweep that only lands on the drawn pixels
-  artBuf ||= canvas(128, 128);
-  const x = artBuf.x;
-  x.clearRect(0, 0, 128, 128);
-  x.globalCompositeOperation = 'source-over';
-  x.imageSmoothingEnabled = false;
-  x.drawImage(portrait(hero.id, expr), 0, 0, 128, 128);
-  if (sweep >= 0 && sweep <= 1) {
-    x.globalCompositeOperation = 'source-atop';
-    const sx = -60 + sweep * 250;
-    const gr = x.createLinearGradient(sx, 0, sx + 40, 40);
-    gr.addColorStop(0, 'rgba(255,255,255,0)'); gr.addColorStop(0.5, 'rgba(255,255,240,0.55)'); gr.addColorStop(1, 'rgba(255,255,255,0)');
-    x.fillStyle = gr; x.fillRect(0, 0, 128, 128);
-    x.globalCompositeOperation = 'source-over';
+// a 2003 PC booting up
+function drawBoot(ctx, t) {
+  ctx.fillStyle = '#000'; ctx.fillRect(0, 0, W, H);
+  let y = 10;
+  for (const [at, txt, col] of BOOT) {
+    if (t < at) break;
+    const n = Math.min(txt.length, Math.floor((t - at) * 60));
+    font.text(ctx, txt.slice(0, n), 8, y, col);
+    y += 12;
   }
-  return artBuf;
+  // a little logo in the corner, like the old BIOS screens
+  ctx.fillStyle = '#1e6e9e'; ctx.fillRect(W - 46, 8, 38, 22); ctx.fillStyle = '#ffd23f'; ctx.fillRect(W - 42, 12, 30, 2);
+  font.text(ctx, 'PV', W - 27, 17, '#f4f4f0', { align: 'center' });
+  if (t > 4.3) {
+    const k = clamp((t - 4.3) / 1.5, 0, 1);
+    font.text(ctx, 'CARGANDO', 8, y + 6, '#f4f4f0');
+    ctx.strokeStyle = '#a8a8b8'; ctx.strokeRect(60.5, y + 5.5, 150, 8);
+    ctx.fillStyle = '#c8c8d0'; for (let i = 0; i < Math.floor(k * 24); i++) ctx.fillRect(62 + i * 6, y + 7, 5, 5);
+  }
+  if (Math.floor(t * 2.5) % 2 === 0) { ctx.fillStyle = '#c8c8d0'; ctx.fillRect(8, y + (t > 4.3 ? 20 : 0), 5, 7); }
+  font.text(ctx, 'Presiona cualquier tecla para saltar', W / 2, H - 12, '#4a4a5a', { align: 'center' });
 }
-const silCache = new Map();
-function heroSil(id, expr, col) {
-  const key = id + '|' + expr + '|' + col;
-  let c = silCache.get(key);
-  if (!c) {
-    const big = canvas(128, 128); big.x.imageSmoothingEnabled = false; big.x.drawImage(portrait(id, expr), 0, 0, 128, 128);
-    c = silhouette(big, col); silCache.set(key, c);
+
+// sunset over the bay: sky, sun, sea, sand and palm trees
+function drawBeach(ctx, t) {
+  const hz = 104;
+  const sky = ctx.createLinearGradient(0, 0, 0, hz);
+  sky.addColorStop(0, '#2a1650'); sky.addColorStop(0.45, '#c8508a'); sky.addColorStop(1, '#ffb070');
+  ctx.fillStyle = sky; ctx.fillRect(0, 0, W, hz);
+  ctx.fillStyle = 'rgba(255,240,200,0.9)'; ctx.beginPath(); ctx.arc(W / 2, hz - 2, 26, Math.PI, 0); ctx.fill();
+  ctx.fillStyle = 'rgba(255,200,150,0.35)'; ctx.beginPath(); ctx.arc(W / 2, hz - 2, 38, Math.PI, 0); ctx.fill();
+  for (let i = 0; i < 4; i++) { ctx.fillStyle = 'rgba(255,220,230,0.22)'; ctx.fillRect(Math.round(((i * 97 + t * (4 + i)) % (W + 80)) - 60), 30 + i * 13, 50 + i * 10, 3); }
+  // far skyline of the city across the bay
+  ctx.fillStyle = '#3a1a4a';
+  for (let x = 0; x < W; x += 9) { const h = 4 + ((x * 37) % 13); if (x < 90 || x > 230) ctx.fillRect(x, hz - h, 8, h); }
+  // sea with the sun's reflection
+  const sea = ctx.createLinearGradient(0, hz, 0, 146);
+  sea.addColorStop(0, '#d86a8a'); sea.addColorStop(1, '#2a3a7a');
+  ctx.fillStyle = sea; ctx.fillRect(0, hz, W, 46);
+  for (let i = 0; i < 16; i++) {
+    const yy = hz + 2 + i * 3, w = 40 - i * 2;
+    ctx.fillStyle = 'rgba(255,230,180,0.5)'; ctx.fillRect(Math.round(W / 2 - w / 2 + Math.sin(t * 2 + i) * 3), yy, w, 1);
   }
-  return c;
+  ctx.fillStyle = 'rgba(255,255,255,0.25)';
+  for (let i = 0; i < 24; i++) { const yy = hz + 6 + ((i * 7) % 38), xx = ((i * 53 + t * 8) % (W + 20)) - 10; ctx.fillRect(Math.round(xx), yy, 6, 1); }
+  // sand and the waves rolling in
+  const wave = Math.sin(t * 1.4) * 2;
+  ctx.fillStyle = '#e8c890'; ctx.fillRect(0, 146 + wave, W, H - 146);
+  ctx.fillStyle = 'rgba(255,255,255,0.7)'; ctx.fillRect(0, Math.round(146 + wave), W, 1);
+  ctx.fillStyle = '#d8b478'; for (let i = 0; i < 40; i++) ctx.fillRect((i * 41) % W, 152 + ((i * 13) % 26), 2, 1);
+  palm(ctx, 26, H, 1, t); palm(ctx, 62, H + 6, 0.8, t + 1); palm(ctx, W - 30, H, 1.05, t + 2); palm(ctx, W - 70, H + 8, 0.75, t + 3);
 }
-function drawHeroArt(ctx, t) {
-  const k = Math.floor(t / HERO_T), lt = t - k * HERO_T;
-  const hero = HEROES[k % HEROES.length], prev = HEROES[(k + HEROES.length - 1) % HEROES.length];
-  const ease = (v) => 1 - Math.pow(1 - Math.min(1, Math.max(0, v)), 3);
-  const inT = ease(lt / 0.55);
-  const X0 = 150;
-  const panel = (h, slide, alpha) => {
-    const off = Math.round((1 - slide) * 190);
-    ctx.save();
-    ctx.globalAlpha = alpha;
-    ctx.beginPath(); ctx.moveTo(X0 + 34 + off, 0); ctx.lineTo(W + 10 + off, 0); ctx.lineTo(W + 10 + off, H); ctx.lineTo(X0 + off, H); ctx.closePath();
-    ctx.clip();
-    const gg = ctx.createLinearGradient(X0, 0, W, H);
-    gg.addColorStop(0, shade(h.col, 0.45)); gg.addColorStop(1, shade(h.col2, 0.55));
-    ctx.fillStyle = gg; ctx.fillRect(X0 + off, 0, W, H);
-    // halftone dots, bigger toward the bottom
-    ctx.fillStyle = 'rgba(0,0,0,0.22)';
-    for (let yy = 4; yy < H; yy += 6) for (let xx = X0 + ((yy / 6) % 2 ? 0 : 3); xx < W + 10; xx += 6) { const r = 0.5 + yy / H * 1.6; ctx.fillRect(Math.round(xx + off), yy, r, r); }
-    // speed lines
-    for (let i = 0; i < 7; i++) {
-      const ly = (i * 29 + Math.floor(t * 60)) % (H + 20) - 10;
-      ctx.fillStyle = 'rgba(255,255,255,0.10)'; ctx.fillRect(X0 + off, ly, W, 1);
-    }
-    ctx.restore();
-    // bright edge stripe
-    ctx.globalAlpha = alpha;
-    ctx.strokeStyle = '#f4f4f0'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(X0 + 34 + off, 0); ctx.lineTo(X0 + off, H); ctx.stroke();
-    ctx.strokeStyle = h.col2; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(X0 + 39 + off, 0); ctx.lineTo(X0 + 5 + off, H); ctx.stroke();
-    ctx.globalAlpha = 1;
-  };
-  if (lt < 0.55) panel(prev, 1, 1);
-  panel(hero, inT, 1);
-  // the face: slides in, breathes, blinks to a second expression now and then
-  const expr = lt > 2.6 && lt < 3.4 ? hero.exprs[1] : hero.exprs[0];
-  const art = heroCanvas(hero, expr, (lt - 1.1) / 0.9);
-  const ax = Math.round(186 + (1 - inT) * 150), ay = Math.round(H - 124 + Math.sin(t * 1.6) * 1.5);
-  const sil = heroSil(hero.id, expr, '#101018'), glow = heroSil(hero.id, expr, hero.col2);
-  ctx.globalAlpha = 0.9; ctx.drawImage(glow, ax + 5, ay + 3); ctx.globalAlpha = 1;
-  for (const [dx, dy] of [[-2, 0], [2, 0], [0, -2], [0, 2]]) ctx.drawImage(sil, ax + dx, ay + dy);
-  // RGB split glitch on the way in
-  if (lt < 0.8) {
-    const gl = Math.round((1 - lt / 0.8) * 7);
-    ctx.globalAlpha = 0.55;
-    ctx.drawImage(heroSil(hero.id, expr, '#ff2a6a'), ax - gl, ay);
-    ctx.drawImage(heroSil(hero.id, expr, '#2ae0ff'), ax + gl, ay);
-    ctx.globalAlpha = 1;
+function palm(ctx, x, y, s, t) {
+  const sway = Math.sin(t * 0.9) * 2 * s;
+  ctx.fillStyle = '#1a0e1e';
+  for (let i = 0; i < 26; i++) { const k = i / 26; ctx.fillRect(Math.round(x + Math.sin(k * 1.6) * 10 * s + sway * k), Math.round(y - i * 3.2 * s), Math.max(2, Math.round(5 * s * (1 - k * 0.5))), Math.ceil(3.4 * s)); }
+  const tx = x + Math.sin(1.6) * 10 * s + sway, ty = y - 26 * 3.2 * s;
+  for (const a of [-2.6, -2.0, -1.3, -0.6, 0.1, 0.6]) {
+    ctx.beginPath(); ctx.moveTo(tx, ty);
+    ctx.quadraticCurveTo(tx + Math.cos(a) * 18 * s, ty + Math.sin(a) * 14 * s - 6 * s, tx + Math.cos(a) * 30 * s, ty + Math.sin(a) * 10 * s + 8 * s);
+    ctx.lineWidth = 3 * s; ctx.strokeStyle = '#1a0e1e'; ctx.stroke();
   }
-  ctx.drawImage(art, ax, ay);
-  // name tag
-  const nx = W - 8, ny = 14 + Math.round((1 - inT) * -30);
-  // long names drop a size so they never run into the logo
-  const sc = font.measure(hero.name) * 3 > W - 196 ? 2 : 3;
-  font.text(ctx, hero.name, nx + 2, ny + 2, 'rgba(0,0,0,0.5)', { align: 'right', scale: sc });
-  font.text(ctx, hero.name, nx, ny, '#f4f4f0', { align: 'right', scale: sc, outline: '#101018' });
-  const tw = font.measure(hero.tag) + 8, ty = ny + sc * 7 + 4;
-  ctx.fillStyle = hero.col; ctx.fillRect(nx - tw, ty, tw, 11);
-  font.text(ctx, hero.tag, nx - 4, ty + 2, '#101018', { align: 'right' });
-  // sparks drifting up
-  for (let i = 0; i < 14; i++) {
-    const px = 176 + ((i * 53) % 140), py = H - ((t * (18 + (i % 5) * 6) + i * 37) % (H + 10));
-    ctx.fillStyle = i % 3 ? hero.col2 : '#fff08c';
-    ctx.globalAlpha = 0.5 + 0.5 * Math.sin(t * 5 + i);
-    ctx.fillRect(Math.round(px), Math.round(py), 1, 1);
-  }
-  ctx.globalAlpha = 1;
-  // quick white flash when a new hero lands
-  if (lt < 0.18) { ctx.fillStyle = `rgba(255,255,255,${0.35 * (1 - lt / 0.18)})`; ctx.fillRect(X0, 0, W - X0, H); }
 }
 
 function fmt(sec = 0) { const h = Math.floor(sec / 3600), m = Math.floor(sec / 60) % 60; return `${h}h ${String(m).padStart(2, '0')}m`; }
@@ -357,7 +335,7 @@ const CREDITS = [
   ['', ''],
   ['UNA HISTORIA DE', 'h'], ['KazooGod02', ''], ['', ''],
   ['REPARTO', 'h'], ['KAZOO — Kazoo', ''], ['COQUI — Coqui', ''], ['GHENGHIS — Ghenghis', ''], ['', ''],
-  ['TAMBIÉN APARECEN', 'h'], ['Don Chuy · Doña Mari · La Tía Gris', ''], ['El Tuercas · Comandante Reyes', ''], ['VendeRápido_5E (5 estrellas)', ''], ['', ''],
+  ['TAMBIÉN APARECEN', 'h'], ['El Jefe (de espaldas) · Doña Mari', ''], ['La Tía Gris', ''], ['El Tuercas · Comandante Reyes', ''], ['VendeRápido_5E (5 estrellas)', ''], ['', ''],
   ['GUION DEL TRAILER', 'h'], ['KazooGod02', ''], ['', ''],
   ['JUEGO, PIXELES Y CHIPTUNE', 'h'], ['Hecho con código y cariño', ''], ['para los que esperan el tráiler', ''], ['', ''],
   ['GRACIAS ESPECIALES', 'h'], ['A la comunidad de KazooGod02', ''], ['A todos los que dejan reseñas honestas', ''], ['A Doña Mari, por los tacos', ''], ['', ''],

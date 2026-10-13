@@ -15,6 +15,7 @@ export const PROP_W = {
   tree: 60, fence: 40, bush: 16, moon: 20, skyline: 320, ac: 16, antenna: 10, clothes: 30, tank: 14, lightpole: 8, cones: 20,
   cell: 50, sink: 16, toilet: 12, wc: 12, papel: 20, atm: 14, flag: 10, doorOpen: 20, hole: 20, shovel: 6, cooler: 16, fire: 16,
   bigtree: 70, grassfg: 320, tv2: 20, radio: 12, microwave: 14, fan2: 8,
+  vaultdoor: 40, depositboxes: 64, goldstack: 30, moneypallet: 36, cashcart: 34, moneybags: 26, bosschair: 26, bigwindow: 50,
 };
 
 export function drawProp(c, p, x, y, t, env = {}) {
@@ -35,12 +36,12 @@ const PAINT = {
     R(c, x + 17, y - 22, 2, 2, '#888'); R(c, x + 17, y - 18, 2, 2, '#888'); R(c, x + 6, y - 30, 1, 4, '#888'); R(c, x + 12, y - 31, 1, 5, '#888');
     if (!o.off) R(c, x + 3, y - 23, 4, 1, 'rgba(255,255,255,0.5)');
   },
-  tv2(c, x, y, o, t) { // wall mounted TV showing the teaser
+  tv2(c, x, y, o, t) { // wall mounted TV: the late news (three silhouettes, sirens, stars)
     R(c, x, y, 22, 14, '#1a1a1e'); R(c, x + 1, y + 1, 20, 12, '#0a0a14');
     const f = Math.floor(t * 2) % 6;
     if (f < 2) { R(c, x + 3, y + 8, 3, 4, '#e0a82e'); R(c, x + 8, y + 8, 3, 4, '#3c64dc'); R(c, x + 13, y + 8, 3, 4, '#b8323c'); }
     else if (f < 4) { R(c, x + 2, y + 2, 18, 10, Math.floor(t * 8) % 2 ? '#d8323c' : '#2850e0'); }
-    else { font.text(c, 'VI', x + 11, y + 3, '#ff3cc8', { align: 'center' }); }
+    else { font.text(c, '★★', x + 11, y + 3, '#ffd23f', { align: 'center' }); }
   },
   table(c, x, y, o) { R(c, x, y - 14, o.w || 28, 3, o.col || '#8c5a32'); R(c, x + 2, y - 11, 2, 11, shade(o.col || '#8c5a32', 0.7)); R(c, x + (o.w || 28) - 4, y - 11, 2, 11, shade(o.col || '#8c5a32', 0.7)); if (o.cloth) R(c, x, y - 14, o.w || 28, 5, o.cloth); },
   chair(c, x, y, o) { R(c, x, y - 9, 10, 2, o.col || '#6a4a2a'); R(c, x, y - 7, 2, 7, '#4a3018'); R(c, x + 8, y - 7, 2, 7, '#4a3018'); R(c, x + (o.flip ? 8 : 0), y - 20, 2, 11, '#4a3018'); },
@@ -96,7 +97,91 @@ const PAINT = {
       for (let i = 0; i < 3; i++) { const aa = a + i * 2.09; c.beginPath(); c.moveTo(x + 22, y - 36); c.lineTo(x + 22 + Math.cos(aa) * 14, y - 36 + Math.sin(aa) * 14); c.stroke(); }
       R(c, x + 19, y - 39, 6, 6, '#5a5a64');
       if (o.heat) { c.fillStyle = `rgba(255,${120 - o.heat * 100},40,${o.heat * 0.6})`; c.beginPath(); c.arc(x + 22, y - 36, 8, 0, Math.PI * 2); c.fill(); }
-    } else { R(c, x + 10, y - 30, 24, 14, '#46b450'); R(c, x + 12, y - 28, 20, 2, '#2c8c3a'); R(c, x + 14, y - 44, 16, 10, '#ffd23f'); }
+    } else {
+      // open: a dark round hole with the glow of what's inside, and the door swung aside
+      const g = c.createRadialGradient(x + 22, y - 36, 2, x + 22, y - 36, 17);
+      g.addColorStop(0, 'rgba(255,214,90,0.85)'); g.addColorStop(0.6, 'rgba(120,90,30,0.6)'); g.addColorStop(1, 'rgba(10,10,14,1)');
+      c.fillStyle = g; c.beginPath(); c.arc(x + 22, y - 36, 17, 0, Math.PI * 2); c.fill();
+      R(c, x + 40, y - 58, 8, 44, '#8a8a94'); R(c, x + 42, y - 56, 4, 40, '#b0b0bc'); R(c, x + 41, y - 40, 6, 6, '#5a5a64');
+    }
+  },
+  // the vault seen from inside: the huge round door, open, on the left wall
+  vaultdoor(c, x, y) {
+    R(c, x, y - 86, 40, 86, '#5a5a64'); R(c, x + 2, y - 84, 36, 82, '#3a3a44');
+    c.fillStyle = '#8a8a94'; c.beginPath(); c.arc(x + 20, y - 42, 18, 0, Math.PI * 2); c.fill();
+    c.fillStyle = '#16161c'; c.beginPath(); c.arc(x + 20, y - 42, 15, 0, Math.PI * 2); c.fill();
+    R(c, x + 36, y - 66, 10, 50, '#9a9aa6'); R(c, x + 38, y - 64, 6, 46, '#c0c0cc');
+    for (let i = 0; i < 4; i++) R(c, x + 37, y - 60 + i * 12, 8, 2, '#6a6a74');
+  },
+  // a wall of safe-deposit boxes; a few are open and full
+  depositboxes(c, x, y, o, t) {
+    const w = o.w || 64, h = o.h || 64;
+    R(c, x, y, w, h, '#6a5a2a');
+    for (let r = 0; r < Math.floor(h / 10); r++) for (let k = 0; k < Math.floor(w / 10); k++) {
+      const bx = x + 1 + k * 10, by = y + 1 + r * 10, open = ((r * 7 + k * 3) % 5) === 0;
+      R(c, bx, by, 9, 9, open ? '#141418' : '#c8a040'); R(c, bx, by, 9, 1, '#e8c860');
+      if (open) { R(c, bx + 1, by + 4, 7, 4, (r + k) % 2 ? '#46b450' : '#ffd23f'); R(c, bx + 1, by + 4, 7, 1, '#a0dc50'); }
+      else { R(c, bx + 4, by + 4, 1, 2, '#5a4010'); if ((Math.floor(t * 2) + r + k) % 13 === 0) R(c, bx + 6, by + 2, 1, 1, '#fff8c0'); }
+    }
+  },
+  // a pyramid of gold bars that glints
+  goldstack(c, x, y, o, t) {
+    for (let r = 0; r < 5; r++) for (let i = 0; i < 5 - r; i++) {
+      const bx = x + r * 3 + i * 6, by = y - 4 - r * 4;
+      R(c, bx, by, 6, 4, '#d8a828'); R(c, bx, by, 6, 1, '#fff08c'); R(c, bx + 5, by, 1, 4, '#9a7010');
+    }
+    if (Math.floor(t * 3) % 4 === 0) { R(c, x + 14, y - 22, 1, 3, '#ffffff'); R(c, x + 13, y - 21, 3, 1, '#ffffff'); }
+  },
+  // a pallet of shrink-wrapped cash
+  moneypallet(c, x, y, o) {
+    const w = o.w || 36, h = o.h || 26;
+    R(c, x, y - 3, w, 3, '#8c6a44'); R(c, x + 2, y - 1, 4, 1, '#5a4430'); R(c, x + w - 6, y - 1, 4, 1, '#5a4430');
+    for (let r = 0; r < Math.floor(h / 4); r++) for (let k = 0; k < Math.floor(w / 9); k++) {
+      const bx = x + 1 + k * 9 - (r % 2 ? 2 : 0), by = y - 7 - r * 4;
+      if (bx < x || bx + 8 > x + w) continue;
+      R(c, bx, by, 8, 4, '#2c8c3a'); R(c, bx, by, 8, 1, '#5abf5a'); R(c, bx + 3, by + 1, 2, 2, '#e8e0c8');
+    }
+    R(c, x, y - 7 - (Math.floor(h / 4) - 1) * 4, w, 1, 'rgba(255,255,255,0.35)');
+  },
+  // a steel cart loaded with money bags
+  cashcart(c, x, y) {
+    R(c, x, y - 18, 34, 12, '#9a9aa6'); R(c, x, y - 18, 34, 1, '#d0d0dc'); R(c, x + 32, y - 28, 2, 12, '#9a9aa6');
+    R(c, x + 3, y - 4, 4, 4, '#1a1a1a'); R(c, x + 27, y - 4, 4, 4, '#1a1a1a'); R(c, x + 4, y - 6, 26, 2, '#6a6a74');
+    for (let i = 0; i < 3; i++) { const bx = x + 2 + i * 10; R(c, bx, y - 27, 9, 9, '#c8b090'); R(c, bx + 3, y - 29, 3, 2, '#a89070'); font.text(c, '$', bx + 5, y - 25, '#2c8c3a', { align: 'center' }); }
+  },
+  // loose sacks of money on the floor
+  moneybags(c, x, y) {
+    for (const [ox, s] of [[0, 10], [9, 12], [19, 9]]) {
+      R(c, x + ox, y - s, s, s, '#c8b090'); R(c, x + ox + 1, y - s, s - 2, 2, '#e0d0b0'); R(c, x + ox + s / 2 - 1, y - s - 2, 3, 2, '#a89070');
+      font.text(c, '$', x + ox + s / 2, y - s + 3, '#2c8c3a', { align: 'center' });
+    }
+  },
+  // the boss's chair, seen from behind: a tall leather back and a shadow sitting in it
+  bosschair(c, x, y, o, t) {
+    // the shadow: head and shoulders peeking over the backrest, pitch black
+    const bob = Math.round(Math.sin(t * 0.8) * 0.5);
+    c.fillStyle = '#050507';
+    c.beginPath(); c.ellipse(x + 13, y - 52 + bob, 6, 7, 0, 0, Math.PI * 2); c.fill();
+    R(c, x + 3, y - 46 + bob, 20, 8, '#050507');
+    if (o.smoke) for (let i = 0; i < 4; i++) { const k = (t * 0.4 + i / 4) % 1; c.globalAlpha = 0.35 * (1 - k); R(c, x + 20 + Math.sin(k * 6 + i) * 3, y - 56 - k * 28, 2, 2, '#c8c8d0'); c.globalAlpha = 1; }
+    // backrest
+    R(c, x, y - 44, 26, 30, '#1a0e0e'); R(c, x + 1, y - 43, 24, 28, '#2a1414');
+    for (let i = 0; i < 3; i++) R(c, x + 4 + i * 7, y - 40, 4, 20, '#341a1a');
+    R(c, x, y - 44, 26, 1, '#4a2a2a');
+    // seat, base and wheels
+    R(c, x - 2, y - 16, 30, 4, '#1a0e0e'); R(c, x + 12, y - 12, 3, 8, '#2a2a2e'); R(c, x + 2, y - 4, 23, 2, '#2a2a2e');
+    R(c, x + 1, y - 2, 3, 2, '#101010'); R(c, x + 12, y - 2, 3, 2, '#101010'); R(c, x + 23, y - 2, 3, 2, '#101010');
+  },
+  // a tall window with half-open blinds and a hard light coming through
+  bigwindow(c, x, y, o, t) {
+    const w = o.w || 50, h = o.h || 60;
+    R(c, x - 2, y - 2, w + 4, h + 4, '#0a0a0e');
+    const g = c.createLinearGradient(0, y, 0, y + h);
+    g.addColorStop(0, '#fff8e0'); g.addColorStop(1, '#f0c880');
+    c.fillStyle = g; c.fillRect(x, y, w, h);
+    c.fillStyle = 'rgba(20,16,10,0.55)';
+    for (let i = 3; i < h; i += 5) c.fillRect(x, y + i, w, 2);
+    R(c, x + w / 2 - 1, y, 2, h, '#0a0a0e');
   },
   desk(c, x, y, o) { const w = o.w || 30; R(c, x, y - 16, w, 3, '#6e4424'); R(c, x + 1, y - 13, 10, 13, '#5a3218'); R(c, x + w - 3, y - 13, 2, 13, '#5a3218'); R(c, x + 3, y - 10, 6, 1, '#ffd23f'); if (o.papers) { R(c, x + 14, y - 18, 8, 2, '#f4f4f0'); R(c, x + 16, y - 19, 6, 1, '#e8e8e0'); } },
   computer(c, x, y, o, t) { R(c, x, y - 12, 12, 9, '#d8d8d0'); R(c, x + 1, y - 11, 10, 7, o.off ? '#1a1a2a' : '#1e3c78'); R(c, x + 2, y - 10, 4, 1, '#5adcf0'); R(c, x + 4, y - 3, 4, 2, '#b0b0a8'); },

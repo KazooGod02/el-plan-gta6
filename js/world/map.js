@@ -9,7 +9,8 @@ export const T = {
 export const MW = 176, MH = 128, TS = 16;
 
 const SOLID_FOOT = new Set([T.WATER, T.ROOF, T.WALL, T.DOOR, T.TREE, T.FENCE, T.BARRIER, T.FOUNTAIN, T.CONTAINER, T.BUSH]);
-const SOLID_CAR = new Set([T.WATER, T.ROOF, T.WALL, T.DOOR, T.TREE, T.FENCE, T.BARRIER, T.FOUNTAIN, T.CONTAINER]);
+// water is not solid for cars: you can drive into it (and sink). Bridge railings are.
+const SOLID_CAR = new Set([T.ROOF, T.WALL, T.DOOR, T.TREE, T.FENCE, T.BARRIER, T.FOUNTAIN, T.CONTAINER]);
 
 export const MAP = {
   tiles: new Uint8Array(MW * MH),
@@ -27,6 +28,7 @@ export const MAP = {
   props: [],   // overhead decorations {type,x,y}
   pois: [],    // named places for the big map's index {id,name,x,y,icon,color,kind}
   pickups: [], // hearts, vests and bribe stars {kind,x,y}
+  rail: new Uint8Array(MW * MH), // water tiles next to a bridge: the railing stops cars
 };
 
 export const idx = (x, y) => y * MW + x;
@@ -36,9 +38,12 @@ export function tileAt(x, y) {
 }
 export function setTile(x, y, t) { if (x >= 0 && y >= 0 && x < MW && y < MH) MAP.tiles[y * MW + x] = t; }
 export const solidFoot = (x, y) => SOLID_FOOT.has(tileAt(x, y));
-export const solidCar = (x, y) => SOLID_CAR.has(tileAt(x, y));
+export const solidCar = (x, y) => x < 0 || y < 0 || x >= MW || y >= MH || SOLID_CAR.has(MAP.tiles[y * MW + x]) || MAP.rail[y * MW + x] === 1;
 export const solidFootPx = (px, py) => solidFoot(Math.floor(px / TS), Math.floor(py / TS));
 export const solidCarPx = (px, py) => solidCar(Math.floor(px / TS), Math.floor(py / TS));
+// the player can swim: water only counts as solid for everyone else
+export const solidSwimPx = (px, py) => { const x = Math.floor(px / TS), y = Math.floor(py / TS); return x < 0 || y < 0 || x >= MW || y >= MH || (solidFoot(x, y) && tileAt(x, y) !== T.WATER); };
+export const isWaterPx = (px, py) => tileAt(Math.floor(px / TS), Math.floor(py / TS)) === T.WATER;
 export function isRoad(x, y) { const t = tileAt(x, y); return t === T.ROAD || t === T.BRIDGE; }
 export function isWalkway(x, y) { const t = tileAt(x, y); return t === T.SIDEWALK || t === T.PLAZA || t === T.PARKING || t === T.DOCK; }
 
@@ -148,7 +153,7 @@ export function buildMap() {
   L({ x: 48, y: 70, w: 7, h: 4, roof: '#46b450', name: 'TACOS EL COMPA', sign: 'TACOS', door: { x: 51, y: 73 }, room: 'taqueria', awning: '#d8323c' });
   L({ x: 9, y: 70, w: 6, h: 4, roof: '#f4f4f0', name: 'ABARROTES LUPITA', sign: 'LUPITA', door: { x: 11, y: 73 }, room: 'tiendita', awning: '#28b4a0' });
   L({ x: 88, y: 70, w: 8, h: 4, roof: '#f4f4f0', name: 'CLÍNICA', sign: 'CLÍNICA', door: { x: 91, y: 73 }, cross: true });
-  L({ x: 68, y: 83, w: 11, h: 6, roof: '#f46eaa', name: 'CASA DE DON CHUY', sign: 'DON CHUY', door: { x: 73, y: 88 }, room: 'donchuy', fancy: true });
+  L({ x: 68, y: 83, w: 11, h: 6, roof: '#2a2a34', name: 'CASA DEL JEFE', sign: 'PRIVADO', door: { x: 73, y: 88 }, room: 'donchuy', fancy: true });
   L({ x: 88, y: 84, w: 8, h: 5, roof: '#3c64dc', name: 'PINTA Y OLVIDA', sign: 'PINTA Y OLVIDA', door: { x: 92, y: 88 }, garage: true, awning: '#ffd23f' });
   fill(47, 80, 60, 88, T.COURT);
   // Centro
@@ -182,7 +187,10 @@ export function buildMap() {
   fill(118, 114, 159, 127, T.FIELD); fill(128, 114, 129, 123, T.DIRT);
   MAP.props.push({ type: 'bigtree', x: 146 * TS + 8, y: 121 * TS + 8 });
   setTile(146, 121, T.TREE);
-  MAP.props.push({ type: 'billboard', x: 34 * TS, y: 11 * TS });
+  // street billboards: plain local ads (tile x, tile y, which ad)
+  for (const [bx, by, ad] of [[34, 11, 0], [14, 38, 1], [75, 26, 2], [14, 66, 3], [57, 66, 5], [109, 82, 7], [150, 10, 6], [131, 64, 4], [50, 105, 8], [110, 100, 1]]) {
+    MAP.props.push({ type: 'billboard', x: bx * TS, y: by * TS, ad });
+  }
 
   // keep a clear path in front of every landmark door
   for (const b of MAP.buildings) if (b.door) {
@@ -249,6 +257,12 @@ export function buildMap() {
   // make sure the field near the tree stays clear
   for (let y = 116; y <= 126; y++) for (let x = 140; x <= 152; x++) if (tileAt(x, y) === T.TREE || tileAt(x, y) === T.BUSH) setTile(x, y, T.FIELD);
   setTile(146, 121, T.TREE);
+
+  // bridge railings: the water right next to a bridge is a wall for cars
+  for (let y = 0; y < MH; y++) for (let x = 0; x < MW; x++) {
+    if (t[idx(x, y)] !== T.WATER) continue;
+    if ([[1, 0], [-1, 0], [0, 1], [0, -1]].some(([dx, dy]) => tileAt(x + dx, y + dy) === T.BRIDGE)) MAP.rail[idx(x, y)] = 1;
+  }
 
   placeShops();
   applyBarriers({ centro: false, puerto: false, afueras: false });
@@ -443,7 +457,7 @@ function definePlaces() {
   P.taqueria = doorFront('TACOS EL COMPA');
   P.tiendita = doorFront('ABARROTES LUPITA');
   P.clinica = doorFront('CLÍNICA');
-  P.donchuy = doorFront('CASA DE DON CHUY');
+  P.donchuy = doorFront('CASA DEL JEFE');
   P.banco = { x: 54 * TS, y: 31 * TS + 8 };
   P.bar = doorFront('LA ÚLTIMA RISA');
   P.disfraces = doorFront('DISFRACES CARNAVAL');
@@ -469,7 +483,7 @@ function definePlaces() {
   poi('taqueria', 'Tacos El Compa', 'T', '#f07aa8', 'comida');
   poi('tiendita', 'Abarrotes Lupita', '$', '#28b4a0', 'tienda');
   poi('clinica', 'Clínica', '+', '#f4f4f0', 'lugar');
-  poi('donchuy', 'Casa de Don Chuy', 'D', '#c8a03c', 'lugar');
+  poi('donchuy', 'Casa del Jefe', 'J', '#b8a070', 'lugar');
   poi('pintaCol', 'Pinta y Olvida (Colonia)', 'P', '#ffd23f', 'servicio');
   poi('pintaCen', 'Pinta y Olvida (Centro)', 'P', '#ffd23f', 'servicio');
   poi('banco', 'Banco Federal', 'B', '#c8c8d0', 'lugar');
