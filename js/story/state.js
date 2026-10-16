@@ -15,7 +15,7 @@ export function newState() {
     paid: 0,
     unlocked: { centro: false, puerto: false, afueras: false },
     flags: {},
-    trust: 50,             // hidden "confianza de Coqui"
+    trust: 50,             // hidden "confianza de Kuiss"
     collect: { cassettes: [], stars: [], graffiti: [], kazoos: [] },
     achievements: [],
     chat: [],              // group chat messages {from, text, day}

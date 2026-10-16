@@ -334,7 +334,7 @@ const CREDITS = [
   ['Una precuela 8-bit de "El Escape"', ''],
   ['', ''],
   ['UNA HISTORIA DE', 'h'], ['KazooGod02', ''], ['', ''],
-  ['REPARTO', 'h'], ['KAZOO — Kazoo', ''], ['COQUI — Coqui', ''], ['GHENGHIS — Ghenghis', ''], ['', ''],
+  ['REPARTO', 'h'], ['KAZOO — Kazoo', ''], ['KUISS — Kuiss', ''], ['GHENGHIS — Ghenghis', ''], ['', ''],
   ['TAMBIÉN APARECEN', 'h'], ['El Jefe (de espaldas) · Doña Mari', ''], ['La Tía Gris', ''], ['El Tuercas · Comandante Reyes', ''], ['VendeRápido_5E (5 estrellas)', ''], ['', ''],
   ['GUION DEL TRAILER', 'h'], ['KazooGod02', ''], ['', ''],
   ['JUEGO, PIXELES Y CHIPTUNE', 'h'], ['Hecho con código y cariño', ''], ['para los que esperan el tráiler', ''], ['', ''],

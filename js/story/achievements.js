@@ -8,7 +8,7 @@ export const ACHIEVEMENTS = [
   { id: 'feo', name: 'Pues me apuntó muy feo', desc: 'Puntaje perfecto en el campo de tiro.' },
   { id: 'again', name: 'Oh shit here we go again', desc: 'Falla la misma misión 3 veces.' },
   { id: 'bro', name: 'Dont do this bro', desc: 'Llega a 5 estrellas de búsqueda.' },
-  { id: 'paalla', name: "Pa' allá", desc: 'Visita EL CAMPO antes de que Coqui trace la ruta.' },
+  { id: 'paalla', name: "Pa' allá", desc: 'Visita EL CAMPO antes de que Kuiss trace la ruta.' },
   { id: 'fin', name: 'El carro no tenía estrellas', desc: 'Termina la historia.' },
   { id: 'losabia', name: 'Lo sabía', desc: 'Junta las 10 estrellas doradas.' },
   { id: 'repartidor', name: 'Repartidor del mes', desc: 'Completa 15 repartos para Doña Mari.' },

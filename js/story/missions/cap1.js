@@ -11,7 +11,7 @@ import { TS } from '../../world/map.js';
 export const CAP1 = [
   {
     id: 'c1_penal', chapter: 1, chapterStart: true, title: 'El que salió', requires: ['p_noche'],
-    rating: () => ({ by: 'Coqui', stars: 2, text: 'Dos horas tarde. DOS.' }),
+    rating: () => ({ by: 'Kuiss', stars: 2, text: 'Dos horas tarde. DOS.' }),
     *run(ctx) {
       lock(true);
       setDay(-20); setClock(9, 15);
@@ -26,10 +26,10 @@ export const CAP1 = [
       yield* talk([
         ['kazoo', '...¿Qué hora es?', 'think'],
         ['kazoo', '¡¿LAS NUEVE Y QUINCE?!', 'shock'],
-        ['kazoo', '¡Coqui sale a las diez y el penal está hasta la verga de lejos!', 'shock'],
+        ['kazoo', '¡Kuiss sale a las diez y el penal está hasta la verga de lejos!', 'shock'],
       ]);
       lock(false);
-      objective('Recoge a Coqui en el penal (Las Afueras)');
+      objective('Recoge a Kuiss en el penal (Las Afueras)');
       yield* until(() => G.scene === C());
       const c = C(), pen = P().pension;
       let moto = c.vehicles.find((v) => v.type === 'moto' && !v.dead && dist(v.x, v.y, pen.x, pen.y) < 300);
@@ -69,7 +69,7 @@ export const CAP1 = [
       lock(true);
       if (c.player.car) c.exitCar(true);
       c.teleport(gate.x, gate.y + 6, -Math.PI / 2);
-      const coqui = ally('coqui', gate.x + 14, gate.y - 12, 'COQUI');
+      const coqui = ally('coqui', gate.x + 14, gate.y - 12, 'KUISS');
       coqui.state = 'idle'; coqui.noMoto = true; coqui.a = Math.PI / 2;
       UI.letterboxTarget = 1;
       c.camTarget = { x: gate.x + 6, y: gate.y - 4 };
@@ -78,7 +78,7 @@ export const CAP1 = [
       yield* talk([
         ['coqui', 'Tres años adentro. Rayando la pared como pendejo, contando los días.', 'serious'],
         ['coqui', 'Y lo primero que veo cuando salgo... es tu cara. Tarde.', 'angry'],
-        ['kazoo', '¡Coqui! Wey, perdón, la moto se...', 'shock'],
+        ['kazoo', '¡Kuiss! Wey, perdón, la moto se...', 'shock'],
         ['coqui', 'Dos horas, Kazoo. DOS HORAS. Le pregunté la hora al custodio tantas veces que me ofreció quedarme otra semana.', 'angry'],
         ['kazoo', 'La moto tenía 4.8 estrellas, wey. Era un riesgo calculado.', 'normal'],
         ['coqui', '...Sigues comprando cosas en el Marketplace.', 'serious'],
@@ -97,15 +97,15 @@ export const CAP1 = [
       const cars = [['sedan', '#6e6e82'], ['vocho', '#3c64dc'], ['pickup', '#8c5a32']].map(([t, col], i) => c.spawnVehicle(t, (30 + i * 5) * TS, 114 * TS, Math.PI / 2, { mission: true, color: col }));
       cars.forEach((v) => (v.keep = true));
       lock(false);
-      objective('Consigue un carro para Coqui (no la moto)');
+      objective('Consigue un carro para Kuiss (no la moto)');
       let warned = false;
       yield* until(() => {
         const car = c.player.car;
         if (car && car.type === 'moto' && !warned && dist(car.x, car.y, coqui.x, coqui.y) < 90) { warned = true; c.say(coqui, 'No me subo a esa madre. Un carro, Kazoo.', 3); }
-        if (car && car.type !== 'moto' && !car.passengers.includes(coqui) && dist(car.x, car.y, coqui.x, coqui.y) > 120) objective('Regresa por Coqui');
+        if (car && car.type !== 'moto' && !car.passengers.includes(coqui) && dist(car.x, car.y, coqui.x, coqui.y) > 120) objective('Regresa por Kuiss');
         return car && car.passengers.includes(coqui);
       });
-      objective('Lleva a Coqui con "El Tuercas" (carretera vieja)');
+      objective('Lleva a Kuiss con "El Tuercas" (carretera vieja)');
       const tu = P().tuercas;
       const m2 = c.addMarker({ x: tu.x, y: tu.y + 20, r: 26, color: '#ffd23f', label: 'TALLER', needCar: true });
       const d1 = dist(c.pos().x, c.pos().y, tu.x, tu.y);
@@ -117,8 +117,8 @@ export const CAP1 = [
       let ci = 0;
       while (!m2.inside) {
         yield;
-        if (!c.player.car || !c.player.car.passengers.includes(coqui)) { objective('Regresa por Coqui'); m2.hidden = true; continue; }
-        m2.hidden = false; objective('Lleva a Coqui con "El Tuercas" (carretera vieja)');
+        if (!c.player.car || !c.player.car.passengers.includes(coqui)) { objective('Regresa por Kuiss'); m2.hidden = true; continue; }
+        m2.hidden = false; objective('Lleva a Kuiss con "El Tuercas" (carretera vieja)');
         const p = c.pos();
         if (ci < convo.length && dist(p.x, p.y, tu.x, tu.y) < d1 * convo[ci][0]) { yield* lines(convo[ci][1]); ci++; }
       }
@@ -146,12 +146,12 @@ export const CAP1 = [
       yield* fadeIn(1);
       yield* wait(2);
       yield* talk([
-        ['tuercas', 'Rápido, Coqui. La alarma se reactiva en minuto y medio.', 'shock'],
+        ['tuercas', 'Rápido, Kuiss. La alarma se reactiva en minuto y medio.', 'shock'],
         ['coqui', 'Cálmate, Tuercas. Tengo todo calculado. Aquí nadie improvisa.', 'smug'],
         ['tuercas', 'Sí, sí... yo cuido la puerta de atrás. Tú agarra todo.', 'normal'],
       ]);
       lock(false);
-      toast('Juegas como COQUI', '#5a8ce0', 3);
+      toast('Juegas como KUISS', '#5a8ce0', 3);
       objective('Rompe las 5 vitrinas (acércate y presiona E varias veces)');
       let jewels = 0;
       for (const id of ['sc1', 'sc2', 'sc3', 'sc4', 'sc5']) {
@@ -171,7 +171,7 @@ export const CAP1 = [
       UI.timer = null;
       audio.sfx('alarm');
       r.shake(3);
-      yield* say('tuercas', '¡La alarma! ¡¿Quién la prendió?! ¡Salte por atrás! ¡Ahí te espero, Coqui!', 'shock');
+      yield* say('tuercas', '¡La alarma! ¡¿Quién la prendió?! ¡Salte por atrás! ¡Ahí te espero, Kuiss!', 'shock');
       yield* walkNpc(tu, 560, 80);
       tu.hidden = true;
       objective('¡Escapa por la puerta trasera!');
@@ -186,7 +186,7 @@ export const CAP1 = [
       music('tension');
       UI.flash(0.6);
       yield* talk([
-        ['reyes', 'Buenas noches, señor Coqui. Qué bonitas joyas.', 'smug'],
+        ['reyes', 'Buenas noches, señor Kuiss. Qué bonitas joyas.', 'smug'],
         ['coqui', '¿Tuercas? ...¡TUERCAS!', 'shock'],
         ['reyes', 'Tu socio nos llamó hace una hora. Muy cooperativo. Hasta nos dejó la puerta abierta.', 'smug'],
         ['coqui', '...', 'shock'],
@@ -206,7 +206,7 @@ export const CAP1 = [
       cityAt(tq, 22);
       const c = C();
       c.player.look = 'kazoo';
-      if (!c.peds.some((q) => q.lookId === 'coqui' && q.ally)) ally('coqui', tq.x + 14, tq.y + 22, 'COQUI');
+      if (!c.peds.some((q) => q.lookId === 'coqui' && q.ally)) ally('coqui', tq.x + 14, tq.y + 22, 'KUISS');
       const coqui = c.peds.find((q) => q.lookId === 'coqui' && q.ally);
       if (coqui) { coqui.x = tq.x + 14; coqui.y = tq.y + 22; coqui.state = 'idle'; coqui.a = -Math.PI / 2; }
       yield* fadeIn(0.8);
@@ -221,20 +221,20 @@ export const CAP1 = [
   },
   {
     id: 'c1_tuercas', chapter: 1, title: 'Tabla floja', requires: ['c1_flashback'], lockRoom: true, customRooms: true, failPlace: 'tuercas',
-    rating: () => ({ by: 'Coqui', stars: 4, text: 'Casi te ven. Casi nos cuesta otros tres años.' }),
+    rating: () => ({ by: 'Kuiss', stars: 4, text: 'Casi te ven. Casi nos cuesta otros tres años.' }),
     *run(ctx) {
       const c = C(), tq = P().tuercas;
       lock(true);
       if (G.scene !== c) cityAt(tq, 22);
       let coqui = c.peds.find((q) => q.lookId === 'coqui' && q.ally);
-      if (!coqui) coqui = ally('coqui', tq.x + 14, tq.y + 22, 'COQUI');
+      if (!coqui) coqui = ally('coqui', tq.x + 14, tq.y + 22, 'KUISS');
       coqui.state = 'idle';
       yield* talk([
         ['coqui', 'El plan: yo entro por enfrente y lo entretengo. Tú te metes por la puerta de atrás.', 'serious'],
         ['coqui', 'Su oficina está al fondo. Debajo del escritorio hay una tabla floja. Ahí está la lana.', 'normal'],
         ['kazoo', '¿Y si me ven?', 'shock'],
         ['coqui', 'Que no te vean.', 'serious'],
-        ['kazoo', 'Gracias, Coqui. Qué plan tan detallado.', 'sad'],
+        ['kazoo', 'Gracias, Kuiss. Qué plan tan detallado.', 'sad'],
       ]);
       yield* fadeOut(0.5);
       c.removePed(coqui);
@@ -274,7 +274,7 @@ export const CAP1 = [
         ['kazoo', '...', 'shock'],
         ['kazoo', 'No hay nada. Nomás un recibo de Elektra. De una sala. A 52 pagos.', 'shock'],
       ]);
-      // Tuercas & Coqui come in
+      // Tuercas & Kuiss come in
       const tuF = r.npc('tuercasF'), coF = r.npc('coquiF');
       tuF.x = 380; coF.x = 356;
       yield* walkNpc(coF, 424, 50);
@@ -282,21 +282,21 @@ export const CAP1 = [
       yield* wait(0.8);
       chavo.facing = -1; primo.facing = 1;
       yield* talk([
-        ['tuercas', '¡Chavo! ¡Primo! Tranquilos, tranquilos... es... es Coqui.', 'shock'],
-        ['tuercas', '¡Coqui, hermano! ¿Ya saliste? ¡Qué rápido se pasa el tiempo!', 'happy'],
+        ['tuercas', '¡Chavo! ¡Primo! Tranquilos, tranquilos... es... es Kuiss.', 'shock'],
+        ['tuercas', '¡Kuiss, hermano! ¿Ya saliste? ¡Qué rápido se pasa el tiempo!', 'happy'],
         ['coqui', 'Tres años, Tuercas. Para mí no pasó rápido.', 'serious'],
-        ['kazoo', 'Coqui... no hay nada. Está vacío.', 'sad'],
+        ['kazoo', 'Kuiss... no hay nada. Está vacío.', 'sad'],
         ['coqui', '¿Dónde está mi dinero?', 'angry'],
         ['tuercas', 'Mira, mira... te lo iba a guardar, te lo juro. Pero se me descompuso la grúa, y mi vieja quería una sala, y luego el Marketplace tenía unas ofertas...', 'sad'],
         ['kazoo', '...Las ofertas del Marketplace sí están cabronas.', 'normal'],
         ['coqui', '¡KAZOO!', 'angry'],
         ['kazoo', 'Perdón.', 'sad'],
-        ['tuercas', 'Me ofrecieron dos años menos, Coqui. Dos años. Tú habrías hecho lo mismo.', 'sad'],
+        ['tuercas', 'Me ofrecieron dos años menos, Kuiss. Dos años. Tú habrías hecho lo mismo.', 'sad'],
         ['coqui', 'No. Yo no.', 'serious'],
       ]);
-      const ch = yield* ask('kazoo', '(Coqui aprieta los puños. ¿Qué le dices?)', ['"Déjalo, Coqui. No vale ni la bala."', '"Rómpele la madre."', '(No decir nada)']);
-      if (ch === 0) { trust(6); yield* talk([['kazoo', 'Déjalo, Coqui. No vale ni la bala. Tú no eres como él.', 'serious'], ['coqui', '...No. No soy como él.', 'sad']]); }
-      else if (ch === 1) { trust(-3); yield* talk([['kazoo', 'Rómpele la madre, Coqui.', 'angry'], ['coqui', 'Ganas no me faltan. Pero si lo toco, regreso adentro. Y este no vale tres años más.', 'serious'], ['kazoo', '...Ya.', 'sad']]); }
+      const ch = yield* ask('kazoo', '(Kuiss aprieta los puños. ¿Qué le dices?)', ['"Déjalo, Kuiss. No vale ni la bala."', '"Rómpele la madre."', '(No decir nada)']);
+      if (ch === 0) { trust(6); yield* talk([['kazoo', 'Déjalo, Kuiss. No vale ni la bala. Tú no eres como él.', 'serious'], ['coqui', '...No. No soy como él.', 'sad']]); }
+      else if (ch === 1) { trust(-3); yield* talk([['kazoo', 'Rómpele la madre, Kuiss.', 'angry'], ['coqui', 'Ganas no me faltan. Pero si lo toco, regreso adentro. Y este no vale tres años más.', 'serious'], ['kazoo', '...Ya.', 'sad']]); }
       else yield* talk([['kazoo', '...', 'normal'], ['coqui', '...', 'serious']]);
       yield* talk([
         ['coqui', 'Vámonos, Kazoo.', 'serious'],
@@ -306,7 +306,7 @@ export const CAP1 = [
       music(null);
       yield* fadeOut(0.8);
       cityAt(tq, 30);
-      const co = ally('coqui', tq.x + 16, tq.y + 30, 'COQUI');
+      const co = ally('coqui', tq.x + 16, tq.y + 30, 'KUISS');
       co.state = 'idle';
       setClock(19, 20);
       yield* fadeIn(0.8);
@@ -316,7 +316,7 @@ export const CAP1 = [
         ['kazoo', 'Tienes socio. Y casa. Bueno... tengo un cuarto. Hay un sillón.', 'normal'],
         ['kazoo', 'Bueno, no hay sillón. Hay piso. Pero el piso es tuyo.', 'happy'],
         ['coqui', 'Suena mejor que mi celda.', 'smug'],
-        ['kazoo', 'Coqui... ¿y ahora qué hacemos?', 'think'],
+        ['kazoo', 'Kuiss... ¿y ahora qué hacemos?', 'think'],
         ['coqui', '...', 'think'],
         ['coqui', 'Ahora... necesitamos un plan. Y esta vez nadie me va a vender.', 'serious'],
       ]);

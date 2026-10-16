@@ -83,6 +83,8 @@ export function drawSide(L, frame = 'idle') {
     R(5, 0, 5, 1, hc); R(4, 1, 7, 1, hc); R(4, 2, 4, 1, hc); R(4, 3, 2, 3, hc); R(6, 1, 3, 1, hl);
   } else if (h === 'bun') {
     R(5, 0, 5, 1, hc); R(4, 1, 7, 1, hc); R(4, 2, 3, 1, hc); R(4, 3, 2, 4, hc); R(2, 0, 3, 3, hc); R(3, 0, 1, 1, hl);
+  } else if (h === 'fringe') {
+    R(5, 0, 5, 1, hc); R(4, 1, 7, 1, hc); R(4, 2, 2, 2, hc); R(7, 2, 5, 1, hc); R(10, 3, 2, 1, hc); R(6, 0, 3, 1, hl); R(8, 1, 2, 1, hl);
   } else if (h === 'short') {
     R(5, 0, 5, 1, hc); R(4, 1, 7, 1, hc); R(4, 2, 3, 1, hc); R(10, 2, 1, 1, hc); R(4, 3, 2, 2, hc); R(6, 0, 2, 1, hl);
   } else if (h === 'pony') {
@@ -271,6 +273,10 @@ export function drawPortrait(L, expr = 'normal') {
     R(10, 4, 12, 1, hl); R(9, 6, 14, 1, hl);
   } else if (h === 'bun') {
     E(16, 7, 9, 4, hc); R(7, 7, 2, 9, hc); R(23, 7, 2, 9, hc); R(11, 5, 10, 1, hl);
+  } else if (h === 'fringe') {
+    E(16, 7, 9, 4, hc); R(7, 7, 2, 4, hc); R(23, 7, 2, 4, hc); R(8, 8, 16, 2, hc);
+    for (const bx of [9, 13, 17, 21]) R(bx, 10, 2, 1, hc);
+    R(11, 4, 9, 1, hl); R(10, 6, 4, 1, hl); R(18, 8, 3, 1, hl);
   } else if (h === 'short') {
     E(16, 7, 9, 4, hc); R(7, 7, 2, 5, hc); R(23, 7, 2, 5, hc); R(9, 9, 2, 2, hc); R(12, 9, 2, 1, hc); R(16, 9, 2, 1, hc); R(11, 4, 8, 1, hl);
   } else if (h === 'pony') {

@@ -89,7 +89,7 @@ Se abre con una tecla o botón. Es un celular pixelado con la pantalla estrellad
 
 | App | Función |
 |---|---|
-| 💬 **Chat "LOS DEL PLAN"** | Grupo de WhatsApp-parodia entre Kazoo, Coqui y Ghenghis que **avanza con la historia**: memes, stickers 8-bit, planes y pistas. Coqui escribe cada vez menos conforme crece su paranoia. En el Cap. 6 Ghenghis abre un **chat privado** con Kazoo ("no le digas a Coqui"). |
+| 💬 **Chat "LOS DEL PLAN"** | Grupo de WhatsApp-parodia entre Kazoo, Kuiss y Ghenghis que **avanza con la historia**: memes, stickers 8-bit, planes y pistas. Kuiss escribe cada vez menos conforme crece su paranoia. En el Cap. 6 Ghenghis abre un **chat privado** con Kazoo ("no le digas a Kuiss"). |
 | 🛒 **Marketplace** | Comprar objetos absurdos y vehículos, y leer reseñas. Aquí está el perfil de **VendeRápido_5E** (con reseñas que, leídas con atención, dan miedo). |
 | 🗺️ **Mapa** | Mapa de la ciudad con marcadores. |
 | 📷 **Cámara** | Para el reconocimiento del banco y para el modo foto. |
@@ -107,7 +107,7 @@ Chiptune generado en vivo, con varias estaciones:
 |---|---|
 | **Vicio 8.8 FM** | Synthwave 8-bit, la estación "oficial" |
 | **La Cumbia 16-Bit** | Cumbia en chiptune, y ruidosa |
-| **Corridos del Puerto** | Corridos 8-bit sobre... ¿Coqui? (cuentan su historia del penal) |
+| **Corridos del Puerto** | Corridos 8-bit sobre... ¿Kuiss? (cuentan su historia del penal) |
 | **Radio Noticias PV** | Locutor en texto que **comenta lo que hiciste**: *"Un sujeto en moto de reparto causó caos en el Centro..."*. Da conferencias de la Comandante Reyes que cambian con la historia y comerciales de negocios de la ciudad. |
 | **Silencio** | Para los valientes |
 
@@ -136,13 +136,13 @@ Chiptune generado en vivo, con varias estaciones:
 - **Guardarropa de Kazoo:** outfits desbloqueables (incluido **el outfit exacto del trailer**, que se desbloquea al pasar el Cap. 8).
 - **Cuarto de Kazoo:** se va llenando con lo que compres en el Marketplace (almohada de pan, lámpara de lava, un kazoo dorado...).
 
-### Confianza de Coqui (medidor oculto)
+### Confianza de Kuiss (medidor oculto)
 Tus decisiones pequeñas (llegar tarde, mentir, platicar con la policía, cumplir encargos) suben o bajan un medidor que **nunca se muestra**. No cambia el final, porque el trailer es canon, pero cambia:
-- Lo que Coqui dice en la azotea (Cap. 7).
+- Lo que Kuiss dice en la azotea (Cap. 7).
 - Cuánto escribe en el chat del grupo.
 - Una línea final antes del "¡Córranle!".
 
-Es un detalle para que la gente comente en redes: *"¿a ti qué te dijo Coqui?"*.
+Es un detalle para que la gente comente en redes: *"¿a ti qué te dijo Kuiss?"*.
 
 ---
 
@@ -150,7 +150,7 @@ Es un detalle para que la gente comente en redes: *"¿a ti qué te dijo Coqui?"*
 
 | Coleccionable | Cantidad | Recompensa |
 |---|---|---|
-| **Cassettes perdidos** | 15 | Lore en audio-texto: el pasado de Coqui, el despido de Ghenghis, las víctimas del Vendedor... |
+| **Cassettes perdidos** | 15 | Lore en audio-texto: el pasado de Kuiss, el despido de Ghenghis, las víctimas del Vendedor... |
 | **Estrellas doradas** | 10 | Todas desbloquean una escena extra que revela el rastreador **antes** del final (logro: "LO SABÍA") |
 | **Grafitis de KazooGod02** | 20 | Rociar tags por la ciudad; completarlos desbloquea el outfit "Marathon" |
 | **Kazoos escondidos** | 5 | Cada uno toca una nota; juntos tocan **el sting de la Marathon** |
@@ -174,7 +174,7 @@ Así la gente regresa varias veces antes del marathon y el trailer "completa" la
 Barras negras, subtítulos con efecto máquina de escribir, zoom de cámara y sprites grandes para los momentos clave (la azotea, el Tsuru muriendo, el post-créditos).
 
 ### 🆚 Pantallas "MISIÓN SUPERADA"
-Estilo GTA clásico, pero con **reseña de Marketplace**: *"MISIÓN SUPERADA — Coqui te calificó con ⭐⭐⭐☆☆: llegaste tarde otra vez."*
+Estilo GTA clásico, pero con **reseña de Marketplace**: *"MISIÓN SUPERADA — Kuiss te calificó con ⭐⭐⭐☆☆: llegaste tarde otra vez."*
 
 ### ⌨️ Trucos / cheats (tradición GTA)
 Escribir códigos durante el juego:
@@ -198,7 +198,7 @@ Se desbloquea al terminar el juego: timer en pantalla y splits por capítulo. Es
 
 ### 📸 Tarjeta final para compartir
 Al terminar, el juego genera una **imagen descargable** con tus estadísticas:
-> Tiempo: 2:07:33 · Muertes: 14 · Veces que compraste en Marketplace: 23 · Confianza de Coqui: ??? · Cassettes: 12/15
+> Tiempo: 2:07:33 · Muertes: 14 · Veces que compraste en Marketplace: 23 · Confianza de Kuiss: ??? · Cassettes: 12/15
 > **#ElPlanKazoo**
 
 Así la comunidad lo comparte solo.

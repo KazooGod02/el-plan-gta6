@@ -136,7 +136,7 @@ export const CAP5 = [
   },
   {
     id: 'c5_coqui', chapter: 5, title: '"Está bien. Aguanta."', requires: ['c5_vendedor'], customRooms: true, failPlace: 'escondite',
-    rating: () => ({ by: 'Coqui', stars: 3, text: 'Aguanta. Un rato.' }),
+    rating: () => ({ by: 'Kuiss', stars: 3, text: 'Aguanta. Un rato.' }),
     *run(ctx) {
       const c = C();
       let tsuru = c.vehicles.find((v) => v.type === 'tsuru' && v.mission);
@@ -164,7 +164,7 @@ export const CAP5 = [
         ['kazoo', 'Tsuru 2003. Como nuevo.', 'smug'],
         ['coqui', '¿De dónde lo sacaste?', 'serious'],
       ]);
-      const ch = yield* ask('kazoo', '(Coqui te está mirando fijamente.)', ['"De un conocido. Muy recomendado."', '"Del Mark... de un conocido."', '"Del Marketplace, wey. Cinco estrellas."']);
+      const ch = yield* ask('kazoo', '(Kuiss te está mirando fijamente.)', ['"De un conocido. Muy recomendado."', '"Del Mark... de un conocido."', '"Del Marketplace, wey. Cinco estrellas."']);
       if (ch === 0) yield* talk([['kazoo', 'De un conocido. Muy recomendado.', 'normal'], ['coqui', '...', 'serious']]);
       if (ch === 1) { trust(-3); yield* talk([['kazoo', 'Del Mark... de un conocido.', 'shock'], ['coqui', '¿Del qué?', 'angry'], ['kazoo', 'Del... Marcos. Un conocido. Se llama Marcos.', 'sad']]); dumb(); }
       if (ch === 2) { trust(-5); yield* talk([['kazoo', 'Del Marketplace, wey. Cinco estrellas.', 'happy'], ['coqui', '¡¿DEL QUÉ?!', 'angry'], ['kazoo', '¡Es broma! Es broma. De un conocido. Qué risa.', 'shock'], ['coqui', 'No es gracioso, Kazoo. Nada de esto es gracioso.', 'serious']]); }

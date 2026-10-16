@@ -3,7 +3,7 @@
 // body: normal wide big fem thin
 export const LOOKS = {
   kazoo:    { name: 'KAZOO', skin: '#c48a5e', hair: 'curly', hc: '#241410', shirt: '#e0a82e', pants: '#34466e', shoes: '#f0f0f0', body: 'normal', voice: 430, color: '#e0a82e' },
-  coqui:    { name: 'COQUI', skin: '#e0b48c', hair: 'librito', hc: '#161010', shirt: '#3c64a0', pants: '#b49664', shoes: '#5a3218', body: 'wide', glasses: true, voice: 290, color: '#5a8ce0' },
+  coqui:    { name: 'KUISS', skin: '#f2d0ae', hair: 'fringe', hc: '#9a7048', shirt: '#3c64a0', pants: '#b49664', shoes: '#5a3218', body: 'normal', voice: 290, color: '#5a8ce0' },
   ghenghis: { name: 'GHENGHIS', skin: '#d29c72', hair: 'side', hc: '#3a2414', shirt: '#b8323c', pants: '#26262e', shoes: '#101010', body: 'normal', crazy: true, voice: 360, color: '#e0504a', flannel: true },
   // El Jefe (the id stays 'donchuy' for old saves): nobody has seen his face, only his shadow
   donchuy:  { name: 'EL JEFE', skin: '#b87a4b', hair: 'slick', hc: '#9a9aa2', shirt: '#1a1a22', pants: '#1a1a22', shoes: '#101010', body: 'big', voice: 140, color: '#b8a070', silhouette: true },

@@ -91,17 +91,17 @@ export const CAP7 = [
         yield* talk([
           ['coqui', 'Kazoo. Ghenghis.', 'serious'],
           ['coqui', 'Mañana, pase lo que pase... no sean el Tuercas.', 'sad'],
-          ['ghenghis', 'Jajaja. Bajita la mano, Coqui.', 'laugh'],
+          ['ghenghis', 'Jajaja. Bajita la mano, Kuiss.', 'laugh'],
           ['kazoo', 'Nunca, wey.', 'happy'],
-          ['narrator', 'Coqui sonríe. Pero no deja de mirarlos a los dos.', 'normal'],
+          ['narrator', 'Kuiss sonríe. Pero no deja de mirarlos a los dos.', 'normal'],
         ]);
         S().flags.azotea = 'bien';
       } else if (tr >= 40) {
         yield* say('coqui', 'Oigan... ¿hay algo más que me quieran decir? Los dos.', 'think');
-        const ch = yield* ask('kazoo', '(Ghenghis te mira de reojo.)', ['"No, nada."', '(Mirar a Ghenghis)', '"Coqui... lo del Jefe..."']);
+        const ch = yield* ask('kazoo', '(Ghenghis te mira de reojo.)', ['"No, nada."', '(Mirar a Ghenghis)', '"Kuiss... lo del Jefe..."']);
         if (ch === 2) {
           yield* talk([
-            ['kazoo', 'Coqui... lo del Jefe...', 'sad'],
+            ['kazoo', 'Kuiss... lo del Jefe...', 'sad'],
             ['ghenghis', '¡Que ya le pagamos la renta del miedo! Eso. Jajaja. ¿Verdad, Kazoo?', 'laugh'],
             ['kazoo', '...Eso.', 'sad'],
             ['coqui', '...Ya.', 'serious'],
@@ -112,9 +112,9 @@ export const CAP7 = [
         yield* talk([
           ['coqui', 'Si alguno de ustedes me está ocultando algo...', 'serious'],
           ['coqui', 'mañana es el último día para decirlo. Después ya no hay perdón. Hay plomo.', 'angry'],
-          ['ghenghis', '¡Jajaja! Qué intenso, Coqui.', 'laugh'],
+          ['ghenghis', '¡Jajaja! Qué intenso, Kuiss.', 'laugh'],
           ['kazoo', '...', 'sad'],
-          ['narrator', 'Coqui no se ríe. Mira a uno. Luego al otro.', 'normal'],
+          ['narrator', 'Kuiss no se ríe. Mira a uno. Luego al otro.', 'normal'],
         ]);
         S().flags.azotea = 'mal';
       }

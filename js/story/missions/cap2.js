@@ -46,11 +46,11 @@ export const CAP2 = [
       ]);
       r.removeNpc(co);
       lock(false);
-      objective('Ve con Coqui al bar La Última Risa (El Centro)');
+      objective('Ve con Kuiss al bar La Última Risa (El Centro)');
       yield* until(() => G.scene === C());
       const c = C();
       const p = c.pos();
-      const coqui = ally('coqui', p.x + 12, p.y + 4, 'COQUI');
+      const coqui = ally('coqui', p.x + 12, p.y + 4, 'KUISS');
       const bar = P().bar;
       yield* goTo(bar.x, bar.y, { label: 'LA ÚLTIMA RISA', r: 16, check: () => {} });
       if (c.player.car) c.exitCar(true);
@@ -73,8 +73,8 @@ export const CAP2 = [
         ['ghenghis', '¡KAZOO! ¿Vienes a perder otra vez? Jajaja.', 'laugh'],
         ['coqui', 'Venimos a hablar de negocios.', 'serious'],
         ['ghenghis', '¿Y este quién es? ¿Tu contador? ¿Tu papá? ¿Tu agente de libertad condicional?', 'crazy'],
-        ['kazoo', 'Es Coqui.', 'normal'],
-        ['ghenghis', '¡El famoso Coqui! ¡El que cayó porque su socio lo vendió! ¡JAJAJA!', 'laugh'],
+        ['kazoo', 'Es Kuiss.', 'normal'],
+        ['ghenghis', '¡El famoso Kuiss! ¡El que cayó porque su socio lo vendió! ¡JAJAJA!', 'laugh'],
         ['coqui', '...', 'angry'],
         ['kazoo', 'Wey...', 'sad'],
         ['ghenghis', 'Ya, ya. Perdón. Me río de todo. Mi doctor dice que son nervios. Yo digo que la vida es un chiste y nadie más se ríe.', 'happy'],
@@ -172,7 +172,7 @@ export const CAP2 = [
   },
   {
     id: 'c2_banco', chapter: 2, title: 'Visita guiada', requires: ['c2_pelea'], customRooms: true,
-    rating: () => ({ by: 'Coqui', stars: 4, text: 'Ruta tres. Ahora sí tenemos por dónde correr.' }),
+    rating: () => ({ by: 'Kuiss', stars: 4, text: 'Ruta tres. Ahora sí tenemos por dónde correr.' }),
     *run(ctx) {
       lock(true);
       const c = C(), bar = P().bar;
@@ -180,7 +180,7 @@ export const CAP2 = [
       cityAt(bar, 14);
       const v = c.spawnVehicle('sedan', bar.x + 30, bar.y + 36, 0, { mission: true, color: '#1a1a2e' });
       v.keep = true; v.label = 'CARRO';
-      const coqui = ally('coqui', bar.x - 12, bar.y + 16, 'COQUI');
+      const coqui = ally('coqui', bar.x - 12, bar.y + 16, 'KUISS');
       const gh = ally('ghenghis', bar.x + 12, bar.y + 16, 'GHENGHIS');
       yield* fadeIn(0.4);
       yield* say('ghenghis', 'Súbanse. Les enseño el banco... desde afuera. Adentro ya no me dejan entrar. Ni a sacar dinero.', 'laugh');
@@ -217,7 +217,7 @@ export const CAP2 = [
         ['coqui', 'Ya vimos el banco. Ahora hay que trazar de una vez la ruta de escape. Si salimos de ahí con la lana, no va a haber tiempo de pensar.', 'serious'],
         ['coqui', 'Tengo tres opciones. Maneja. Yo te digo.', 'normal'],
       ]);
-      // ---- the escape route: three options, Coqui only likes the third one
+      // ---- the escape route: three options, Kuiss only likes the third one
       const routes = [
         { x: 84 * TS, y: 4 * TS + 8, label: 'RUTA 1', obj: 'Ruta 1: sal por el norte de El Centro', talk: [
           ['coqui', 'No. Esto es el Centro: semáforos, cámaras en cada esquina y la comandancia a cuatro cuadras.', 'serious'],

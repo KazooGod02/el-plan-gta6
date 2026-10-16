@@ -13,7 +13,7 @@ const MASK_NAME = { luchador: 'de luchador', presidente: 'de presidente', payaso
 export const CAP3 = [
   {
     id: 'c3_escondite', chapter: 3, chapterStart: true, title: 'El plan', requires: ['c2_banco'], customRooms: true,
-    rating: () => ({ by: 'Coqui', stars: 5, text: 'Nadie improvisa.' }),
+    rating: () => ({ by: 'Kuiss', stars: 5, text: 'Nadie improvisa.' }),
     *run(ctx) {
       setDay(-14); setClock(9, 30);
       const pen = P().pension;
@@ -162,7 +162,7 @@ export const CAP3 = [
       }
       if (res.perfect) yield* say('tia', '...Perfecto. No dudaste ni tantito. Eso me asusta. Pero me gusta.', 'smug');
       else yield* say('tia', 'Nada mal. Dudaste poquito. Poquito es lo que tarda una bala.', 'serious');
-      yield* say('tia', 'Coqui ya pagó. Tres pistolas y balas. Te doy la tuya.', 'normal');
+      yield* say('tia', 'Kuiss ya pagó. Tres pistolas y balas. Te doy la tuya.', 'normal');
       S().weapons.pistol = (S().weapons.pistol || 0) + 36;
       S().weapon = 'pistol';
       audio.sfx('reload');
@@ -184,7 +184,7 @@ export const CAP3 = [
   {
     id: 'c3_taladro', chapter: 3, title: 'El taladro', requires: ['c3_escondite'], customRooms: true, lockRoom: true, failPlace: 'bodega',
     trigger: { door: 'bodega', letter: 'B', color: '#a8a8b8', label: 'BODEGA 7' },
-    rating: () => ({ by: 'Coqui', stars: 4, text: 'Silencioso. Como debe ser.' }),
+    rating: () => ({ by: 'Kuiss', stars: 4, text: 'Silencioso. Como debe ser.' }),
     *run(ctx) {
       lock(true);
       yield* fadeOut(0.5);
@@ -253,7 +253,7 @@ export const CAP3 = [
         ['coqui', 'Y otra cosa: hay que ver el banco por dentro. De cerca. Las cámaras, la alarma, los guardias.', 'think'],
         ['ghenghis', 'A mí me conocen ahí. Me corrieron, ¿te acuerdas? Jajaja.', 'laugh'],
         ['coqui', 'Y a mí me conoce media policía de Puerto Vicio.', 'serious'],
-        ['narrator', 'Coqui y Ghenghis voltean a ver a Kazoo. Muy lentamente.', 'normal'],
+        ['narrator', 'Kuiss y Ghenghis voltean a ver a Kazoo. Muy lentamente.', 'normal'],
         ['kazoo', '¿Qué? ...¿Yo?', 'shock'],
         ['coqui', 'Tú eres repartidor. Nadie ve a los repartidores.', 'normal'],
         ['kazoo', 'Eso es muy triste y muy cierto.', 'sad'],

@@ -34,7 +34,7 @@ Una app dentro del juego que Kazoo revisa todo el tiempo. Es el gag recurrente y
 - Hace chistes para no sentir nada. Improvisa en todo. Es leal, pero cuando se asusta reacciona sin pensar.
 - **Lo que siembra para el trailer:** confía demasiado en las estrellas, bromea en el peor momento y aprende a "disparar primero".
 
-### COQUI — el que guía
+### KUISS — el que guía
 - Acaba de salir del penal después de 3 años.
 - Cayó porque su ex socio, **El Tuercas**, lo delató a cambio de reducirle la condena.
 - Es el cerebro: planea todo, lo revisa todo y confía en nadie... casi.
@@ -51,8 +51,8 @@ Una app dentro del juego que Kazoo revisa todo el tiempo. Es el gag recurrente y
 |---|---|
 | **El Jefe** | El que controla todo lo ilegal en Puerto Vicio. Nadie le ha visto la cara: siempre está de espaldas en su silla, a contraluz y rodeado de guaruras. Kazoo le debe $50,000. Se entera del atraco y exige su 20%. |
 | **La Tía Gris** | Vende armas en El Puerto y les enseña a tirar. Su regla: *"Si te apuntan, tú disparas primero. Los que dudan no cuentan la historia."* |
-| **El Tuercas** | Ex socio de Coqui y soplón. Vive con miedo. |
-| **Comandante Reyes** | Policía obsesionada con Coqui desde el caso anterior. Siempre está un paso atrás... hasta el final. |
+| **El Tuercas** | Ex socio de Kuiss y soplón. Vive con miedo. |
+| **Comandante Reyes** | Policía obsesionada con Kuiss desde el caso anterior. Siempre está un paso atrás... hasta el final. |
 | **VendeRápido_5E** | El vendedor del Marketplace. Amable, chistoso y 5 estrellas. **Es informante de Reyes.** |
 | **Doña Mari** | Dueña de la taquería. La única adulta responsable del juego y la que da las misiones de reparto. |
 
@@ -62,8 +62,8 @@ Una app dentro del juego que Kazoo revisa todo el tiempo. Es el gag recurrente y
 
 ```
 Día -21  Kazoo recibe la amenaza del Jefe
-Día -20  Coqui sale del penal
-Día -17  Ghenghis se une y Coqui traza la ruta de escape (ruta tres: el campo)
+Día -20  Kuiss sale del penal
+Día -17  Ghenghis se une y Kuiss traza la ruta de escape (ruta tres: el campo)
 Día -14  Nace el plan
 Día -10  Reconocimiento del banco
 Día  -7  Kazoo compra el carro en el Marketplace
@@ -88,33 +88,33 @@ Kazoo despierta en su cuarto. Hay un aviso de desalojo pegado en la puerta y le 
 > **KAZOO:** ¿Y si le pago en tacos? Me sobraron como 400.
 > **DON CHUY:** *(sonríe)* Tres semanas, Kazoo.
 
-**Cierre:** Kazoo recibe un mensaje de un número desconocido: *"Salgo mañana. Recógeme. —C"*
+**Cierre:** Kazoo recibe un mensaje de un número desconocido: *"Salgo mañana. Recógeme. —K"*
 
 ---
 
 ### CAPÍTULO 1 — "El Que Salió" (~12 min)
-Kazoo tiene que recoger a Coqui en el penal (Las Afueras). Llega **2 horas tarde** porque la moto del Marketplace se le apagó 3 veces. Así se estrena el gag del vehículo.
+Kazoo tiene que recoger a Kuiss en el penal (Las Afueras). Llega **2 horas tarde** porque la moto del Marketplace se le apagó 3 veces. Así se estrena el gag del vehículo.
 
-> **COQUI:** Tres años adentro y lo primero que veo es tu cara. Tarde.
+> **KUISS:** Tres años adentro y lo primero que veo es tu cara. Tarde.
 > **KAZOO:** La moto tenía 4.8 estrellas, wey. Era un riesgo calculado.
 
-**Flashback jugable (juegas como Coqui):** la noche en que lo agarraron. El Tuercas deja una puerta abierta y entra la policía. Por primera vez sale la Comandante Reyes.
+**Flashback jugable (juegas como Kuiss):** la noche en que lo agarraron. El Tuercas deja una puerta abierta y entra la policía. Por primera vez sale la Comandante Reyes.
 
-**Misión:** recuperar el dinero escondido de Coqui en el taller del Tuercas. Es una misión de sigilo: Kazoo distrae y Coqui entra.
-El Tuercas los descubre y pide perdón llorando. Coqui lo deja ir, pero algo se le rompe.
-> **COQUI:** La gente no te traiciona de golpe, Kazoo. Te traiciona poquito a poquito, y tú no te das cuenta.
+**Misión:** recuperar el dinero escondido de Kuiss en el taller del Tuercas. Es una misión de sigilo: Kazoo distrae y Kuiss entra.
+El Tuercas los descubre y pide perdón llorando. Kuiss lo deja ir, pero algo se le rompe.
+> **KUISS:** La gente no te traiciona de golpe, Kazoo. Te traiciona poquito a poquito, y tú no te das cuenta.
 
-**Lore:** el dinero escondido ya no está. El Tuercas se lo gastó. Coqui también está en ceros.
+**Lore:** el dinero escondido ya no está. El Tuercas se lo gastó. Kuiss también está en ceros.
 
 ---
 
 ### CAPÍTULO 2 — "La Última Risa" (~10 min)
-Coqui necesita a alguien que conozca el banco por dentro. Kazoo lo lleva con su compa **Ghenghis** al bar "La Última Risa".
+Kuiss necesita a alguien que conozca el banco por dentro. Kazoo lo lleva con su compa **Ghenghis** al bar "La Última Risa".
 
 **Minijuego:** una arcade 8-bit dentro del bar para retar a Ghenghis y que acepte escuchar.
 
 > **GHENGHIS:** ¿Robar el Banco Federal? *(se ríe)* Wey, nos van a agarrar.
-> **COQUI:** ¿Entonces no?
+> **KUISS:** ¿Entonces no?
 > **GHENGHIS:** No, sí. Nomás digo que nos van a agarrar. De todos modos esto iba a pasar algún día.
 
 **Pelea de bar (juegas como Ghenghis):** unos tipos a los que Kazoo les debe una apuesta llegan a cobrar.
@@ -123,19 +123,19 @@ Coqui necesita a alguien que conozca el banco por dentro. Kazoo lo lleva con su 
 
 **Semilla:** Ghenghis le apunta a Kazoo con el dedo en forma de pistola: *"Bang."* Se ríe. A Kazoo no le da risa.
 
-**La ruta de escape:** Ghenghis propone ir a revisar el banco. Después del recorrido, Coqui dice: *"Hay que trazar de una vez la ruta de escape"*. Prueban tres: la del Centro ("semáforos, cámaras y la comandancia a cuatro cuadras") y la carretera vieja ("nos ven desde un helicóptero") no le gustan. La tercera, el camino de terracería con el árbol en Las Afueras, sí: *"¿Y qué hay más allá?" "Nada. Por eso."* Por eso en el trailer terminan caminando hacia el campo.
+**La ruta de escape:** Ghenghis propone ir a revisar el banco. Después del recorrido, Kuiss dice: *"Hay que trazar de una vez la ruta de escape"*. Prueban tres: la del Centro ("semáforos, cámaras y la comandancia a cuatro cuadras") y la carretera vieja ("nos ven desde un helicóptero") no le gustan. La tercera, el camino de terracería con el árbol en Las Afueras, sí: *"¿Y qué hay más allá?" "Nada. Por eso."* Por eso en el trailer terminan caminando hacia el campo.
 
 ---
 
 ### CAPÍTULO 3 — "El Plan" (~12 min)
-El escondite es el taller abandonado de El Puerto. Coqui dibuja el plan en la pared con plumón.
+El escondite es el taller abandonado de El Puerto. Kuiss dibuja el plan en la pared con plumón.
 
 **Roles:**
-- **Coqui:** guía la ruta, maneja la entrada y la salida.
+- **Kuiss:** guía la ruta, maneja la entrada y la salida.
 - **Ghenghis:** la bóveda, los guardias y **la mochila**.
 - **Kazoo:** herramientas, disfraces y **el carro**.
 
-> **COQUI:** Kazoo. Un carro. Confiable. Que no llame la atención.
+> **KUISS:** Kazoo. Un carro. Confiable. Que no llame la atención.
 > **KAZOO:** Confiable. Anotado. *(no anota nada)*
 
 **Misiones para conseguir el equipo (en el orden que quieras):**
@@ -158,7 +158,7 @@ Kazoo se disfraza de repartidor, que es su trabajo real, para entrar al banco a 
 > **KAZOO:** Probablemente, reparto en toda la ciudad. Tengo 4.9 estrellas.
 > **REYES:** Hm.
 
-**Semilla de paranoia:** Coqui ve desde afuera que Kazoo platica "demasiado" con la policía. No dice nada, pero lo anota.
+**Semilla de paranoia:** Kuiss ve desde afuera que Kazoo platica "demasiado" con la policía. No dice nada, pero lo anota.
 
 ---
 
@@ -180,10 +180,10 @@ Elijas lo que elijas, todo te regresa al Tsuru. Es un chiste de diseño: "Este v
 
 **Prueba de manejo:** el carro echa humo de vez en cuando y la barra de "salud del carro" arranca al 70%. El vendedor "se lo arregla" metiendo la mano bajo el tablero. *(El jugador atento ve un ícono raro, que es el **rastreador**.)*
 
-**Mentira clave:** en el escondite, Coqui revisa el carro.
-> **COQUI:** ¿De dónde lo sacaste?
+**Mentira clave:** en el escondite, Kuiss revisa el carro.
+> **KUISS:** ¿De dónde lo sacaste?
 > **KAZOO:** Eh... de un conocido. Muy recomendado.
-> **COQUI:** *(abre el cofre, mira, lo cierra)* ...Está bien. Aguanta.
+> **KUISS:** *(abre el cofre, mira, lo cierra)* ...Está bien. Aguanta.
 
 *(En el trailer, Kazoo le reclama: "¡Hace 10 minutos me dijiste que estaba bien!")*
 
@@ -193,13 +193,13 @@ Elijas lo que elijas, todo te regresa al Tsuru. Es un chiste de diseño: "Este v
 De noche, dos guaruras se llevan a Kazoo y a Ghenghis al despacho del Jefe. Él ya lo sabe todo: el día, la hora, el banco y el Tsuru.
 > **EL JEFE:** En Puerto Vicio no se roba ni un chicle sin que yo me entere.
 
-No los detiene: quiere sus 50 mil y el 20% de la bóveda. Y un favor para ver si son serios: llevar un carro negro al muelle sin policía, sin un rasguño y sin abrir la cajuela. "Ni una palabra al de los lentes."
+No los detiene: quiere sus 50 mil y el 20% de la bóveda. Y un favor para ver si son serios: llevar un carro negro al muelle sin policía, sin un rasguño y sin abrir la cajuela. "Ni una palabra al güerito."
 
 En el camino, Ghenghis pregunta medio en broma: *"Si un día el Jefe me paga por meterte un tiro... ¿tú crees que lo haría?"*
 
-**Paranoia:** del otro lado del muelle, Coqui los ve con la gente del Jefe. Al día siguiente los confronta a los dos: *"El Tuercas también empezó con favores."* Desde aquí Coqui sospecha de **ambos**.
+**Paranoia:** del otro lado del muelle, Kuiss los ve con la gente del Jefe. Al día siguiente los confronta a los dos: *"El Tuercas también empezó con favores."* Desde aquí Kuiss sospecha de **ambos**.
 
-**Por eso en el trailer:** Coqui les dice "¿Lo planearon, verdad, putos? Se iban a ir con el dinero" a los dos.
+**Por eso en el trailer:** Kuiss les dice "¿Lo planearon, verdad, putos? Se iban a ir con el dinero" a los dos.
 
 ---
 
@@ -210,18 +210,18 @@ Es un capítulo tranquilo y emocional. La ciudad queda libre para completar pend
 - Doña Mari le regala tacos "por si se va de viaje". Ella sospecha algo.
 - **Escena en la azotea:** los tres, con cervezas y la ciudad de fondo.
 > **GHENGHIS:** De todos modos esto va a salir mal.
-> **COQUI:** Ya cállate.
+> **KUISS:** Ya cállate.
 > **GHENGHIS:** No, déjame acabar. Va a salir mal. Pero qué chido que sea con ustedes.
 > *(silencio)*
 > **KAZOO:** Wey, no digas cosas bonitas, me da miedo.
 
-Coqui mira a los dos. No les cree del todo. Casi dice algo, y luego no.
+Kuiss mira a los dos. No les cree del todo. Casi dice algo, y luego no.
 
 ---
 
 ### CAPÍTULO 8 — "El Atraco" (~18 min)
 Es el nivel más largo, en 4 fases:
-1. **Entrada:** con máscaras. El jugador controla a Kazoo mientras Coqui y Ghenghis actúan como aliados. Hay que controlar a los rehenes, que se agachan si los amenazas y se paran si te descuidas.
+1. **Entrada:** con máscaras. El jugador controla a Kazoo mientras Kuiss y Ghenghis actúan como aliados. Hay que controlar a los rehenes, que se agachan si los amenazas y se paran si te descuidas.
 2. **La bóveda:** Ghenghis guía la ruta del punto ciego y hay un minijuego de taladro con ritmo y temperatura.
 3. **Alarma:** una cajera presiona la alarma silenciosa, la que Kazoo encontró en el Cap. 4. Si la neutralizaste en el reconocimiento, ganas 60 segundos extra. Si no, la cosa se pone fea.
 4. **Salida:** tiroteo top-down hacia el Tsuru. Ghenghis carga **la mochila** (el ícono aparece en su sprite todo el nivel).
@@ -239,7 +239,7 @@ Es una persecución en carro por Puerto Vicio y la carretera vieja.
 - Las patrullas de Reyes **siempre saben dónde estás**, aunque las pierdas. *(Es el rastreador, pero el jugador todavía no lo sabe.)*
 - La barra del carro baja sola y el humo va de blanco a gris a negro.
 - Diálogos en el carro:
-> **COQUI:** ¿Por qué nos siguen si ya los perdimos?
+> **KUISS:** ¿Por qué nos siguen si ya los perdimos?
 > **GHENGHIS:** Porque así es la vida, wey.
 > **KAZOO:** ¡Aguanta, Tsurito, aguanta!
 
@@ -274,7 +274,7 @@ Oficina de la comandancia. VendeRápido_5E está sentado frente a Reyes.
 |---|---|---|
 | **Repartos de Doña Mari** | Entregas cronometradas en moto por toda la ciudad | Dinero para abonar al Jefe |
 | **Abonos al Jefe** | Si le pagas todo antes del Cap. 8, cambia un diálogo del final | Escena extra |
-| **Cassettes perdidos (15)** | Grabaciones escondidas con lore: el pasado de Coqui, el despido de Ghenghis, los primeros "clientes" de VendeRápido_5E... | Galería de lore |
+| **Cassettes perdidos (15)** | Grabaciones escondidas con lore: el pasado de Kuiss, el despido de Ghenghis, los primeros "clientes" de VendeRápido_5E... | Galería de lore |
 | **Estrellas doradas (10)** | Escondidas en el mapa. Si juntas todas, desbloqueas una pista del rastreador *antes* del final | Final "Lo sabía" |
 | **Arcade "Kazoo Kart"** | Minijuego de carreras en el bar | Récord y logro |
 | **Compras absurdas del Marketplace** | Comprar objetos inútiles que decoran el cuarto de Kazoo | Colección |
@@ -307,12 +307,12 @@ Oficina de la comandancia. VendeRápido_5E está sentado frente a Reyes.
 | Momento del trailer | Dónde se siembra en el juego |
 |---|---|
 | "¡Te dije que ese carro no iba a aguantar!" | Cap. 5 (prueba de manejo) + Cap. 9 |
-| "Hace 10 minutos me dijiste que estaba bien" | Cap. 5: Coqui revisa el carro |
+| "Hace 10 minutos me dijiste que estaba bien" | Cap. 5: Kuiss revisa el carro |
 | "Del marketplace... tenía 5 estrellas" | Prólogo, Cap. 1, Cap. 5 y post-créditos |
 | "De todos modos esto iba a pasar" | Cap. 2 y Cap. 7 (Ghenghis) |
-| "¿Lo planearon? Se iban a ir con el dinero" | Cap. 4 (Kazoo con la policía) + Cap. 6 (Coqui ve a los dos con la gente del Jefe) |
+| "¿Lo planearon? Se iban a ir con el dinero" | Cap. 4 (Kazoo con la policía) + Cap. 6 (Kuiss ve a los dos con la gente del Jefe) |
 | "Pa'llá... no sé we la neta" | Cap. 2: la ruta tres va hacia el campo, donde "no hay nada" |
 | Ghenghis gira el arma y Kazoo dispara | Cap. 2 ("bang" de broma), Cap. 3 (regla de La Tía Gris) y Cap. 8 |
 | La policía llega justo a tiempo | Cap. 5 (rastreador) + post-créditos |
-| Kazoo corre al campo | Cap. 2: es la ruta de escape que eligió Coqui |
-| "¡CORRE!" de Coqui | Cap. 7: aunque sospecha, en la azotea les pide que no sean el Tuercas |
+| Kazoo corre al campo | Cap. 2: es la ruta de escape que eligió Kuiss |
+| "¡CORRE!" de Kuiss | Cap. 7: aunque sospecha, en la azotea les pide que no sean el Tuercas |

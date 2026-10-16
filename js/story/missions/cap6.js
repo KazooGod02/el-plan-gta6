@@ -1,5 +1,5 @@
 // CAPÍTULO 6 — "El Jefe" (Día -4, noche)
-// El Jefe sabe del atraco. Quiere su parte y un favor. Coqui los ve a los dos con su gente.
+// El Jefe sabe del atraco. Quiere su parte y un favor. Kuiss los ve a los dos con su gente.
 import { G } from '../../core/game.js';
 import { UI } from '../../ui/ui.js';
 import { audio } from '../../core/audio.js';
@@ -74,7 +74,7 @@ export const CAP6 = [
         ['donchuy', 'Afuera hay un carro negro. Llévenlo al muelle del puerto. Sin policía, sin un rasguño y sin abrir la cajuela.', 'serious'],
         ['kazoo', '¿Qué hay en la cajuela?', 'think'],
         ['donchuy', 'Algo que no te debe importar. Si lo entregan limpio, hay viernes. Si no... ya no hay viernes. Para nadie.', 'serious'],
-        ['donchuy', 'Y ni una palabra al de los lentes. Coqui, ¿verdad? Ese hombre ya pagó bastante por confiar en la gente.', 'serious'],
+        ['donchuy', 'Y ni una palabra al güerito. Kuiss, ¿verdad? Ese hombre ya pagó bastante por confiar en la gente.', 'serious'],
       ]);
       S().flags.jefeSabe = true;
       yield* fadeOut(0.6);
@@ -114,7 +114,7 @@ export const CAP6 = [
         ['kazoo', '¿Qué?', 'shock'],
         ['ghenghis', 'Nomás pregunto. Jajaja. Tranquilo, yo cobro caro.', 'laugh'],
         ['kazoo', '...', 'serious'],
-        ['ghenghis', 'Y a Coqui ni una palabra. Si se entera que vinimos con el Jefe sin él, se va a poner como se pone.', 'normal'],
+        ['ghenghis', 'Y a Kuiss ni una palabra. Si se entera que vinimos con el Jefe sin él, se va a poner como se pone.', 'normal'],
         ['kazoo', '¿Cómo se pone?', 'think'],
         ['ghenghis', 'Como alguien al que ya vendieron una vez.', 'serious'],
       ]);
@@ -177,8 +177,8 @@ export const CAP6 = [
   },
   {
     id: 'c6_coqui', chapter: 6, title: 'Nadie improvisa', requires: ['c6_encargo'], customRooms: true, lockRoom: true, failPlace: 'escondite',
-    trigger: { door: 'escondite', letter: 'C', color: '#5a8ce0', label: 'COQUI' },
-    rating: () => ({ by: 'Coqui', stars: 2, text: 'No les creo. A ninguno de los dos.' }),
+    trigger: { door: 'escondite', letter: 'C', color: '#5a8ce0', label: 'KUISS' },
+    rating: () => ({ by: 'Kuiss', stars: 2, text: 'No les creo. A ninguno de los dos.' }),
     *run(ctx) {
       lock(true);
       yield* fadeOut(0.3);
@@ -201,11 +201,11 @@ export const CAP6 = [
         ['coqui', 'En el muelle. Con un carro del Jefe. Y dos de sus gorilas.', 'serious'],
         ['narrator', 'Silencio.', 'normal'],
       ]);
-      const ch = yield* ask('kazoo', '(Coqui no parpadea.)', ['"El Jefe sabe del banco. Quiere su parte."', '"Era un favor para la deuda. Nada que ver."', '"¿Nos estabas siguiendo?"']);
+      const ch = yield* ask('kazoo', '(Kuiss no parpadea.)', ['"El Jefe sabe del banco. Quiere su parte."', '"Era un favor para la deuda. Nada que ver."', '"¿Nos estabas siguiendo?"']);
       if (ch === 0) {
         trust(4);
         yield* talk([
-          ['kazoo', 'El Jefe sabe del banco, Coqui. Sabe el día, la hora y el carro. Quiere sus cincuenta mil y el veinte por ciento.', 'serious'],
+          ['kazoo', 'El Jefe sabe del banco, Kuiss. Sabe el día, la hora y el carro. Quiere sus cincuenta mil y el veinte por ciento.', 'serious'],
           ['coqui', '...¿Y por qué me entero en un muelle a las once de la noche?', 'angry'],
           ['kazoo', 'Porque nos dijo que no te dijéramos.', 'sad'],
           ['coqui', '¿Y desde cuándo le hacen caso al Jefe y a mí no?', 'angry'],
@@ -230,11 +230,11 @@ export const CAP6 = [
       yield* talk([
         ['coqui', 'Escúchenme bien. El Tuercas también empezó con favores. Con "nada que ver". Con "luego te cuento".', 'serious'],
         ['coqui', 'Y un día abrí una puerta y del otro lado estaba la policía.', 'sad'],
-        ['ghenghis', 'Jajaja. Qué intenso, Coqui. Nadie te va a vender. Nadie te compraría.', 'laugh'],
+        ['ghenghis', 'Jajaja. Qué intenso, Kuiss. Nadie te va a vender. Nadie te compraría.', 'laugh'],
         ['coqui', 'No me hace gracia.', 'angry'],
-        ['kazoo', 'Coqui... somos nosotros.', 'sad'],
+        ['kazoo', 'Kuiss... somos nosotros.', 'sad'],
         ['coqui', 'Eso decía el Tuercas.', 'serious'],
-        ['narrator', 'Coqui no deja de mirarlos. A uno. Luego al otro.', 'normal'],
+        ['narrator', 'Kuiss no deja de mirarlos. A uno. Luego al otro.', 'normal'],
       ]);
       S().flags.coquiSospecha = true;
       void co;

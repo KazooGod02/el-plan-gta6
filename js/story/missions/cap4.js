@@ -159,7 +159,7 @@ export const CAP4 = [
       yield* fadeIn(0.3);
       C().say(ry, 'Gracias por el taco, muchacho. Nos vemos pronto.', 3);
       yield* wait(1.5);
-      // Coqui watches from across the street
+      // Kuiss watches from across the street
       const car = C().spawnVehicle('sedan', bk.x + 70, bk.y + 48, Math.PI, { mission: true, color: '#1a1a2e' });
       car.noEnter = true;
       C().camTarget = { x: car.x, y: car.y };
@@ -175,7 +175,7 @@ export const CAP4 = [
   },
   {
     id: 'c4_reporte', chapter: 4, title: 'El reporte', requires: ['c4_reco'], customRooms: true,
-    rating: () => ({ by: 'Coqui', stars: 3, text: 'Buen trabajo. Supongo.' }),
+    rating: () => ({ by: 'Kuiss', stars: 3, text: 'Buen trabajo. Supongo.' }),
     *run(ctx) {
       objective('Regresa al escondite con las fotos');
       const esc = P().escondite;
@@ -197,9 +197,9 @@ export const CAP4 = [
       if (S().flags.schedule) yield* say('kazoo', 'Y el blindado llega el viernes 29, a las diez.', 'smug');
       if (S().flags.alarmCut) yield* say('kazoo', 'Ah, y le aflojé el cable a la alarma. De nada.', 'smug');
       yield* say('coqui', '...¿Qué platicaste con la policía?', 'serious');
-      const ch = yield* ask('kazoo', '(Coqui no parpadea.)', ['"Nada. Me pidió un taco."', '"Me preguntó por ti, Coqui. Le dije que no te conocía."', '"¿Me estabas espiando?"']);
+      const ch = yield* ask('kazoo', '(Kuiss no parpadea.)', ['"Nada. Me pidió un taco."', '"Me preguntó por ti, Kuiss. Le dije que no te conocía."', '"¿Me estabas espiando?"']);
       if (ch === 0) { trust(-6); yield* talk([['kazoo', 'Nada. Me pidió un taco.', 'normal'], ['coqui', '...Un taco. Veinte minutos platicando con la policía por un taco.', 'serious']]); }
-      if (ch === 1) { trust(8); yield* talk([['kazoo', 'Me preguntó por ti, Coqui. Le dije que no te conocía. Bueno, le dije que eras un perro.', 'sad'], ['coqui', '...¿Un perro?', 'shock'], ['kazoo', 'Salió así.', 'sad'], ['coqui', '...Por lo menos me dices la verdad. Eso cuenta.', 'normal']]); }
+      if (ch === 1) { trust(8); yield* talk([['kazoo', 'Me preguntó por ti, Kuiss. Le dije que no te conocía. Bueno, le dije que eras un perro.', 'sad'], ['coqui', '...¿Un perro?', 'shock'], ['kazoo', 'Salió así.', 'sad'], ['coqui', '...Por lo menos me dices la verdad. Eso cuenta.', 'normal']]); }
       if (ch === 2) { trust(-2); yield* talk([['kazoo', '¿Me estabas espiando?', 'angry'], ['coqui', 'Te estaba cuidando.', 'serious'], ['kazoo', 'Se parece mucho.', 'serious'], ['coqui', 'Después del Tuercas, todo se parece.', 'serious']]); }
       yield* talk([
         ['coqui', 'Viernes 29. 10:05. Ese es el día.', 'serious'],
@@ -223,11 +223,11 @@ function* reyesTalk(ctx, reyes, suspicion, st) {
     ['¿No te he visto antes?', [['Probablemente. Reparto en toda la ciudad. Tengo 4.9 estrellas.', 0], ['¡No! ¡Nunca! ¡Jamás he estado en ningún lado!', 35], ['¿Usted es la de la torta?', 15, true]]],
     ['¿Qué traes ahí?', [['Tacos al pastor para la gerencia.', 0], ['Nada. Digo, tacos. Digo... ¿nada de tacos?', 30, true], ['Pruebas... ¡de tacos! Pruebas de tacos.', 20, true]]],
     ['Huele bien. ¿Me vendes uno? No he desayunado.', [['Claro, jefa. Invita la casa.', 0], ['No se puede, son contados.', 12], ['Son $15. Más propina.', 5]]],
-    ['(mastica) Mmm. Oye... ¿conoces a un tal Coqui? Salió del penal hace poco.', [['¿Coqui? ¿Como la rana?', 5, true], ['Nunca he oído ese nombre en mi vida. Jamás. Qué nombre tan raro.', 25], ['Sí, es mi mejor amigo.', 45, true]]],
+    ['(mastica) Mmm. Oye... ¿conoces a un tal Kuiss? Salió del penal hace poco.', [['¿Kuiss? ¿Como el beso en inglés?', 5, true], ['Nunca he oído ese nombre en mi vida. Jamás. Qué nombre tan raro.', 25], ['Sí, es mi mejor amigo.', 45, true]]],
   ];
   yield* talk([
     ['reyes', 'Oye tú. El de los tacos.', 'serious'],
-    ['kazoo', '(Es ella. La Comandante Reyes. La que encerró a Coqui.)', 'shock'],
+    ['kazoo', '(Es ella. La Comandante Reyes. La que encerró a Kuiss.)', 'shock'],
   ]);
   UI.meter = { label: 'SOSPECHA', v: st.susp / 100, col: '#f08c28' };
   for (let i = 0; i < Q.length; i++) {
@@ -237,7 +237,7 @@ function* reyesTalk(ctx, reyes, suspicion, st) {
     if (silly) dumb();
     if (pts) suspicion(pts, 'Reyes entrecierra los ojos...');
     if (i === 2 && ch === 0) yield* say('reyes', '(Muerde el taco) ...Está bueno. Muy bueno. Dile a Doña Mari que la Comandante Reyes la saluda.', 'happy');
-    if (i === 3 && ch === 2) yield* talk([['kazoo', '...Digo. Mi mejor amigo se llama Coqui. Es un perro. Un chihuahua. Muy leal.', 'shock'], ['reyes', 'Hm.', 'serious']]);
+    if (i === 3 && ch === 2) yield* talk([['kazoo', '...Digo. Mi mejor amigo se llama Kuiss. Es un perro. Un chihuahua. Muy leal.', 'shock'], ['reyes', 'Hm.', 'serious']]);
   }
   yield* talk([
     ['reyes', 'Bueno. Si lo ves, dile que lo estoy vigilando.', 'smug'],

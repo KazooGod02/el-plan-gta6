@@ -1,6 +1,6 @@
 # EL PLAN — Precuela 8-bit de "El Escape"
 
-Juego 8-bit de **KazooGod02**. Cuenta los 21 días antes del trailer "El Escape": cómo Kazoo, Coqui y Ghenghis planearon el atraco al Banco Federal de Puerto Vicio.
+Juego 8-bit de **KazooGod02**. Cuenta los 21 días antes del trailer "El Escape": cómo Kazoo, Kuiss y Ghenghis planearon el atraco al Banco Federal de Puerto Vicio.
 
 **Jugar:** https://kazoogod02.github.io/el-plan-gta6/
 

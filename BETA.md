@@ -15,13 +15,13 @@
 Cuenta los **21 días antes del trailer**, en Puerto Vicio, una ciudad ficticia:
 
 - **Kazoo** le debe $50,000 a Don Chuy.
-- **Coqui** sale del penal después de que su socio lo delató.
+- **Kuiss** sale del penal después de que su socio lo delató.
 - **Ghenghis**, ex guardia del Banco Federal, completa el equipo.
 
 Juntos planean el atraco al banco. En el camino pasa todo lo que el trailer da por hecho:
 
 - el Tsuru que Kazoo compra en el Marketplace ("tenía 5 estrellas");
-- la paranoia de Coqui;
+- la paranoia de Kuiss;
 - la mochila del plan B enterrada en el campo;
 - el vendedor que resulta ser informante de la policía.
 
@@ -76,7 +76,7 @@ Si te pasa algo de esto, anótalo con **capítulo, qué pasó, captura** y, si p
 - [x] **HUD:** cuadrito con el arma que traes (y las balas), barra de chaleco, y barra de vida sobre lo que golpeas.
 - [x] **"Revisa tu teléfono" no avanzaba (prólogo).** Los scripts de misión se pausan con el teléfono abierto, así que la misión nunca lo "veía" abierto y se quedaba esperando hasta 20 s. Ahora avanza en cuanto cierras el teléfono.
 - [x] **Cap. 2: no dejaba salir del cuarto para ir al bar.** El sigilo del taller del Tuercas (Cap. 1) bloqueaba la salida y el bloqueo se quedaba pegado al siguiente cuarto. Ahora cada cuarto limpia esos bloqueos al entrar (también el "ya te vieron" del sigilo, que hacía que la Bodega 7 y la bóveda no fallaran).
-- [x] **Al morir no te podías mover (softlock).** Si te mataban mientras la misión tenía los controles bloqueados (diálogo, cinemática), el bloqueo se quedaba para siempre. Ahora morir, fallar o reiniciar limpia todo el estado de la misión (controles, cámara, barras de cine, reglas de la ciudad) y quita a Coqui/Ghenghis duplicados.
+- [x] **Al morir no te podías mover (softlock).** Si te mataban mientras la misión tenía los controles bloqueados (diálogo, cinemática), el bloqueo se quedaba para siempre. Ahora morir, fallar o reiniciar limpia todo el estado de la misión (controles, cámara, barras de cine, reglas de la ciudad) y quita a Kuiss/Ghenghis duplicados.
 - [x] **Nueva app "Misión" en el teléfono** (widget arriba en la pantalla de inicio): capítulo, misión en curso y objetivo actual, o la lista de misiones siguientes. **A: Reiniciar misión** si algo se traba, o **A: Marcar en el GPS** si no hay misión activa (vuelve a poner los marcadores si se perdieron).
 - [x] **"REINICIAR MISIÓN" en el menú de pausa.** La pausa se abre aunque los controles estén bloqueados, así que siempre hay salida.
 - [x] **"No aparece la misión del penal después del prólogo."** Era la versión vieja en caché: la primera que se subió solo traía el prólogo. **Solución:** recargar con Ctrl + Shift + R (en el celular, cerrar y volver a abrir la pestaña) y darle CONTINUAR. Ya debería arrancar el Capítulo 1.
@@ -93,8 +93,8 @@ Si te pasa algo de esto, anótalo con **capítulo, qué pasó, captura** y, si p
 4. **Tiroteo del banco (Cap. 8):** cantidad de policías, cuánto daño hacen y el tiempo de los refuerzos (95 s, o 150 s si aflojaste la alarma en el Cap. 4).
 5. **Tiempo para llegar al banco (Cap. 8):** 2:50. Puede quedar muy justo.
 6. **Compañeros que no se suben al carro:**
-   - Coqui y Ghenghis tienen que estar cerca cuando te subes. Si no se suben, bájate y vuelve a subir junto a ellos.
-   - Coqui no se sube a la moto a propósito (Cap. 1).
+   - Kuiss y Ghenghis tienen que estar cerca cuando te subes. Si no se suben, bájate y vuelve a subir junto a ellos.
+   - Kuiss no se sube a la moto a propósito (Cap. 1).
 7. **Carros atorados:** tráfico o patrullas que se traban en las esquinas, o tu carro que se atasca en paredes.
 8. **Guardar y cargar a media historia:** al cargar puede faltar un compañero o algo que la misión espera. Anotar en qué capítulo se cargó.
 9. **Celular:** joystick, botones A/B, teléfono, pausa y el aviso de girar la pantalla. Los botones de teléfono/arma/pausa ahora van en columna a la izquierda. Falta probar en un teléfono real.

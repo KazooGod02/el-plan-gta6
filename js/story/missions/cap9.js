@@ -41,7 +41,7 @@ export const CAP9 = [
         [38, [['coqui', '¡¿Por qué nos siguen si ya los perdimos?!', 'angry'], ['ghenghis', '¡Porque así es la vida, wey! ¡JAJAJA!', 'laugh']]],
         [55, [['ghenghis', '¿Alguien más huele a quemado?', 'think'], ['kazoo', 'Es su personalidad.', 'sad']]],
         [72, [['kazoo', '¡Aguanta, Tsurito! ¡Aguanta!', 'shock']]],
-        [90, [['coqui', 'Kazoo... ¿de dónde sacaste este carro?', 'serious'], ['kazoo', '¡AHORITA NO, COQUI!', 'angry']]],
+        [90, [['coqui', 'Kazoo... ¿de dónde sacaste este carro?', 'serious'], ['kazoo', '¡AHORITA NO, KUISS!', 'angry']]],
         [110, [['coqui', '¡La ruta tres, Kazoo! ¡La terracería! ¡Ahí no nos encuentran!', 'angry'], ['ghenghis', '¿Y qué hay allá?', 'think'], ['coqui', '¡Nada! ¡Por eso!', 'angry']]],
         [128, [['coqui', '¿Y tú por qué estás tan tranquilo, Ghenghis?', 'serious'], ['ghenghis', 'Porque ya sé cómo acaba esto. Jajaja.', 'laugh']]],
       ];

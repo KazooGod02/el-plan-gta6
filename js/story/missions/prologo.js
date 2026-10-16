@@ -26,7 +26,7 @@ export const PROLOGO = [
       UI.subtitle = '*pasos apresurados*'; audio.sfx('step'); yield* wait(0.4); audio.sfx('step'); yield* wait(0.4); audio.sfx('step'); yield* wait(1.2);
       UI.subtitle = '*sirenas, cada vez más cerca*'; yield* wait(2);
       UI.subtitle = null;
-      yield* say('coqui', '¡Te dije que ese carro no iba a aguantar!', 'angry', { portrait: false, name: 'COQUI (fuera de cuadro)' });
+      yield* say('coqui', '¡Te dije que ese carro no iba a aguantar!', 'angry', { portrait: false, name: 'KUISS (fuera de cuadro)' });
       audio.setSiren(0);
       audio.sfx('bang');
       yield* wait(1);
@@ -204,14 +204,14 @@ export const PROLOGO = [
       ]);
       audio.sfx('phone');
       yield* wait(0.8);
-      chat('unknown', 'Salgo mañana. Recógeme a las 10 en el penal. No llegues tarde. —C');
+      chat('unknown', 'Salgo mañana. Recógeme a las 10 en el penal. No llegues tarde. —K');
       yield* wait(1);
       R().p.pose = null;
       yield* talk([
-        ['kazoo', '...¿"C"?', 'think'],
+        ['kazoo', '...¿"K"?', 'think'],
         ['kazoo', '...', 'shock'],
-        ['kazoo', '¡¿COQUI?!', 'shock'],
-        ['kazoo', 'Coqui. Mi compa de toda la vida. Tres años adentro por culpa de un soplón...', 'sad'],
+        ['kazoo', '¡¿KUISS?!', 'shock'],
+        ['kazoo', 'Kuiss. Mi compa de toda la vida. Tres años adentro por culpa de un soplón...', 'sad'],
         ['kazoo', '...y el primer mensaje que me manda ya viene regañándome.', 'happy'],
         ['kazoo', 'A las diez. Fácil. Nomás no me duermo tarde.', 'normal'],
       ]);

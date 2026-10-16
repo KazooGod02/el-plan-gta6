@@ -166,7 +166,7 @@ export const trailer = {
     UI.subtitle = '(Ghenghis casi se ríe.)'; yield* wait(1.2); UI.subtitle = null;
     yield* ln('coqui', 'No estoy jugando.', 'serious');
     yield* ln('kazoo', 'Yo tampoco, wey. ¿Me crees más inteligente de lo que soy? Todo ha salido mal... y te JURO que si yo hubiera querido esto, los tres ya estaríamos muertos desde antes de salir del banco...', 'angry');
-    UI.subtitle = '(Silencio. Coqui estira la mano lentamente hacia su arma. Kazoo lo nota.)'; yield* wait(2.6); UI.subtitle = null;
+    UI.subtitle = '(Silencio. Kuiss estira la mano lentamente hacia su arma. Kazoo lo nota.)'; yield* wait(2.6); UI.subtitle = null;
     // [01:27] standoff
     c.pose = 'aim'; audio.sfx('reload');
     yield* wait(0.25);
@@ -185,7 +185,7 @@ export const trailer = {
     yield* ln('kazoo', 'O sea, real question.', 'normal');
     yield* ln('coqui', 'Cállate.', 'angry');
     // [01:43] it gets worse
-    yield* ln('ghenghis', 'Wey... Coqui.', 'serious');
+    yield* ln('ghenghis', 'Wey... Kuiss.', 'serious');
     yield* ln('ghenghis', 'Nadie te va a quitar nada.', 'serious');
     yield* ln('coqui', 'Entonces suelta la mochila.', 'angry');
     yield* ln('ghenghis', 'No.', 'serious');
@@ -259,11 +259,11 @@ export const trailer = {
     this.song = null;
     UI.subtitle = '(Los disparos paran. Silencio.)'; yield* wait(2); UI.subtitle = null;
     // [02:32] "run"
-    yield* ln('kazoo', '¿Coqui?', 'sad');
+    yield* ln('kazoo', '¿Kuiss?', 'sad');
     UI.subtitle = '(Nada.)'; yield* wait(1.4); UI.subtitle = null;
     k.crouch = false; this.control = null; k.pose = null;
     c.pose = 'aim'; c.facing = -1; c.x = 744;
-    UI.subtitle = '(Coqui sigue de pie. Ya no le apunta a Kazoo. Mira hacia algo atrás.)'; yield* wait(2.4); UI.subtitle = null;
+    UI.subtitle = '(Kuiss sigue de pie. Ya no le apunta a Kazoo. Mira hacia algo atrás.)'; yield* wait(2.4); UI.subtitle = null;
     yield* say('narrator', '¡SUELTEN LAS ARMAS!', 'normal', { name: 'VOZ POLICIAL', auto: 1.8 });
     c.facing = 1;
     UI.subtitle = '(Por un segundo desaparece todo el conflicto entre ellos. Los dos saben lo que está pasando.)'; yield* wait(3); UI.subtitle = null;
@@ -311,7 +311,7 @@ export const trailer = {
     this.bullets.push({ x: c.x + 12, y: FLOOR - 15, vx: 340, owner: 'coqui' });
     audio.sfx('shot');
   },
-  // Coqui moves between his two covers and fires at Kazoo
+  // Kuiss moves between his two covers and fires at Kazoo
   coquiAI(ft) {
     const c = this.c;
     c.cdT = (c.cdT ?? 1.4) - 1 / 60;
@@ -352,7 +352,7 @@ export const trailer = {
         k.stepT = (k.stepT || 0) - dt; if (k.stepT <= 0) { k.stepT = sp > 60 ? 0.22 : 0.32; audio.sfx('step', { vol: 0.35 }); }
       }
       if (ctl === 'walk') {
-        // Coqui leads, Ghenghis carries the bag, Kazoo keeps looking back
+        // Kuiss leads, Ghenghis carries the bag, Kazoo keeps looking back
         for (const [ch, off] of [[g, 22], [c, 46]]) {
           if (ch.stop) continue;
           const tx = k.x + off, d = tx - ch.x;

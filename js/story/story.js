@@ -551,7 +551,7 @@ export const story = {
     if (c === 0) {
       const s = G.state;
       const tips = [
-        'Dicen que hay cassettes perdidos por toda la ciudad. Con grabaciones raras. Cosas de la policía, de Coqui... ',
+        'Dicen que hay cassettes perdidos por toda la ciudad. Con grabaciones raras. Cosas de la policía, de Kuiss... ',
         'Un compa jura que hay estrellas doradas escondidas. Si juntas las diez, te enteras de algo.',
         'Hay unos kazoos tirados por ahí. Si los juntas todos, suenan una canción. O eso dicen los borrachos.',
         'Ese vendedor del Marketplace, VendeRápido... viene aquí a veces. Siempre paga con billetes nuevecitos.',
@@ -682,7 +682,7 @@ export const story = {
   },
 };
 
-// Coqui/Ghenghis followers are "keep" peds, so clearMission() leaves them; after a
+// Kuiss/Ghenghis followers are "keep" peds, so clearMission() leaves them; after a
 // fail or death the mission restarts and spawns them again, so drop the old ones.
 function removeAllies(c) {
   c.peds = c.peds.filter((q) => !q.ally);

@@ -50,7 +50,7 @@ export const NEWS = {
     'Reportan a un sujeto causando desmadre en la ciudad. La policía ya va en camino. Tarde, pero va.',
   ],
   bychapter: {
-    1: ['Hoy fue liberado del penal un reo conocido como "Coqui". Las autoridades dicen que "se portó bien". Él dice "ni modo".'],
+    1: ['Hoy fue liberado del penal un reo conocido como "Kuiss". Las autoridades dicen que "se portó bien". Él dice "ni modo".'],
     2: ['Se reporta una pelea en el bar La Última Risa. Nadie se rió.'],
     3: ['Robo reportado en la Bodega 7 del puerto: se llevaron un taladro industrial. La policía sospecha de "alguien con taladro".'],
     4: ['La Comandante Reyes fue vista en el Banco Federal comiendo una torta. "Estaba rica", declaró.'],
@@ -86,19 +86,19 @@ export const CAR_LISTINGS = [
 ];
 
 export const CASSETTES = [
-  { t: 'Cassette 1 — "Coqui, 2019"', b: 'Voz de Coqui: "Regla del plan: nadie improvisa. NADIE. Si alguien improvisa, se cae todo." (se escucha a Kazoo al fondo: "¿y si improviso bien?")' },
-  { t: 'Cassette 2 — "El Tuercas"', b: 'El Tuercas, nervioso: "Me ofrecieron 2 años menos. DOS. Coqui entendería... ¿verdad? ...¿verdad?"' },
+  { t: 'Cassette 1 — "Kuiss, 2019"', b: 'Voz de Kuiss: "Regla del plan: nadie improvisa. NADIE. Si alguien improvisa, se cae todo." (se escucha a Kazoo al fondo: "¿y si improviso bien?")' },
+  { t: 'Cassette 2 — "El Tuercas"', b: 'El Tuercas, nervioso: "Me ofrecieron 2 años menos. DOS. Kuiss entendería... ¿verdad? ...¿verdad?"' },
   { t: 'Cassette 3 — "Despido"', b: 'Gerente del Banco Federal: "Señor Ghenghis, lo encontramos dormido en la caseta." Ghenghis: "Estaba meditando." "Estaba roncando." "Medito fuerte."' },
   { t: 'Cassette 4 — "Kazoo\'s Tacos Gourmet"', b: 'Kazoo en un comercial casero: "¡Tacos gourmet! ¡Con queso de cabra y mango! ¡A $180 el taco!" Día 9: cerrado.' },
-  { t: 'Cassette 5 — "Reyes"', b: 'Grabación policial: "Tres años persiguiendo a ese tal Coqui. Salió. Lo quiero vigilado. Si respira raro, me avisan."' },
+  { t: 'Cassette 5 — "Reyes"', b: 'Grabación policial: "Tres años persiguiendo a ese tal Kuiss. Salió. Lo quiero vigilado. Si respira raro, me avisan."' },
   { t: 'Cassette 6 — "Reseña #1"', b: 'Cliente de VendeRápido_5E: "Me vendió un vocho. A la semana me detuvo la policía en la carretera. ¿Casualidad?" (la reseña fue borrada)' },
   { t: 'Cassette 7 — "Doña Mari"', b: 'Doña Mari a Kazoo: "Mijo, tú no naciste para meterte en broncas. Naciste para llegar tarde con los tacos fríos. Y así te quiero."' },
   { t: 'Cassette 8 — "La Tía Gris"', b: 'La Tía Gris: "Yo tuve un socio que dudó. Una vez. Ahora le llevo flores los domingos."' },
   { t: 'Cassette 9 — "Ghenghis, niño"', b: 'Mamá de Ghenghis: "¡Ese niño se ríe de todo! Se cayó de la bici y se rió. Le salió un diente y se rió. Es un peligro."' },
   { t: 'Cassette 10 — "El Jefe"', b: 'Una voz grave, por teléfono: "Yo no mato a nadie. Yo pregunto una vez. La segunda pregunta la hacen mis muchachos... y ellos no saben hablar."' },
-  { t: 'Cassette 11 — "Coqui, penal"', b: 'Coqui escribiendo una carta que nunca mandó: "Kazoo: cuando salga, ¿me vas a ir a recoger? No llegues tarde. (Vas a llegar tarde.)"' },
+  { t: 'Cassette 11 — "Kuiss, penal"', b: 'Kuiss escribiendo una carta que nunca mandó: "Kazoo: cuando salga, ¿me vas a ir a recoger? No llegues tarde. (Vas a llegar tarde.)"' },
   { t: 'Cassette 12 — "Reseña #2"', b: 'Otro cliente de VendeRápido_5E: "El carro traía una cajita rara abajo del tablero. El vendedor dijo que era el estéreo." (reseña borrada)' },
   { t: 'Cassette 13 — "El escape"', b: 'Voz misteriosa: "Todo el mundo recuerda cómo terminó. Nadie sabe cómo empezó." (se escucha un kazoo desafinado)' },
-  { t: 'Cassette 14 — "Ruta tres"', b: 'Coqui, grabando una nota de voz: "Ruta tres. Terracería, el árbol, el campo. Si todo se va a la verga, por ahí. Ni la policía conoce ese camino."' },
+  { t: 'Cassette 14 — "Ruta tres"', b: 'Kuiss, grabando una nota de voz: "Ruta tres. Terracería, el árbol, el campo. Si todo se va a la verga, por ahí. Ni la policía conoce ese camino."' },
   { t: 'Cassette 15 — "Comandancia"', b: 'Reyes: "¿El vendedor del Marketplace? Sí. Nos ayuda. Cinco estrellas. Muy cooperativo." (click)' },
 ];

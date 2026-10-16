@@ -15,7 +15,7 @@ export function spawnTsuruWithCrew(place, dy = 30) {
   if (!t) { t = c.spawnVehicle('tsuru', p.x, p.y + dy, 0, { mission: true, color: '#d8d8d0' }); t.hp = 80; }
   t.keep = true; t.minHp = 0;
   t.passengers = [];
-  seat(t, maskedLook('coqui'), 'COQUI');
+  seat(t, maskedLook('coqui'), 'KUISS');
   seat(t, { ...maskedLook('ghenghis'), bag: true, _id: 'ghM' + S().masks.ghenghis + 'bag' }, 'GHENGHIS');
   return t;
 }
@@ -23,7 +23,7 @@ export function spawnTsuruWithCrew(place, dy = 30) {
 export const CAP8 = [
   {
     id: 'c8_entrada', chapter: 8, chapterStart: true, title: '¡Todos al suelo!', requires: ['c7_azotea'], customRooms: true, lockRoom: true, failPlace: 'escondite',
-    rating: () => ({ by: 'Coqui', stars: 4, text: 'Diez y cinco. Exacto. Por una vez.' }),
+    rating: () => ({ by: 'Kuiss', stars: 4, text: 'Diez y cinco. Exacto. Por una vez.' }),
     *run(ctx) {
       setDay(0); setClock(9, 20);
       lock(true);
@@ -195,7 +195,7 @@ export const CAP8 = [
       audio.sfx('alarm');
       rv.shake(3);
       const cut = S().flags.alarmCut;
-      yield* say('coqui', cut ? '(radio) Kazoo. La cajera apretó algo... pero no sonó nada. ¿Tú le moviste? Bien hecho. Tenemos más tiempo, ¡suban ya!' : '(radio) ¡KAZOO! ¡La cajera apretó la alarma! ¡La policía viene en camino! ¡SUBAN YA, CABRÓN!', cut ? 'happy' : 'angry', { name: 'COQUI (RADIO)' });
+      yield* say('coqui', cut ? '(radio) Kazoo. La cajera apretó algo... pero no sonó nada. ¿Tú le moviste? Bien hecho. Tenemos más tiempo, ¡suban ya!' : '(radio) ¡KAZOO! ¡La cajera apretó la alarma! ¡La policía viene en camino! ¡SUBAN YA, CABRÓN!', cut ? 'happy' : 'angry', { name: 'KUISS (RADIO)' });
       yield* say('ghenghis', 'Jajaja. Ya valió. Te dije que iba a salir mal.', 'laugh');
       G.story._alarmTime = cut ? 150 : 95;
       music(null);
@@ -204,7 +204,7 @@ export const CAP8 = [
   },
   {
     id: 'c8_alarma', chapter: 8, title: 'Tiroteo en el Federal', requires: ['c8_boveda'], customRooms: true, lockRoom: true, failPlace: 'banco',
-    rating: () => ({ by: 'Coqui', stars: 3, text: 'Salimos vivos. Eso es lo que cuenta.' }),
+    rating: () => ({ by: 'Kuiss', stars: 3, text: 'Salimos vivos. Eso es lo que cuenta.' }),
     *run(ctx) {
       lock(true);
       UI.fade = 1; UI.fadeTarget = 1;
@@ -235,7 +235,7 @@ export const CAP8 = [
         audio.sfx('door'); wi++;
       };
       spawnWave();
-      // Coqui and Ghenghis stay right behind Kazoo (never in front of him)
+      // Kuiss and Ghenghis stay right behind Kazoo (never in front of him)
       const prev = r.onUpdate;
       r.onUpdate = (dt) => {
         if (prev) prev(dt);

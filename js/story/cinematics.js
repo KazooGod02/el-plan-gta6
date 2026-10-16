@@ -43,7 +43,7 @@ export const VIGNETTES = [
     },
   },
   {
-    cap: 'Día -20 · Coqui sale del penal',
+    cap: 'Día -20 · Kuiss sale del penal',
     draw(c, t) {
       sky(c, 'day', t); ground(c, '#9a7a50');
       R(c, 96, 26, 72, 54, '#7a7a82'); R(c, 96, 26, 72, 3, '#5a5a64');
