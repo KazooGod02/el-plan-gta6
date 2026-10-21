@@ -209,6 +209,7 @@ export const story = {
   },
 
   complete(m) {
+    const replay = this.active?.replay;
     this.active = null;
     this.resetMissionState();
     UI.setObjective('');
@@ -218,7 +219,7 @@ export const story = {
       const r = m.rating ? m.rating(G.state) : null;
       audio.sfx('pass');
       UI.showCard('MISIÓN SUPERADA', r ? `${r.by} te calificó ${'★'.repeat(r.stars)}${'☆'.repeat(5 - r.stars)}: ${r.text}` : m.title, 4, 'pass');
-      if (m.reward) { G.state.money += m.reward; }
+      if (m.reward && !replay) { G.state.money += m.reward; }
     }
     this.save();
     const g = G.global;
@@ -248,6 +249,17 @@ export const story = {
     const n = this.missionInfo().next.find((q) => q.pos && !q.locked);
     if (n) G.bigmap.setWaypoint(n.pos.x, n.pos.y, n.title);
     return n ? n.title : null;
+  },
+
+  // phone, once the story is finished: play any story mission again from where a retry would
+  // put you (no reward the second time; the save keeps its progress)
+  replayMission(m) {
+    if (this.active || this.dying) return;
+    const p = (m.failPlace && MAP.places[m.failPlace]) || this.triggerPos(m) || MAP.places.pension;
+    G.scenes.city.player.car = null;
+    setScene('city', { x: p.x, y: p.y + 14 });
+    this.startMission(m, 'replay');
+    this.active.replay = true;
   },
 
   // "Reiniciar misión" (phone / pause menu): way out if a mission ever gets stuck

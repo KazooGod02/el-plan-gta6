@@ -11,6 +11,10 @@ import { MAP, TS, MW, MH, ZONE_NAMES } from '../world/map.js';
 import { saveSettings } from '../core/save.js';
 import { LOOKS } from '../data/cast.js';
 import { UI, censor } from './ui.js';
+import { MISSIONS, CHAPTERS } from '../story/missions/index.js';
+
+// after the last mission the Misión app becomes a list to play any of them again
+const canReplay = () => !G.story.active && !G.state.freeMode && G.story.isDone(MISSIONS[MISSIONS.length - 1].id);
 
 // APPS[0] ("Misión") is the wide widget at the top of the home screen; the rest is a 3x3 grid
 const APPS = [
@@ -75,6 +79,12 @@ export const phone = {
       return;
     }
     if (back) { this.app = null; audio.sfx('back'); return; }
+    if (canReplay()) {
+      if (input.pressed('down')) { this.sub = Math.min(MISSIONS.length - 1, this.sub + 1); audio.sfx('move'); }
+      if (input.pressed('up')) { this.sub = Math.max(0, this.sub - 1); audio.sfx('move'); }
+      if (input.pressed('a')) { const m = MISSIONS[this.sub]; this.close(); input.consume('a'); story.replayMission(m); }
+      return;
+    }
     if (input.pressed('a')) {
       if (story.active) { this.confirm = 'restart'; audio.sfx('select'); return; }
       this.close(); input.consume('a');
@@ -241,10 +251,20 @@ export const phone = {
     } else if (info.next.length) {
       put('SIGUIENTE:', '#ff9a5a', 1);
       for (const n of info.next.slice(0, 4)) put('► ' + n.title + (n.locked ? ' (PRÓXIMAMENTE)' : n.where && n.where !== n.title ? ' — ' + n.where : ''), n.locked ? '#6a6a7a' : '#ffd23f', 2);
+    } else if (canReplay()) {
+      put('REPETIR MISIÓN:', '#ff9a5a', 1);
+      const rows = Math.floor((SY + SH - 15 - y) / 9), top = clamp(this.sub - (rows >> 1), 0, Math.max(0, MISSIONS.length - rows));
+      for (let i = top; i < Math.min(MISSIONS.length, top + rows); i++) {
+        const m = MISSIONS[i], sel = i === this.sub;
+        if (sel) { ctx.fillStyle = 'rgba(255,210,63,0.18)'; ctx.fillRect(SX + 1, y - 1, SW - 2, 9); }
+        let t = CHAPTERS[m.chapter].short + ' ' + m.title;
+        while (font.measure(t) > SW - 8) t = t.slice(0, -2) + '…';
+        font.text(ctx, t, SX + 4, y, sel ? '#ffd23f' : '#f4f4f0'); y += 9;
+      }
     } else put(info.finished ? '¡Terminaste la historia! La ciudad es tuya.' : 'No hay misión de historia por ahora. Recorre la ciudad.', '#f4f4f0', 3);
     // action bar
     ctx.fillStyle = 'rgba(0,0,0,0.55)'; ctx.fillRect(SX, SY + SH - 13, SW, 13);
-    font.text(ctx, info.active ? '{A}: REINICIAR MISIÓN' : '{A}: MARCAR EN EL GPS', SX + SW / 2, SY + SH - 10, '#5adcf0', { align: 'center' });
+    font.text(ctx, info.active ? '{A}: REINICIAR MISIÓN' : canReplay() ? '{A}: JUGAR DE NUEVO' : '{A}: MARCAR EN EL GPS', SX + SW / 2, SY + SH - 10, '#5adcf0', { align: 'center' });
     if (this.confirm !== null) {
       ctx.fillStyle = 'rgba(0,0,0,0.85)'; ctx.fillRect(SX + 4, SY + 40, SW - 8, 50);
       font.text(ctx, '¿Reiniciar la misión?', SX + SW / 2, SY + 46, '#f4f4f0', { align: 'center' });

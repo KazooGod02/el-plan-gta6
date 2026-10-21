@@ -1497,11 +1497,14 @@ function drawAtmosphere(ctx, c, cx, cy) {
     const t = G.time;
     // grey-blue wash
     ctx.fillStyle = `rgba(30,40,70,${0.22 * rain})`; ctx.fillRect(0, 0, W, H);
-    // splashes on the ground: little rings that pop and fade
+    // splashes on the ground: little rings that pop and fade. They live in world space (one
+    // per 32px cell, at a spot that changes every pop) so they stay put when the camera moves
     ctx.strokeStyle = `rgba(200,220,255,${0.5 * rain})`; ctx.lineWidth = 1;
-    for (let i = 0; i < Math.floor(26 * rain); i++) {
-      const ph = (t * 1.7 + i * 0.37) % 1, k = Math.floor(t * 1.7 + i * 0.37);
-      const x = Math.round((hash2(i * 13 + k, 7) * (W + 40)) - 20 - (cx % 40) * 0), y = Math.round(hash2(i * 29, k * 3) * H);
+    const CS = 32, gx0 = Math.floor(cx / CS), gy0 = Math.floor(cy / CS);
+    for (let gy = gy0; gy <= gy0 + Math.ceil(H / CS); gy++) for (let gx = gx0; gx <= gx0 + Math.ceil(W / CS); gx++) {
+      if (hash2(gx * 7 + 1, gy * 13 + 5) > 0.55 * rain) continue;
+      const tt = t * 1.7 + hash2(gx, gy) * 3, ph = tt % 1, k = Math.floor(tt);
+      const x = Math.round(gx * CS + hash2(gx + k * 31, gy) * CS - cx), y = Math.round(gy * CS + hash2(gx, gy + k * 17) * CS - cy);
       ctx.globalAlpha = 1 - ph;
       ctx.beginPath(); ctx.ellipse(x, y, 1 + ph * 4, 0.6 + ph * 2, 0, 0, Math.PI * 2); ctx.stroke();
     }
