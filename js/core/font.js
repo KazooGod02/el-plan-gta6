@@ -1,3 +1,4 @@
+import { input } from './input.js';
 // 5x7 proportional bitmap font with Spanish characters.
 // Rows are listed top→bottom; baseline is row 6. Rows 7-8 are descenders.
 const RAW = {
@@ -273,7 +274,7 @@ export function charW(ch) {
 
 export function measure(str) {
   let w = 0;
-  for (const ch of String(str)) w += charW(ch) + 1;
+  for (const ch of input.label(String(str))) w += charW(ch) + 1;
   return Math.max(0, w - 1);
 }
 
@@ -286,7 +287,7 @@ function resOf(ctx) {
 
 // Draw text. opts: {align:'left'|'center'|'right', shadow:color, outline:color, scale}
 export function text(ctx, str, x, y, color = '#fff', opts = {}) {
-  str = String(str);
+  str = input.label(String(str));
   const scale = opts.scale || 1;
   const w = measure(str) * scale;
   if (opts.align === 'center') x -= Math.floor(w / 2);
@@ -320,7 +321,7 @@ function draw(ctx, str, x, y, color, scale, k) {
 // Word-wrap into lines no wider than maxW px
 export function wrap(str, maxW) {
   const out = [];
-  for (const para of String(str).split('\n')) {
+  for (const para of input.label(String(str)).split('\n')) {
     const words = para.split(' ');
     let line = '';
     for (const w of words) {

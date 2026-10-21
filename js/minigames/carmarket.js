@@ -86,8 +86,8 @@ export function carmarket(opts = {}) {
         font.text(ctx, '★'.repeat(it.stars) + '☆'.repeat(5 - it.stars), 130, 76, '#ffd23f');
         font.wrap(it.desc, W - 40).forEach((l, i) => font.text(ctx, l, 20, 100 + i * 10, '#c8c8d8'));
         ctx.fillStyle = '#3c64dc'; ctx.fillRect(W / 2 - 60, 146, 120, 16);
-        font.text(ctx, 'A: CONTACTAR VENDEDOR', W / 2, 150, '#f4f4f0', { align: 'center' });
-        font.text(ctx, 'B: atrás', W - 16, 160, '#a8a8b8', { align: 'right' });
+        font.text(ctx, '{A}: CONTACTAR VENDEDOR', W / 2, 150, '#f4f4f0', { align: 'center' });
+        font.text(ctx, '{BACK}: atrás', W - 16, 160, '#a8a8b8', { align: 'right' });
       } else if (this.mode === 'chat') {
         font.text(ctx, 'Chat con VendeRápido_5E ★★★★★', W / 2, 22, '#ffd23f', { align: 'center' });
         let y = 36;
@@ -102,7 +102,7 @@ export function carmarket(opts = {}) {
           y += h + 4;
         }
         if (this.chatI < this.chat.length && Math.floor(this.t * 3) % 2) font.text(ctx, 'escribiendo...', 12, H - 12, '#a8a8b8');
-        if (this.chatI >= this.chat.length) font.text(ctx, 'A: continuar', W - 10, H - 12, '#ffd23f', { align: 'right' });
+        if (this.chatI >= this.chat.length) font.text(ctx, '{A}: continuar', W - 10, H - 12, '#ffd23f', { align: 'right' });
       }
       if (this.popup) {
         ctx.fillStyle = 'rgba(0,0,0,0.75)'; ctx.fillRect(0, 0, W, H);

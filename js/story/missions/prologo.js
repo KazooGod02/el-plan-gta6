@@ -53,7 +53,7 @@ export const PROLOGO = [
         ['kazoo', 'Eso, Kazoo. Pinche genio financiero.', 'smug'],
       ]);
       lock(false);
-      hint(isTouch() ? 'Muévete con el joystick. Botón A para interactuar.' : 'Muévete con WASD o flechas. E para interactuar.');
+      hint('Muévete con {MOVE}. {A} para interactuar.');
       objective('Lee el papel pegado en la puerta');
       yield* waitAviso();
       objective('');
@@ -61,7 +61,7 @@ export const PROLOGO = [
       const opens = G.phone.opens;
       chat('mari', 'Mijo, ¿vienes a trabajar hoy o ya te doy por muerto?');
       yield* wait(1);
-      hint(isTouch() ? 'Abre tu teléfono con el botón 📱' : 'Abre tu teléfono con TAB o T');
+      hint('Abre tu teléfono con {PHONE}');
       objective('Revisa tu teléfono');
       yield* until(() => G.phone.opens > opens || G.bigmap.open, 20);
       yield* until(() => !G.phone.open && !G.bigmap.open);
@@ -108,10 +108,10 @@ export const PROLOGO = [
       yield* fadeIn(0.4);
       lock(false);
       objective('Súbete a tu moto');
-      hint(isTouch() ? 'Acércate y presiona A para subirte.' : 'Acércate y presiona E para subirte.');
+      hint('Acércate y presiona {A} para subirte.');
       yield* until(() => c.player.car === moto || (c.player.car && c.player.car.type !== 'moto'));
       moto.label = null;
-      hint(isTouch() ? 'Maneja con el joystick. B = freno de mano.' : 'Arriba acelera, Abajo frena. Espacio = freno de mano. Q cambia la radio.');
+      hint('Maneja: {DRIVE}. {B} = freno de mano. {WEAPON} cambia la radio.');
       ctx.check(() => (moto.dead && c.player.car === moto ? 'Destruiste la moto de reparto' : null));
       for (let i = 0; i < 3; i++) {
         if (i > 0) toast(`Pedido ${i + 1} de 3`, '#ffd23f', 2);

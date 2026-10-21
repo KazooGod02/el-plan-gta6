@@ -139,7 +139,7 @@ export const CAP8 = [
       ]);
       yield* walkPlayer(590, 40);
       r.p.facing = 1;
-      objective('Taladra la puerta: presiona A cuando la aguja esté en lo verde');
+      objective('Taladra la puerta: presiona {A} cuando la aguja esté en lo verde');
       const vault = r.prop('vault');
       const prev = r.onUpdate;
       r.onUpdate = (dt) => { if (prev) prev(dt); if (!vault.open) vault.spin = (vault.spin || 0) + dt * 6; if (G.minigames.active) vault.heat = G.minigames.active.heat; };
@@ -238,7 +238,7 @@ export const CAP8 = [
       yield* fadeIn(0.4);
       yield* say('coqui', '¡Ya llegaron! ¡Agáchate detrás de algo y dispara! ¡Hay que llegar a la puerta! ¡Nosotros te cubrimos!', 'angry');
       lock(false);
-      toast('ABAJO = cubrirte. ESPACIO = disparar.', '#5adcf0', 5);
+      toast('ABAJO = cubrirte. {B} = disparar.', '#5adcf0', 5);
       objective('Abre paso hasta la salida');
       const waves = [[120, 200], [60, 150, 260], [90, 180, 300]];
       let wi = 0;
@@ -312,7 +312,7 @@ function* hostagePhase(ctx) {
   gh.pose = null;
   gh.goal = { x: 740, speed: 60 };
   lock(false);
-  objective('Mantén a los rehenes en el suelo: acércate y presiona B (Espacio) para gritar');
+  objective('Mantén a los rehenes en el suelo: acércate y presiona {B} para gritar');
   let comp = 0, t = 0, riseT = 3;
   const rising = new Set();
   r.onShout = () => {

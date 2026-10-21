@@ -8,7 +8,7 @@ import { clamp, rand } from '../core/util.js';
 export function drill(opts = {}) {
   return {
     overlay: true, done: false, result: null,
-    progress: 0, heat: 0, pos: 0, dir: 1, speed: 1.1, zone: [0.4, 0.62], cool: 0, t: 0, hits: 0, msg: 'Presiona A cuando la aguja esté en lo verde', msgT: 3, goal: opts.goal || 1,
+    progress: 0, heat: 0, pos: 0, dir: 1, speed: 1.1, zone: [0.4, 0.62], cool: 0, t: 0, hits: 0, msg: 'Presiona {A} cuando la aguja esté en lo verde', msgT: 3, goal: opts.goal || 1,
     update(dt) {
       this.t += dt;
       if (this.msgT > 0) this.msgT -= dt;

@@ -76,6 +76,7 @@ class Input {
     const root = document.getElementById('touch');
     if (!isTouch || !root) return;
     root.hidden = false;
+    this.lastDevice = 'touch';
     const stick = document.getElementById('stick');
     const knob = document.getElementById('knob');
     let sid = null;
@@ -178,13 +179,23 @@ class Input {
   consume(a) { this.prev[a] = true; this.cur[a] = true; }
   clearTyped() { this.typed = ''; }
   mouseActive() { return this.lastDevice === 'mouse' || performance.now() - this.mouse.seen < 1500; }
-  // button label for prompts, by device: btn('a') -> 'E' / 'A' / '✕'
+  // button label for prompts, by the device being used right now: btn('a') -> 'E' / 'A' / '✕' / 'CLIC'
   btn(act) {
     const d = this.lastDevice;
-    if (d === 'pad') return (this.padType === 'ps' ? { a: '✕', b: '□', back: '○', phone: '△', weapon: 'R1', pause: 'OPTIONS', map: 'SHARE', run: 'L2' } : { a: 'A', b: 'X', back: 'B', phone: 'Y', weapon: 'RB', pause: 'MENU', map: 'VIEW', run: 'LT' })[act] || act;
-    if (d === 'touch') return { a: 'A', b: 'B' }[act] || act;
-    if (d === 'mouse') return { a: 'CLIC DER', b: 'CLIC IZQ', weapon: 'RUEDA', phone: 'CLIC RUEDA' }[act] || { back: 'ESC', pause: 'ESC', map: 'M', run: 'SHIFT' }[act] || act;
-    return { a: 'E', b: 'ESPACIO', back: 'ESC', phone: 'TAB', weapon: 'Q', pause: 'ESC', map: 'M', run: 'SHIFT' }[act] || act;
+    const KB = { a: 'E', b: 'ESPACIO', back: 'ESC', phone: 'TAB', weapon: 'Q', pause: 'ESC', map: 'M', run: 'SHIFT', move: 'WASD / FLECHAS', drive: 'ARRIBA ACELERA, ABAJO FRENA' };
+    if (d === 'pad') {
+      const stick = { move: 'EL STICK IZQUIERDO', drive: 'EMPUJA EL STICK HACIA DONDE QUIERAS IR' };
+      return (this.padType === 'ps'
+        ? { a: '✕', b: '□', back: '○', phone: '△', weapon: 'R1', pause: 'OPTIONS', map: 'SHARE', run: 'L2', ...stick }
+        : { a: 'A', b: 'X', back: 'B', phone: 'Y', weapon: 'RB', pause: 'MENU', map: 'VIEW', run: 'LT', ...stick })[act] || act;
+    }
+    if (d === 'touch') return { a: 'A', b: 'B', back: 'B', phone: 'CEL', weapon: 'ARMA', pause: 'II', map: 'CEL > MAPA', run: 'JOYSTICK AL FONDO', move: 'EL JOYSTICK', drive: 'EMPUJA EL JOYSTICK HACIA DONDE QUIERAS IR' }[act] || act;
+    if (d === 'mouse') return (this.mouseGameplay ? { a: 'CLIC DER', b: 'CLIC IZQ', weapon: 'RUEDA', phone: 'CLIC RUEDA' } : { a: 'CLIC', back: 'CLIC DER' })[act] || KB[act] || act;
+    return KB[act] || act;
+  }
+  // expand {A} {B} {BACK} {PHONE} {WEAPON} {PAUSE} {MAP} {RUN} {MOVE} {DRIVE} in any text into the real button
+  label(s) {
+    return s.indexOf('{') < 0 ? s : s.replace(/\{(A|B|BACK|PHONE|WEAPON|PAUSE|MAP|RUN|MOVE|DRIVE)\}/g, (m, k) => this.btn(k.toLowerCase()));
   }
   // controller vibration (Xbox / PS); silently ignored when unsupported
   rumble(strong = 0.5, weak = 0.5, ms = 120) {

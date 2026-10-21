@@ -185,7 +185,7 @@ export const phone = {
     ctx.moveTo(SX + SW - 12, SY - 12); ctx.lineTo(SX + SW - 22, SY + 8); ctx.lineTo(SX + SW - 10, SY + 20); ctx.moveTo(SX + SW - 22, SY + 8); ctx.lineTo(SX + SW - 36, SY + 13); ctx.stroke();
     // home bar + hint
     rr(ctx, PX + PW / 2 - 14, PY + PH - 9, 28, 3, 1, '#6a6a7a');
-    font.text(ctx, this.app ? 'B: ATRÁS' : 'B: CERRAR', PX + PW / 2, PY + PH + 4, '#a8a8b8', { align: 'center', outline: '#101018' });
+    font.text(ctx, this.app ? '{BACK}: ATRÁS' : '{BACK}: CERRAR', PX + PW / 2, PY + PH + 4, '#a8a8b8', { align: 'center', outline: '#101018' });
     ctx.restore();
   },
 
@@ -244,12 +244,12 @@ export const phone = {
     } else put(info.finished ? '¡Terminaste la historia! La ciudad es tuya.' : 'No hay misión de historia por ahora. Recorre la ciudad.', '#f4f4f0', 3);
     // action bar
     ctx.fillStyle = 'rgba(0,0,0,0.55)'; ctx.fillRect(SX, SY + SH - 13, SW, 13);
-    font.text(ctx, info.active ? 'A: REINICIAR MISIÓN' : 'A: MARCAR EN EL GPS', SX + SW / 2, SY + SH - 10, '#5adcf0', { align: 'center' });
+    font.text(ctx, info.active ? '{A}: REINICIAR MISIÓN' : '{A}: MARCAR EN EL GPS', SX + SW / 2, SY + SH - 10, '#5adcf0', { align: 'center' });
     if (this.confirm !== null) {
       ctx.fillStyle = 'rgba(0,0,0,0.85)'; ctx.fillRect(SX + 4, SY + 40, SW - 8, 50);
       font.text(ctx, '¿Reiniciar la misión?', SX + SW / 2, SY + 46, '#f4f4f0', { align: 'center' });
       font.text(ctx, 'Empieza desde el inicio.', SX + SW / 2, SY + 58, '#a8a8b8', { align: 'center' });
-      font.text(ctx, 'A: SÍ   B: NO', SX + SW / 2, SY + 74, '#ffd23f', { align: 'center' });
+      font.text(ctx, '{A}: SÍ   {BACK}: NO', SX + SW / 2, SY + 74, '#ffd23f', { align: 'center' });
     }
   },
 
@@ -302,7 +302,7 @@ export const phone = {
       ctx.fillStyle = 'rgba(0,0,0,0.8)'; ctx.fillRect(SX + 4, SY + 40, SW - 8, 44);
       font.text(ctx, '¿Comprar por', SX + SW / 2, SY + 46, '#f4f4f0', { align: 'center' });
       font.text(ctx, money(items[this.confirm].price) + '?', SX + SW / 2, SY + 56, '#46d470', { align: 'center' });
-      font.text(ctx, 'A: SÍ   B: NO', SX + SW / 2, SY + 70, '#ffd23f', { align: 'center' });
+      font.text(ctx, '{A}: SÍ   {BACK}: NO', SX + SW / 2, SY + 70, '#ffd23f', { align: 'center' });
     }
   },
 
@@ -344,7 +344,7 @@ export const phone = {
       font.text(ctx, (sel ? '♪ ' : '') + st.name, SX + 5, y + 2, sel ? '#ffd23f' : '#f4f4f0');
       font.text(ctx, st.dj.slice(0, 22), SX + 5, y + 11, '#a8a8b8');
     });
-    font.text(ctx, 'Suena cuando manejas. Q cambia estación.', SX + SW / 2, SY + SH - 10, '#a8a8b8', { align: 'center' });
+    font.text(ctx, 'Suena cuando manejas. {WEAPON} cambia estación.', SX + SW / 2, SY + SH - 10, '#a8a8b8', { align: 'center' });
   },
 
   r_lore(ctx) {

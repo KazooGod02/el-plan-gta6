@@ -189,7 +189,7 @@ export const bigmap = {
     });
     if (!list.length) font.text(ctx, 'Nada por aquí', x0 + w / 2, 60, '#6a6a7a', { align: 'center' });
     // controls
-    const hints = listFocus ? ['A: marcar ruta', '◄►: categoría', 'B: volver al mapa'] : ['A: waypoint  Q: zoom', 'II/Shift: índice', 'B: cerrar'];
+    const hints = listFocus ? ['{A}: marcar ruta', '◄►: categoría', '{BACK}: volver al mapa'] : ['{A}: waypoint  {WEAPON}: zoom', '{PAUSE}: índice', '{BACK}: cerrar'];
     hints.forEach((h, i) => font.text(ctx, h, x0 + 4, H - 32 + i * 10, '#8a8aa0'));
   },
 };

@@ -94,13 +94,13 @@ export function range(opts = {}) {
       font.text(ctx, 'TIEMPO ' + Math.ceil(Math.max(0, this.time)), W - 6, 4, this.time < 10 ? '#d8323c' : '#f4f4f0', { align: 'right', outline: '#101018' });
       font.text(ctx, 'Dispárale a las siluetas. NO a los civiles.', W / 2, 16, '#ffd23f', { align: 'center', outline: '#101018' });
       if (this.msgT > 0) font.text(ctx, this.msg, W / 2, 60, '#d8323c', { align: 'center', scale: 2, outline: '#101018' });
-      if (this.phase === 'intro') { ctx.fillStyle = 'rgba(0,0,0,0.6)'; ctx.fillRect(0, 60, W, 50); font.text(ctx, 'CAMPO DE TIRO', W / 2, 68, '#ffd23f', { align: 'center', scale: 2 }); font.text(ctx, 'Mueve la mira · A/B dispara', W / 2, 92, '#f4f4f0', { align: 'center' }); }
+      if (this.phase === 'intro') { ctx.fillStyle = 'rgba(0,0,0,0.6)'; ctx.fillRect(0, 60, W, 50); font.text(ctx, 'CAMPO DE TIRO', W / 2, 68, '#ffd23f', { align: 'center', scale: 2 }); font.text(ctx, 'Mueve la mira · {B} dispara', W / 2, 92, '#f4f4f0', { align: 'center' }); }
       if (this.phase === 'over') {
         ctx.fillStyle = 'rgba(0,0,0,0.7)'; ctx.fillRect(0, 50, W, 80);
         font.text(ctx, 'RESULTADO', W / 2, 56, '#ffd23f', { align: 'center', scale: 2 });
         font.text(ctx, `Puntos: ${this.score}   Blancos: ${this.hitsBad}/${this.bad}   Civiles: ${this.civHit}`, W / 2, 82, '#f4f4f0', { align: 'center' });
         if (this.result?.perfect) font.text(ctx, '¡PERFECTO! "Pues me apuntó muy feo"', W / 2, 96, '#46d470', { align: 'center' });
-        if (this.t > 1.2) font.text(ctx, 'A: continuar', W / 2, 114, '#a8a8b8', { align: 'center' });
+        if (this.t > 1.2) font.text(ctx, '{A}: continuar', W / 2, 114, '#a8a8b8', { align: 'center' });
       }
     },
   };

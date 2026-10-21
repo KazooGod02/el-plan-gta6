@@ -56,7 +56,7 @@ export const CAP1 = [
             moto.engineOff = true; c.lockCar = true;
             audio.sfx('engine_die');
             yield* line(lines1[k][0], lines1[k][1], lines1[k][2]);
-            toast('¡Se apagó! Presiona A (E) varias veces para patearla', '#ffd23f', 3);
+            toast('¡Se apagó! Presiona {A} varias veces para patearla', '#ffd23f', 3);
             yield* mash(6, 'PATEANDO LA MOTO', () => audio.sfx('kick'));
             moto.engineOff = false; c.lockCar = false;
             audio.sfx('select');
@@ -152,7 +152,7 @@ export const CAP1 = [
       ]);
       lock(false);
       toast('Juegas como KUISS', '#5a8ce0', 3);
-      objective('Rompe las 5 vitrinas (acércate y presiona E varias veces)');
+      objective('Rompe las 5 vitrinas (acércate y presiona {A} varias veces)');
       let jewels = 0;
       for (const id of ['sc1', 'sc2', 'sc3', 'sc4', 'sc5']) {
         const pr = r.prop(id);

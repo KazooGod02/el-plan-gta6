@@ -107,7 +107,7 @@ export function loteria(opts = {}) {
         ctx.fillStyle = 'rgba(0,0,0,0.75)'; ctx.fillRect(0, 60, W, 60);
         const txt = this.winner === 'kazoo' ? '¡LOTERÍA! GANASTE $' + this.bet * 2 : this.winner === 'mari' ? 'DOÑA MARI: "¡LOTERÍAAA!"' : 'Se acabaron las cartas';
         font.text(ctx, txt, W / 2, 76, this.winner === 'kazoo' ? '#46d470' : '#ffd23f', { align: 'center', scale: 1 });
-        if (this.t > 1.5) font.text(ctx, 'A: continuar', W / 2, 100, '#a8a8b8', { align: 'center' });
+        if (this.t > 1.5) font.text(ctx, '{A}: continuar', W / 2, 100, '#a8a8b8', { align: 'center' });
       }
     },
   };

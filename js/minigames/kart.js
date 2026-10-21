@@ -70,12 +70,12 @@ export function kart(opts = {}) {
       if (this.target) { font.text(ctx, 'META', W - 40, 90, '#a8a8b8', { align: 'center' }); font.text(ctx, String(this.target), W - 40, 100, this.score >= this.target ? '#46d470' : '#ffd23f', { align: 'center' }); }
       font.text(ctx, 'RÉCORD', W - 40, 120, '#a8a8b8', { align: 'center' });
       font.text(ctx, String(G.state?.bestKart || 0), W - 40, 130, '#f4f4f0', { align: 'center' });
-      if (this.phase === 'intro') { font.text(ctx, '¡LISTOS!', W / 2, 70, '#ffd23f', { align: 'center', scale: 3, outline: '#101018' }); font.text(ctx, 'Esquiva coches, junta monedas. ↑ acelera', W / 2, 100, '#f4f4f0', { align: 'center', outline: '#101018' }); }
+      if (this.phase === 'intro') { font.text(ctx, '¡LISTOS!', W / 2, 70, '#ffd23f', { align: 'center', scale: 3, outline: '#101018' }); font.text(ctx, 'Esquiva coches, junta monedas. Arriba acelera', W / 2, 100, '#f4f4f0', { align: 'center', outline: '#101018' }); }
       if (this.phase === 'over') {
         font.text(ctx, 'FIN DEL JUEGO', W / 2, 60, '#ffd23f', { align: 'center', scale: 2, outline: '#101018' });
         font.text(ctx, 'PUNTOS: ' + Math.floor(this.score), W / 2, 86, '#f4f4f0', { align: 'center', outline: '#101018' });
         if (this.target) font.text(ctx, this.score >= this.target ? '¡LE GANASTE!' : 'NO ALCANZASTE LA META', W / 2, 100, this.score >= this.target ? '#46d470' : '#d8323c', { align: 'center', outline: '#101018' });
-        if (this.t > 1.2) font.text(ctx, 'A: continuar', W / 2, 120, '#a8a8b8', { align: 'center', outline: '#101018' });
+        if (this.t > 1.2) font.text(ctx, '{A}: continuar', W / 2, 120, '#a8a8b8', { align: 'center', outline: '#101018' });
       }
     },
   };

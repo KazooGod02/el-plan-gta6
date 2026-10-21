@@ -53,7 +53,7 @@ export const finale = {
       if (CONFIG.marathonDate) font.text(ctx, countdownText(), W / 2, 124, '#ffd23f', { align: 'center', outline: '#101018' });
       if (CONFIG.streamUrl) font.text(ctx, CONFIG.streamUrl.replace(/^https?:\/\//, ''), W / 2, 138, '#5adcf0', { align: 'center', outline: '#101018' });
       ctx.globalAlpha = 1;
-      if (this.t > 2) font.text(ctx, (CONFIG.streamUrl ? 'B: ABRIR EL CANAL · ' : '') + 'A: CONTINUAR', W / 2, 164, '#a8a8b8', { align: 'center', outline: '#101018' });
+      if (this.t > 2) font.text(ctx, (CONFIG.streamUrl ? '{B}: ABRIR EL CANAL · ' : '') + '{A}: CONTINUAR', W / 2, 164, '#a8a8b8', { align: 'center', outline: '#101018' });
       return;
     }
     if (this.mode === 'share') {
@@ -71,8 +71,8 @@ export const finale = {
       font.text(ctx, 'EL PLAN!', cx, 44, '#ffd23f', { align: 'center', scale: 2, outline: '#3a1a00' });
       font.wrap('La policía de Puerto Vicio ya pegó tu cartel por toda la ciudad.', W - x0 - 8).forEach((l, i) => font.text(ctx, l, cx, 70 + i * 10, '#d8d8e8', { align: 'center' }));
       if (this.t > 1) {
-        btn(ctx, cx, 124, 'B: DESCARGAR CARTEL', '#46d470');
-        btn(ctx, cx, 142, 'A: CONTINUAR', '#a8a8b8');
+        btn(ctx, cx, 124, '{B}: DESCARGAR CARTEL', '#46d470');
+        btn(ctx, cx, 142, '{A}: CONTINUAR', '#a8a8b8');
       }
     }
   },

@@ -175,7 +175,7 @@ export const CAP3 = [
       S().weapons.pistol = (S().weapons.pistol || 0) + 36;
       S().weapon = 'pistol';
       audio.sfx('reload');
-      toast('BLASTER NERF (que sí dispara) — Q cambia de arma. Espacio o clic dispara.', '#f08c28', 5);
+      toast('BLASTER NERF (que sí dispara) — {WEAPON} cambia de arma. {B} dispara.', '#f08c28', 5);
       gh.pose = 'aim'; gh.facing = 1;
       yield* say('ghenghis', 'Oye Kazoo, mira. ¡Bang! Jajaja.', 'crazy');
       tia.facing = -1;

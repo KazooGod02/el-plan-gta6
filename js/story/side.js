@@ -135,7 +135,7 @@ export const SIDE = [
       lock(false);
       S().weapon = 'fists';
       Object.assign(lu, { brawler: true, state: 'brawl', hp: 140, maxHp: 140, speed: 55, punchT: 1 });
-      toast('¡PELEA! Golpea con ESPACIO / B', '#c878f0', 3);
+      toast('¡PELEA! Golpea con {B}', '#c878f0', 3);
       objective('Gánale al Místico a puño limpio');
       ctx.check(() => (S().weapon !== 'fists' ? '¡Sacaste un arma! El Místico te acusó con su mamá.' : null));
       ctx.check(() => (c.player.car ? 'Te subiste a un carro. Eso es huir, no luchar.' : null));

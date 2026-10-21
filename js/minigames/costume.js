@@ -48,7 +48,7 @@ export function costume(opts = {}) {
         font.text(ctx, (sel ? '◄ ' : '') + NAMES[this.cur[id]] + (sel ? ' ►' : ''), x + 40, y + 88, '#f4f4f0', { align: 'center' });
         font.wrap(COMMENTS[id][this.cur[id]], 76).forEach((l, i) => font.text(ctx, l, x + 40, y + 100 + i * 8, '#c8c8a8', { align: 'center' }));
       });
-      font.text(ctx, '◄ ► cambiar máscara · ▲▼ persona · A confirmar', W / 2, H - 12, '#f4f4f0', { align: 'center', outline: '#2a0a00' });
+      font.text(ctx, '◄ ► cambiar máscara · ▲▼ persona · {A} confirmar', W / 2, H - 12, '#f4f4f0', { align: 'center', outline: '#2a0a00' });
     },
   };
 }

@@ -48,7 +48,7 @@ function drawOptions(ctx, o, y0 = 50) {
     font.text(ctx, (sel ? '► ' : '  ') + r.k, 44, y, sel ? '#ffd23f' : '#f4f4f0');
     font.text(ctx, r.v, W - 44, y, '#5adcf0', { align: 'right' });
   });
-  font.text(ctx, '◄ ► cambiar · B regresar', W / 2, y0 + 82, '#a8a8b8', { align: 'center' });
+  font.text(ctx, '◄ ► cambiar · {BACK} regresar', W / 2, y0 + 82, '#a8a8b8', { align: 'center' });
 }
 
 const CONTROLS = [
@@ -77,7 +77,7 @@ function drawControls(ctx) {
     font.text(ctx, row[0], 18, y, '#f4f4f0');
     font.text(ctx, v.replace('🔫', 'botón arma').replace('📱', 'botón cel'), W - 18, y, '#5adcf0', { align: 'right' });
   });
-  font.text(ctx, 'Maneja: Arriba acelera, Abajo frena/reversa. B = freno de mano.', W / 2, 148, '#a8a8b8', { align: 'center' });
+  font.text(ctx, 'Maneja: {DRIVE}. {B} = freno de mano.', W / 2, 148, '#a8a8b8', { align: 'center' });
   font.text(ctx, 'Sigue la flecha y la ruta del radar. ? = extraños y locos.', W / 2, 158, '#ffd23f', { align: 'center' });
 }
 
@@ -235,7 +235,7 @@ export const title = {
         font.text(ctx, (sel ? '► ' : '  ') + txt, bx + 8, y, sel ? '#ffd23f' : '#f4f4f0');
         if (m) font.text(ctx, new Date(m.t).toLocaleDateString('es-MX'), bx + 200, y + 9, '#a8a8b8', { align: 'right' });
       });
-      if (this.confirm !== null && this.slotMode === 'new') font.text(ctx, '¿Sobrescribir? Presiona A otra vez', bx + 8, 150, '#d8323c');
+      if (this.confirm !== null && this.slotMode === 'new') font.text(ctx, '¿Sobrescribir? Presiona {A} otra vez', bx + 8, 150, '#d8323c');
     }
   },
 };
@@ -352,7 +352,7 @@ export const pause = {
       font.text(ctx, sel ? '► ' + t + ' ◄' : t, W / 2, 70 + i * 14, sel ? '#ffd23f' : '#f4f4f0', { align: 'center', outline: '#101018' });
     });
     if (this.confirm) {
-      const msg = items[this.sel] === 'REINICIAR MISIÓN' ? 'La misión empieza de nuevo. A para confirmar.' : 'Lo no guardado se pierde. A para confirmar.';
+      const msg = items[this.sel] === 'REINICIAR MISIÓN' ? 'La misión empieza de nuevo. {A} para confirmar.' : 'Lo no guardado se pierde. {A} para confirmar.';
       font.text(ctx, msg, W / 2, 144, '#d8323c', { align: 'center', outline: '#101018' });
     }
     const s = G.state;
@@ -426,7 +426,7 @@ export const credits = {
       y += l.h;
     }
     if (CONFIG.streamUrl) font.text(ctx, CONFIG.streamUrl, W / 2, H - 10, '#5adcf0', { align: 'center' });
-    font.text(ctx, 'A: adelantar', 4, H - 10, '#4a4a6a');
+    font.text(ctx, '{A}: adelantar', 4, H - 10, '#4a4a6a');
   },
 };
 const VIG_T = 5.4;

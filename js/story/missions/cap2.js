@@ -141,7 +141,7 @@ export const CAP2 = [
       const prevW = S().weapon; S().weapon = 'fists';
       for (let i = 0; i < 4; i++) r.addEnemy({ look: 'thug', x: 190 + i * 28, facing: -1, hp: 32, armed: false, speed: 34 + i * 3, dmg: 7, state: 'attack', vision: 400 });
       lock(false);
-      toast('Juegas como GHENGHIS. B (Espacio) = golpe', '#e0504a', 4);
+      toast('Juegas como GHENGHIS. {B} = golpe', '#e0504a', 4);
       objective('Dale una lección a los malandros');
       music('heist');
       yield* until(() => r.enemies.every((e) => e.state === 'down'));

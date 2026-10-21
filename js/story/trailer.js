@@ -201,7 +201,7 @@ export const trailer = {
     this.song = null;
     yield* say('ghenghis', '...', 'crazy', { auto: 1.2 });
     // [01:59] the shot: you have a moment to pull the trigger
-    this.prompt = '¡DISPARA! (B / ESPACIO)';
+    this.prompt = '¡DISPARA! ({B})';
     let t = 0, shot = false;
     while (t < 2.6) { t += yield; if (input.pressed('b')) { shot = true; break; } }
     this.prompt = null;
@@ -246,7 +246,7 @@ export const trailer = {
     yield* ln('kazoo', '¡NO SÉ, NO SÉ NADA, PUTA MADRE!', 'angry');
     // [02:17] firefight: playable
     this.song = 'chase';
-    this.control = 'fight'; this.prompt = 'ABAJO: CUBRIRTE  ·  B: DISPARAR';
+    this.control = 'fight'; this.prompt = 'ABAJO: CUBRIRTE  ·  {B}: DISPARAR';
     this.shots = 0;
     let ft = 0;
     while (ft < 20 && !(ft > 11 && this.shots >= 3)) {
@@ -275,7 +275,7 @@ export const trailer = {
     audio.sfx('bang'); this.shake = 3; this.flash = 0.3;
     // [02:46] the field
     this.song = 'night';
-    this.control = 'run'; this.prompt = '→ ¡CORRE! (MANTÉN SHIFT)';
+    this.control = 'run'; this.prompt = '→ ¡CORRE! (MANTÉN {RUN})';
     let farShot = false;
     yield* until(() => { if (!farShot && k.x > 1150) { farShot = true; audio.sfx('shot', { vol: 0.25 }); } if (k.x > 1000) this.prompt = null; return k.x >= WORLD_W - 70; });
     this.control = null;
@@ -437,7 +437,7 @@ export const trailer = {
       ctx.fillStyle = 'rgba(10,10,20,0.85)'; ctx.fillRect(Math.round(W / 2 - w / 2), 24, w, 12);
       font.text(ctx, this.prompt, W / 2, 26, '#ffd23f', { align: 'center' });
     }
-    font.text(ctx, 'ESC: SALIR', W - 4, H - 10, 'rgba(160,160,180,0.5)', { align: 'right' });
+    font.text(ctx, '{PAUSE}: SALIR', W - 4, H - 10, 'rgba(160,160,180,0.5)', { align: 'right' });
   },
 
   drawChar(ctx, ch, x) {
@@ -488,7 +488,7 @@ export const trailer = {
     font.text(ctx, 'UN FILM ORIGINAL DE KAZOOGOD02', W / 2, 96, '#f4f4f0', { align: 'center' });
     font.text(ctx, 'RECREADO EN 8 BITS', W / 2, 108, '#a8a8b8', { align: 'center' });
     ctx.globalAlpha = 1;
-    if (e.t > 2 && Math.floor(t * 2) % 2 === 0) font.text(ctx, 'A: SALIR', W / 2, 150, '#5adcf0', { align: 'center' });
+    if (e.t > 2 && Math.floor(t * 2) % 2 === 0) font.text(ctx, '{A}: SALIR', W / 2, 150, '#5adcf0', { align: 'center' });
   },
 };
 
