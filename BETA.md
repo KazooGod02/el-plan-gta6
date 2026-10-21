@@ -1,7 +1,7 @@
 # EL PLAN — Estado del beta y bugs conocidos
 
 > Documento para retomar el proyecto desde cualquier dispositivo.
-> Última actualización: 29 de septiembre de 2026 (arreglos: teléfono, Cap. 2 y muerte).
+> Última actualización: 21 de octubre de 2026 (mejoras para el público: gráficos, tráfico, casino, eventos, turbo, salto del canal, canción "???").
 
 - **Jugar:** https://kazoogod02.github.io/el-plan-gta6/
 - **Repo:** https://github.com/KazooGod02/el-plan-gta6
@@ -14,7 +14,7 @@
 
 Cuenta los **21 días antes del trailer**, en Puerto Vicio, una ciudad ficticia:
 
-- **Kazoo** le debe $50,000 a Don Chuy.
+- **Kazoo** le debe $50,000 a El Jefe, el que controla todo lo ilegal en Puerto Vicio (siempre de espaldas, a contraluz).
 - **Kuiss** sale del penal después de que su socio lo delató.
 - **Ghenghis**, ex guardia del Banco Federal, completa el equipo.
 
@@ -22,7 +22,7 @@ Juntos planean el atraco al banco. En el camino pasa todo lo que el trailer da p
 
 - el Tsuru que Kazoo compra en el Marketplace ("tenía 5 estrellas");
 - la paranoia de Kuiss;
-- la mochila del plan B enterrada en el campo;
+- la ruta de escape por la terracería del campo (la "ruta tres");
 - el vendedor que resulta ser informante de la policía.
 
 El juego termina exactamente en el primer segundo del trailer: pantalla negra y "¡Córranle, córranle!".
@@ -36,6 +36,11 @@ El juego termina exactamente en el primer segundo del trailer: pantalla negra y 
 - **Extraños y locos:** 5 misiones secundarias opcionales, marcadas con un **?** rosa (El Profeta, Doña Cuca y su gato, El Místico del Barrio, La Influ, El del OVNI).
 - **Negocios:** tiendas de ropa (cambian la ropa de Kazoo y quitan 1 estrella), zapaterías (tenis que te hacen correr más), restaurantes (vida) y bares (cerveza, dominó y chismes).
 - **Por el mapa:** corazones rojos (+50 vida), chalecos antibalas azules y estrellas verdes de soborno (-1 estrella). Reaparecen con el tiempo.
+- **Casino La Fortuna** (El Centro): ruleta, blackjack, póker (jotas o más), carrera de caballos y tragamonedas. Apuesta mínima $50.
+- **Calle viva:** eventos al azar (peleas, asaltos, persecuciones de patrulla, choques) que no se meten contigo ni con las misiones, hasta que tú te metes. Si le pegas al ratero, recuperas la cartera.
+- **Pinta y Olvida:** pierde a la policía **y arregla el carro**. Hay un taller secreto que le pone **turbo** (se usa con Shift). El juego no dice dónde está.
+- **Rampa del canal:** al final de la avenida de La Colonia; a fondo brincas el canal hasta El Puerto.
+- **Radio:** nueva estación **"???"** con una versión 8-bit de la canción de KazooGod02.
 - **El teléfono** funciona como menú: chat del grupo, Marketplace, mapa, deuda, radio, cassettes, logros, ajustes y guardar.
 - **GPS y mapa:** ruta morada en el radar, distancia y una flecha alrededor de Kazoo que apunta al objetivo. El mapa completo (tecla **M**, o Cel > Mapa) se mueve, tiene zoom, waypoint e índice de lugares por categoría.
 - **Extras:** coleccionables (15 cassettes, 10 estrellas doradas, 20 grafitis, 5 kazoos), 20 logros, trucos, modo streamer (censura las groserías), timer de speedrun y un cartel final de **SE BUSCA** con los stats de la run (se descarga o se comparte).
@@ -81,9 +86,16 @@ Si te pasa algo de esto, anótalo con **capítulo, qué pasó, captura** y, si p
 - [x] **"REINICIAR MISIÓN" en el menú de pausa.** La pausa se abre aunque los controles estén bloqueados, así que siempre hay salida.
 - [x] **"No aparece la misión del penal después del prólogo."** Era la versión vieja en caché: la primera que se subió solo traía el prólogo. **Solución:** recargar con Ctrl + Shift + R (en el celular, cerrar y volver a abrir la pestaña) y darle CONTINUAR. Ya debería arrancar el Capítulo 1.
 
+- [x] **El carro dejaba una especie de reflejo en el pavimento.** La sombra era una copia transparente del carro. Ahora es una sombra oscura de verdad.
+- [x] **Misiones del Tsuru: contaba cualquier carro y no fallaba si le pasaba algo al Tsuru.** Los marcadores (prueba de manejo, escondite, banco) ahora solo cuentan si vas en el Tsuru, y la misión falla si lo destruyes, lo hundes o lo dejas tirado (Cap. 5 y Cap. 8).
+- [x] **Persecución final: la policía siempre estaba encima.** A medio camino hay que brincar el canal en la rampa; las patrullas se quedan del otro lado y te pierden. Al final, con el rastreador, vuelven a aparecer.
+- [x] **HUD encima de los minijuegos de pantalla completa.** Ahora se oculta mientras juegas y regresa al salir.
+- [x] **Mejoras generales:** fondos 2D (estructura arriba del techo, sombras y conos de luz en interiores; horizontes con capas, luna bajo el HUD y anuncio de neón que flotaba en la azotea), sombras de edificios en la calle, faros y calaveras de los carros de noche (más brillantes al frenar), lluvia nueva (inclinada, salpicaduras, charcos, entra y sale poco a poco, truenos), tráfico más listo (frena con tiempo, se orilla con las sirenas, rodea carros parados, direccionales), animación de golpe del jugador, derrape con Espacio (marcas de llanta y humo) y 6 carros nuevos (lowrider, muscle "Furia", jeep, limusina, camión de helados, convertible).
+
 ### Por revisar (sospechosos)
 
 0. **Cosas nuevas sin probar a mano:** las 5 misiones de extraños y locos, las tiendas, los pickups, el GPS en misiones con varios marcadores, y el cartel de SE BUSCA en iPhone.
+   - **De esta versión:** el salto del canal en el Cap. 9 (¿se alcanza la velocidad con el Tsuru dañado?), el balance del casino, que los eventos de la calle no estorben, el tráfico rebasando carros parados, y la canción "???" (es un arreglo 8-bit sacado de la canción original: puede no sonar idéntica).
 1. **Dificultad del sigilo:**
    - **Cap. 1, taller del Tuercas:** el "Primo" está pegado al escritorio. Puede que no se alcance a llegar sin que te vea, aunque avientes la tuerca.
    - **Cap. 3, Bodega 7:** los tres guardias con linterna pueden estar muy duros.
@@ -145,7 +157,9 @@ git clone https://github.com/KazooGod02/el-plan-gta6.git
 | `js/ui/` | HUD y diálogos (`ui.js`), teléfono, mapa completo (`bigmap.js`), menús |
 | `js/story/` | Administrador de misiones (`story.js`), helpers de guion (`script.js`), logros, final, misiones secundarias (`side.js`), tiendas (`shops.js`), cinemáticas de créditos (`cinematics.js`) |
 | `js/story/missions/` | Una hoja por capítulo: `prologo.js`, `cap1.js` … `cap9.js` |
-| `js/minigames/` | Kazoo Kart, campo de tiro, lotería, máscaras, Marketplace, taladro, repartos |
+| `js/minigames/` | Kazoo Kart, campo de tiro, lotería, máscaras, Marketplace, taladro, repartos, casino (`casino.js`) |
+| `js/world/events.js` | Eventos al azar en la calle (peleas, asaltos, persecuciones, choques) |
+| `js/world/oozak.js` | Un personaje secreto que solo aparece una vez por partida |
 
 **Herramienta de pruebas:** en la consola del navegador existe `__tick(n)`, que avanza `n` frames del juego aunque la pestaña esté oculta, y `G`, que expone el estado global (por ejemplo `G.state`, `G.story.active`).
 

@@ -15,7 +15,7 @@ export const PROP_W = {
   tree: 60, fence: 40, bush: 16, moon: 20, skyline: 320, ac: 16, antenna: 10, clothes: 30, tank: 14, lightpole: 8, cones: 20,
   cell: 50, sink: 16, toilet: 12, wc: 12, papel: 20, atm: 14, flag: 10, doorOpen: 20, hole: 20, shovel: 6, cooler: 16, fire: 16,
   bigtree: 70, grassfg: 320, tv2: 20, radio: 12, microwave: 14, fan2: 8,
-  vaultdoor: 40, depositboxes: 64, goldstack: 30, moneypallet: 36, cashcart: 34, moneybags: 26, bosschair: 26, bigwindow: 50,
+  slot: 16, rtable: 44, cardtable: 44, horsescreen: 60, vaultdoor: 40, depositboxes: 64, goldstack: 30, moneypallet: 36, cashcart: 34, moneybags: 26, bosschair: 26, bigwindow: 50,
 };
 
 export function drawProp(c, p, x, y, t, env = {}) {
@@ -104,6 +104,41 @@ const PAINT = {
       c.fillStyle = g; c.beginPath(); c.arc(x + 22, y - 36, 17, 0, Math.PI * 2); c.fill();
       R(c, x + 40, y - 58, 8, 44, '#8a8a94'); R(c, x + 42, y - 56, 4, 40, '#b0b0bc'); R(c, x + 41, y - 40, 6, 6, '#5a5a64');
     }
+  },
+  // casino: a slot machine with spinning reels
+  slot(c, x, y, o, t) {
+    R(c, x, y - 36, 16, 36, '#8c1c28'); R(c, x, y - 36, 16, 2, '#ffd23f'); R(c, x + 1, y - 38, 14, 3, '#ffd23f');
+    R(c, x + 2, y - 30, 12, 9, '#101018');
+    const sym = ['#ffd23f', '#d8323c', '#46b450', '#5adcf0'];
+    for (let i = 0; i < 3; i++) R(c, x + 3 + i * 4, y - 28, 2, 5, sym[(Math.floor(t * 8) + i * 3 + x) % 4]);
+    R(c, x + 2, y - 19, 12, 6, '#5a1018'); R(c, x + 4, y - 17, 8, 2, '#ffd23f');
+    R(c, x + 16, y - 30, 1, 10, '#c8c8d0'); R(c, x + 15, y - 32, 3, 3, '#d8323c');
+    if (Math.floor(t * 2 + x) % 5 === 0) R(c, x + 6, y - 37, 4, 1, '#ffffff');
+  },
+  // casino: roulette table with the wheel on top
+  rtable(c, x, y, o, t) {
+    R(c, x, y - 16, 44, 4, '#5a3218'); R(c, x + 1, y - 17, 42, 2, '#1e6e3c');
+    R(c, x + 3, y - 12, 3, 12, '#3a2010'); R(c, x + 38, y - 12, 3, 12, '#3a2010');
+    c.fillStyle = '#3a2010'; c.beginPath(); c.ellipse(x + 12, y - 19, 9, 3, 0, 0, Math.PI * 2); c.fill();
+    for (let i = 0; i < 8; i++) { const a = t * 3 + i * Math.PI / 4; R(c, Math.round(x + 12 + Math.cos(a) * 7), Math.round(y - 19 + Math.sin(a) * 2), 1, 1, i % 2 ? '#d8323c' : '#101018'); }
+    for (let i = 0; i < 6; i++) R(c, x + 24 + i * 3, y - 18, 2, 1, i % 2 ? '#d8323c' : '#101018');
+    R(c, x + 26, y - 20, 3, 2, '#ffd23f'); R(c, x + 33, y - 20, 3, 2, '#5adcf0');
+  },
+  // casino: green card table with chips and cards
+  cardtable(c, x, y, o) {
+    R(c, x, y - 16, 44, 4, '#5a3218'); R(c, x + 1, y - 17, 42, 2, '#1e6e3c');
+    R(c, x + 4, y - 12, 3, 12, '#3a2010'); R(c, x + 37, y - 12, 3, 12, '#3a2010');
+    for (let i = 0; i < 3; i++) { R(c, x + 8 + i * 9, y - 19, 4, 2, '#f4f4f0'); R(c, x + 9 + i * 9, y - 19, 1, 1, i % 2 ? '#d8323c' : '#101018'); }
+    R(c, x + 34, y - 20, 4, 3, o.poker ? '#5adcf0' : '#d8323c'); R(c, x + 34, y - 21, 4, 1, '#ffd23f');
+  },
+  // casino: the big screen with the horse race
+  horsescreen(c, x, y, o, t) {
+    R(c, x - 2, y - 2, 64, 38, '#101018'); R(c, x, y, 60, 34, '#2c8c3a');
+    for (let i = 0; i < 5; i++) R(c, x, y + 5 + i * 6, 60, 1, '#46a050');
+    R(c, x + 52, y, 1, 34, '#f4f4f0');
+    const cols = ['#d8323c', '#ffd23f', '#3c64dc', '#f4f4f0', '#8c46c8'];
+    for (let i = 0; i < 5; i++) { const hx = x + 2 + ((t * (9 + i * 1.7) + i * 11) % 50); R(c, Math.round(hx), y + 3 + i * 6, 4, 3, '#6a3a1a'); R(c, Math.round(hx) + 1, y + 2 + i * 6, 2, 1, cols[i]); }
+    font.text(c, 'CARRERAS', x + 30, y - 11, '#ffd23f', { align: 'center' });
   },
   // the vault seen from inside: the huge round door, open, on the left wall
   vaultdoor(c, x, y) {
@@ -286,7 +321,14 @@ const PAINT = {
       R(c, x + i, y - h, 13, h, dark);
       for (let yy = y - h + 4; yy < y - 4; yy += 6) for (let xx = 2; xx < 12; xx += 4) if (((i + yy + xx) * 7) % 5 === 0) R(c, x + i + xx, yy, 2, 2, (i + yy) % 3 ? '#ffd23f' : '#ff7ae0');
     }
-    if (o.neon) { R(c, x + 120, y - 58, 30, 6, Math.floor(t * 2) % 2 ? '#ff3cc8' : '#c02090'); }
+    // a neon sign standing on top of one of the buildings (it used to float in the air)
+    if (o.neon) {
+      const bi = 112, bh = 20 + ((bi * 37) % 50), on = Math.floor(t * 2) % 7 !== 0;
+      R(c, x + bi + 1, y - bh - 2, 1, 2, '#3a3a44'); R(c, x + bi + 10, y - bh - 2, 1, 2, '#3a3a44');
+      R(c, x + bi - 4, y - bh - 9, 20, 7, '#1a0a24');
+      R(c, x + bi - 3, y - bh - 8, 18, 5, on ? '#ff3cc8' : '#6a1050');
+      if (on) R(c, x + bi - 1, y - bh - 7, 14, 1, '#ffc0f0');
+    }
   },
   ac(c, x, y) { R(c, x, y - 12, 16, 12, '#9a9aa6'); R(c, x + 2, y - 10, 12, 8, '#6a6a76'); for (let i = 3; i < 13; i += 2) R(c, x + i, y - 10, 1, 8, '#9a9aa6'); },
   antenna(c, x, y) { R(c, x + 4, y - 30, 2, 30, '#6a6a76'); R(c, x, y - 28, 10, 1, '#6a6a76'); R(c, x + 1, y - 22, 8, 1, '#6a6a76'); },

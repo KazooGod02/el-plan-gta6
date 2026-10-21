@@ -215,6 +215,22 @@ export const ROOMS = {
     ],
     exits: [{ x: 12, w: 22, to: 'banco', spawnX: 850 }],
   },
+  casino: {
+    name: 'Casino La Fortuna', w: 480,
+    theme: { wall: '#3a0e18', wall2: '#4a1622', pattern: 'damask', floor: '#6a1422', floorP: 'tiles', ceil: '#1a0608', dim: 0.12 },
+    props: [
+      { t: 'door', x: 12, exit: 'city', col: '#5a1a1a' },
+      { t: 'slot', x: 44 }, { t: 'slot', x: 62 },
+      { t: 'cartel', x: 150, y: 66, w: 120, text: 'CASINO LA FORTUNA', col: '#ffd23f', bg: '#2a0610' },
+      { t: 'rtable', x: 110, front: true },
+      { t: 'cardtable', x: 202, front: true },
+      { t: 'cardtable', x: 290, front: true, poker: true },
+      { t: 'horsescreen', x: 374, y: 70 },
+      { t: 'plant', x: 456 },
+    ],
+    exits: [{ x: 12, w: 22, to: 'city', place: 'casino' }],
+    music: 'vicio',
+  },
   bovedaIn: {
     name: 'La bóveda', w: 448,
     theme: { wall: '#4a4a52', wall2: '#5a5a64', pattern: 'panels', floor: '#2e2e36', floorP: 'tiles', ceil: '#141418' },
@@ -271,7 +287,7 @@ export const ROOMS = {
   // the residential boulevard at the edge of town, with the field right next to it (where the trailer was shot)
   camino: {
     name: 'Blvd. Granada', w: 480, outdoor: true,
-    theme: { floor: '#8a8a90', floorP: 'concrete', sky: 'dusk', ground: '#5a8a34' },
+    theme: { floor: '#8a8a90', floorP: 'concrete', sky: 'dusk', ground: '#5a8a34', bg: 'suburb' },
     props: [
       { t: 'bush', x: 6, col: '#2a5a24' }, { t: 'palm', x: 30, h: 78 }, { t: 'banner', x: 74 }, { t: 'palm', x: 104, h: 64 },
       { t: 'banner', x: 140 }, { t: 'lightpole', x: 168 }, { t: 'banner', x: 196 },

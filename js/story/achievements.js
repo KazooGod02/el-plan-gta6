@@ -23,6 +23,9 @@ export const ACHIEVEMENTS = [
   { id: 'shopper', name: 'Adicto al Marketplace', desc: 'Compra 10 cosas en el Marketplace.' },
   { id: 'lotería', name: '¡Lotería!', desc: 'Gana una partida de lotería con Doña Mari.' },
   { id: 'speed', name: 'Speedrunner', desc: 'Termina la historia en menos de 1:30:00.' },
+  { id: 'salto', name: 'Salto de fe', desc: 'Brinca el canal con un carro y aterriza.' },
+  { id: 'turbo', name: 'Nadie me dijo nada', desc: 'Encuentra el taller clandestino.' },
+  { id: 'casino', name: 'La casa siempre pierde', desc: 'Gana $1,000 o más en una sola apuesta.' },
 ];
 
 export function unlock(id) {

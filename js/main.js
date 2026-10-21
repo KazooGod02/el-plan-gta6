@@ -77,7 +77,7 @@ G.startLoad = (slot) => {
 G.quitToTitle = () => {
   runner.cancelWhere(() => true);
   story.active = null;
-  minigames.active = null;
+  minigames.stop();
   G.lockInput = 0; G.paused = false; G.musicOverride = null; G.forceDark = undefined; G.drunkT = 0;
   UI.dialog = null; UI.timer = null; UI.meter = null; UI.card = null; UI.letterboxTarget = 0; UI.letterbox = 0; UI.objective = '';
   setScene('title');

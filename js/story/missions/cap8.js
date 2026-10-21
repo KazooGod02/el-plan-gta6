@@ -3,7 +3,7 @@ import { G } from '../../core/game.js';
 import { UI } from '../../ui/ui.js';
 import { audio } from '../../core/audio.js';
 import { wait, until, say, talk, ask, fadeOut, fadeIn, lock, objective, toast, chat, setClock, setDay, trust, music, walkNpc, walkPlayer, goTo } from '../script.js';
-import { P, C, R, S, line, lines, cityAt, roomAt, mash, seat } from './common.js';
+import { P, C, R, S, line, lines, cityAt, roomAt, mash, seat, guardCar } from './common.js';
 import { LOOKS } from '../../data/cast.js';
 import { play } from '../../minigames/index.js';
 import { FLOOR } from '../../interior/rooms.js';
@@ -76,11 +76,11 @@ export const CAP8 = [
       lock(false);
       objective('Maneja al Banco Federal. ¡Llega antes de las 10:05!');
       UI.timer = { label: 'HORA', t: 190 };
-      ctx.check(() => (t.dead ? (t.sunk ? '¡Hundiste el Tsuru!' : '¡Destruiste el Tsuru!') : null));
+      guardCar(ctx, t);
       ctx.check(() => (UI.timer && UI.timer.t <= 0 ? 'Llegaste tarde (otra vez)' : null));
       let said = 0, tt = 0;
       const bk = P().banco;
-      yield* goTo(bk.x, bk.y + 36, { r: 34, needCar: true, label: 'BANCO FEDERAL', check: () => {
+      yield* goTo(bk.x, bk.y + 36, { r: 34, car: t, label: 'BANCO FEDERAL', check: () => {
         UI.timer.t -= 1 / 60; tt += 1 / 60;
         if (said === 0 && tt > 6) { said = 1; G.story._lineQ = ['coqui', 'Kazoo. A tiempo. Por una vez en tu vida.', 'serious']; }
         if (said === 1 && tt > 20) { said = 2; G.story._lineQ = ['ghenghis', '¿Alguien más siente que se le sale el corazón? Jajaja... ja.', 'laugh']; }
@@ -89,6 +89,7 @@ export const CAP8 = [
       } });
       UI.timer = null;
       lock(true);
+      t.safe = true;
       if (c.player.car) c.exitCar(true);
       setClock(10, 5);
       yield* fadeOut(0.4);

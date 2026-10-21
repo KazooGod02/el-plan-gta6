@@ -397,14 +397,16 @@ export const interior = {
     const cx = Math.round(this.cam.x + (this.cam.shake ? rand(-this.cam.shake, this.cam.shake) : 0));
     const env = this.env();
     ctx.fillStyle = '#0b0b14'; ctx.fillRect(0, 0, W, H);
-    if (room.outdoor) drawSky(ctx, th.sky === 'dusk' ? 'dusk' : env.night || th.sky === 'night' ? 'night' : 'day', t);
+    const skyMode = th.sky === 'dusk' ? 'dusk' : env.night || th.sky === 'night' ? 'night' : 'day';
+    if (room.outdoor) { drawSky(ctx, skyMode, t); drawOutdoorBg(ctx, room, cx, t, skyMode); }
     else drawWalls(ctx, room, cx, t, env);
     // floor
     drawFloor(ctx, room, cx, t);
 
     const X = (x) => Math.round(x - cx);
-    // back props
-    for (const q of this.props) if (!q.front && !q.hidden) drawProp(ctx, q, X(q.x), q.y ?? FLOOR, t, env);
+    // back props (far ones like the moon or the skyline get parallax)
+    const PAR = { moon: 0.04, skyline: 0.35 };
+    for (const q of this.props) if (!q.front && !q.hidden) drawProp(ctx, q, PAR[q.t] !== undefined && room.outdoor ? Math.round(q.x - cx * PAR[q.t]) : X(q.x), q.t === 'moon' && room.outdoor ? Math.max(q.y ?? 0, 34) : q.y ?? FLOOR, t, env);
     if (this.extraBack) this.extraBack(ctx, cx);
     // characters
     for (const n of this.npcs) if (!n.hidden) this.drawChar(ctx, n.look, n, X(n.x), n.y ?? FLOOR, n.pose, n.flash);
@@ -531,22 +533,66 @@ function bubble(ctx, x, y, text) {
 }
 
 export function drawSky(ctx, mode, t) {
-  let top, bot;
-  if (mode === 'night') { top = '#06061a'; bot = '#1e1e4a'; }
-  else if (mode === 'dusk') { top = '#3a2a6a'; bot = '#f09a50'; }
-  else { top = '#3c8ce0'; bot = '#a8dcf8'; }
   const g = ctx.createLinearGradient(0, 0, 0, FLOOR);
-  g.addColorStop(0, top); g.addColorStop(1, bot);
+  if (mode === 'night') { g.addColorStop(0, '#04041a'); g.addColorStop(0.6, '#121440'); g.addColorStop(1, '#2a2050'); }
+  else if (mode === 'dusk') { g.addColorStop(0, '#2a1e5a'); g.addColorStop(0.45, '#a8487a'); g.addColorStop(0.8, '#f08a50'); g.addColorStop(1, '#ffc070'); }
+  else { g.addColorStop(0, '#2e78d0'); g.addColorStop(0.7, '#7ec0f0'); g.addColorStop(1, '#c8e8fa'); }
   ctx.fillStyle = g; ctx.fillRect(0, 0, W, FLOOR);
-  if (mode === 'night') for (let i = 0; i < 50; i++) { const x = (i * 83) % W, y = (i * 37) % 110; ctx.fillStyle = (i + Math.floor(t * 2)) % 7 ? '#c8c8e0' : '#ffffff'; ctx.fillRect(x, y, 1, 1); }
-  if (mode === 'dusk') { ctx.fillStyle = '#ffd890'; ctx.beginPath(); ctx.arc(250, 110, 14, 0, Math.PI * 2); ctx.fill(); ctx.fillStyle = 'rgba(255,200,120,0.25)'; ctx.fillRect(0, 100, W, 50); }
+  if (mode === 'night') for (let i = 0; i < 70; i++) { const x = (i * 83 + (i % 3) * 17) % W, y = 36 + (i * 37) % 80; const tw = Math.sin(t * (1 + (i % 5) * 0.4) + i) > 0.6; ctx.fillStyle = tw ? '#ffffff' : i % 4 ? '#8a8ab0' : '#c8c8e0'; ctx.fillRect(x, y, 1, 1); }
+  if (mode === 'dusk') {
+    const sg = ctx.createRadialGradient(250, 112, 4, 250, 112, 60);
+    sg.addColorStop(0, 'rgba(255,230,160,0.7)'); sg.addColorStop(1, 'rgba(255,160,90,0)');
+    ctx.fillStyle = sg; ctx.fillRect(170, 50, 160, 100);
+    ctx.fillStyle = '#ffe0a0'; ctx.beginPath(); ctx.arc(250, 112, 14, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = 'rgba(255,240,220,0.35)'; for (let i = 0; i < 3; i++) ctx.fillRect(Math.round(((i * 120 + t * 3) % (W + 80)) - 60), 58 + i * 12, 70, 2);
+  }
+  if (mode === 'day') { ctx.fillStyle = 'rgba(255,255,255,0.8)'; for (let i = 0; i < 4; i++) { const x = Math.round(((i * 97 + t * 4) % (W + 90)) - 70), y = 46 + i * 11; ctx.fillRect(x, y, 34, 4); ctx.fillRect(x + 6, y - 3, 18, 3); } }
+}
+
+// layers between the sky and the props of outdoor scenes, scrolling at different speeds
+function drawOutdoorBg(ctx, room, cx, t, mode) {
+  const kind = room.theme.bg || (room.theme.floorP === 'roof' ? 'city' : 'hills');
+  const night = mode === 'night';
+  const far = night ? '#1a1838' : mode === 'dusk' ? '#5a3a6a' : '#7a9ac0';
+  const mid = night ? '#12122a' : mode === 'dusk' ? '#3a2448' : '#5a7a6a';
+  if (kind === 'city' || kind === 'suburb') {
+    // far towers, then a nearer row of buildings with lit windows
+    for (let i = -1; i < 16; i++) {
+      const x = Math.round(i * 26 - ((cx * 0.12) % 26)), h = 30 + ((i * 53 + 7) % 34);
+      ctx.fillStyle = far; ctx.fillRect(x, FLOOR - 16 - h, 22, h);
+    }
+    for (let i = -1; i < 14; i++) {
+      const k = i + Math.floor(cx * 0.25 / 30);
+      const x = Math.round(i * 30 - ((cx * 0.25) % 30)), h = 18 + ((k * 37 + 11) % 28);
+      ctx.fillStyle = mid; ctx.fillRect(x, FLOOR - 12 - h, 26, h);
+      if (night || mode === 'dusk') for (let yy = FLOOR - 9 - h; yy < FLOOR - 16; yy += 5) for (let xx = 3; xx < 24; xx += 5) if (((k * 13 + yy * 7 + xx * 3) % 7) === 0) { ctx.fillStyle = (k + xx) % 3 ? '#ffd23f' : '#ff7ae0'; ctx.fillRect(x + xx, yy, 2, 2); }
+    }
+    if (kind === 'suburb') { ctx.fillStyle = night ? '#101a14' : '#3a5a2a'; for (let i = -1; i < 20; i++) { const x = Math.round(i * 20 - ((cx * 0.45) % 20)); ctx.beginPath(); ctx.ellipse(x, FLOOR - 14, 14, 10, 0, 0, Math.PI * 2); ctx.fill(); } }
+  } else {
+    // rolling hills and a tree line
+    ctx.fillStyle = far;
+    ctx.beginPath(); ctx.moveTo(0, FLOOR - 10);
+    for (let x = 0; x <= W; x += 8) ctx.lineTo(x, FLOOR - 40 - Math.sin((x + cx * 0.1) * 0.018) * 14 - Math.sin((x + cx * 0.1) * 0.05) * 5);
+    ctx.lineTo(W, FLOOR - 10); ctx.closePath(); ctx.fill();
+    ctx.fillStyle = mid;
+    for (let i = -1; i < 22; i++) { const x = Math.round(i * 16 - ((cx * 0.3) % 16)); const k = i + Math.floor(cx * 0.3 / 16); ctx.beginPath(); ctx.ellipse(x, FLOOR - 18, 10 + (k * 7) % 5, 9 + (k * 3) % 4, 0, 0, Math.PI * 2); ctx.fill(); }
+  }
 }
 
 function drawWalls(ctx, room, cx, t, env) {
   const th = room.theme;
-  // above ceiling: building section
-  ctx.fillStyle = '#12121c'; ctx.fillRect(0, 0, W, CEIL);
+  // above the ceiling: a cut-away of the building (slab, beams, ducts and pipes)
   const x0 = Math.round(-cx), rw = room.w;
+  const slab = shade(th.ceil || '#2a2a3a', 0.55);
+  const sg = ctx.createLinearGradient(0, 0, 0, CEIL);
+  sg.addColorStop(0, '#08080e'); sg.addColorStop(1, shade(slab, 0.8));
+  ctx.fillStyle = sg; ctx.fillRect(0, 0, W, CEIL);
+  ctx.fillStyle = shade(slab, 0.9); ctx.fillRect(x0, CEIL - 24, rw, 18);
+  ctx.fillStyle = shade(slab, 1.15); ctx.fillRect(x0, CEIL - 24, rw, 1);
+  for (let x = 0; x < rw; x += 48) { ctx.fillStyle = shade(slab, 0.7); ctx.fillRect(x0 + x, CEIL - 24, 6, 18); ctx.fillStyle = shade(slab, 1.25); ctx.fillRect(x0 + x, CEIL - 24, 1, 18); }
+  ctx.fillStyle = shade(slab, 1.05); ctx.fillRect(x0, CEIL - 34, rw, 5);
+  ctx.fillStyle = shade(slab, 0.75); for (let x = 20; x < rw; x += 80) { ctx.fillRect(x0 + x, CEIL - 38, 3, 14); ctx.fillRect(x0 + x - 2, CEIL - 34, 7, 1); }
+  ctx.fillStyle = '#3a3020'; ctx.fillRect(x0, CEIL - 41, rw, 2);
   ctx.fillStyle = shade(th.ceil || '#2a2a3a', 0.8); ctx.fillRect(x0, CEIL - 6, rw, 6);
   ctx.fillStyle = th.wall; ctx.fillRect(x0, CEIL, rw, FLOOR - CEIL);
   const w2 = th.wall2;
@@ -561,11 +607,23 @@ function drawWalls(ctx, room, cx, t, env) {
   else if (pat === 'corrugated') for (let x = 0; x < rw; x += 4) ctx.fillRect(x0 + x, CEIL, 1, FLOOR - CEIL);
   else if (pat === 'diamonds') for (let y = CEIL + 4; y < FLOOR; y += 10) for (let x = (y % 20) ? 0 : 5; x < rw; x += 10) { ctx.fillRect(x0 + x + 2, y, 2, 1); ctx.fillRect(x0 + x + 1, y + 1, 4, 1); ctx.fillRect(x0 + x + 2, y + 2, 2, 1); }
   else if (pat === 'marble') { ctx.fillStyle = shade(th.wall, 0.93); for (let i = 0; i < rw / 3; i++) ctx.fillRect(x0 + ((i * 71) % rw), CEIL + ((i * 43) % (FLOOR - CEIL)), 6, 1); ctx.fillStyle = '#c8a040'; ctx.fillRect(x0, 104, rw, 2); }
-  // ceiling lights
-  ctx.fillStyle = shade(th.ceil || '#2a2a3a', 1.2);
-  for (let x = 40; x < rw; x += 110) { ctx.fillRect(x0 + x, CEIL, 18, 3); ctx.fillStyle = 'rgba(255,255,220,0.07)'; ctx.fillRect(x0 + x - 10, CEIL + 3, 38, FLOOR - CEIL - 3); ctx.fillStyle = shade(th.ceil || '#2a2a3a', 1.2); }
+  // soft shading: darker under the ceiling and near the floor
+  const wg = ctx.createLinearGradient(0, CEIL, 0, FLOOR);
+  wg.addColorStop(0, 'rgba(0,0,0,0.28)'); wg.addColorStop(0.25, 'rgba(0,0,0,0)'); wg.addColorStop(0.85, 'rgba(0,0,0,0)'); wg.addColorStop(1, 'rgba(0,0,0,0.22)');
+  ctx.fillStyle = wg; ctx.fillRect(x0, CEIL, rw, FLOOR - CEIL);
+  // ceiling lamps throwing a cone of light down the wall
+  for (let x = 40; x < rw; x += 110) {
+    const lx = x0 + x;
+    if (lx < -60 || lx > W + 60) continue;
+    ctx.fillStyle = shade(th.ceil || '#2a2a3a', 1.3); ctx.fillRect(lx, CEIL, 18, 3);
+    ctx.fillStyle = '#fff8d0'; ctx.fillRect(lx + 2, CEIL + 3, 14, 1);
+    const lg = ctx.createLinearGradient(0, CEIL + 3, 0, FLOOR);
+    lg.addColorStop(0, 'rgba(255,248,210,0.16)'); lg.addColorStop(1, 'rgba(255,248,210,0)');
+    ctx.fillStyle = lg; ctx.beginPath(); ctx.moveTo(lx + 2, CEIL + 4); ctx.lineTo(lx + 16, CEIL + 4); ctx.lineTo(lx + 38, FLOOR); ctx.lineTo(lx - 20, FLOOR); ctx.closePath(); ctx.fill();
+  }
   // baseboard
   ctx.fillStyle = shade(th.wall, 0.6); ctx.fillRect(x0, FLOOR - 4, rw, 4);
+  ctx.fillStyle = shade(th.wall, 0.75); ctx.fillRect(x0, FLOOR - 5, rw, 1);
   // outside walls
   ctx.fillStyle = '#0b0b14';
   if (x0 > 0) ctx.fillRect(0, 0, x0, H);
@@ -575,7 +633,12 @@ function drawWalls(ctx, room, cx, t, env) {
 function drawFloor(ctx, room, cx, t) {
   const th = room.theme;
   const x0 = room.outdoor ? 0 : Math.round(-cx), rw = room.outdoor ? W : room.w;
-  if (room.outdoor && th.ground) { ctx.fillStyle = th.ground; ctx.fillRect(0, FLOOR - 16, W, 16); ctx.fillStyle = shade(th.ground, 1.2); for (let i = 0; i < W; i += 7) ctx.fillRect(i, FLOOR - 16 + ((i * 3) % 5), 2, 1); }
+  if (room.outdoor && th.ground) {
+    ctx.fillStyle = th.ground; ctx.fillRect(0, FLOOR - 16, W, 16);
+    ctx.fillStyle = shade(th.ground, 1.2);
+    for (let i = 0; i < W + 14; i += 7) { const wx = i + Math.floor(cx / 7) * 7; ctx.fillRect(i - (cx % 7), FLOOR - 16 + ((wx * 3) % 5), 2, 1); }
+    ctx.fillStyle = shade(th.ground, 0.8); ctx.fillRect(0, FLOOR - 3, W, 3);
+  }
   ctx.fillStyle = th.floor; ctx.fillRect(x0, FLOOR, rw, H - FLOOR);
   ctx.fillStyle = shade(th.floor, 0.78);
   const ox = room.outdoor ? -(cx % 16) : x0;

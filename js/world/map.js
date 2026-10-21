@@ -29,6 +29,7 @@ export const MAP = {
   pois: [],    // named places for the big map's index {id,name,x,y,icon,color,kind}
   pickups: [], // hearts, vests and bribe stars {kind,x,y}
   rail: new Uint8Array(MW * MH), // water tiles next to a bridge: the railing stops cars
+  ramps: [],   // stunt ramps {x0,y0,x1,y1,a} in px
 };
 
 export const idx = (x, y) => y * MW + x;
@@ -122,9 +123,10 @@ export function buildMap() {
 
   // ---------- roads
   for (const y of [2, 32, 47]) roadH(y, 2, 105);
-  for (const y of [60, 90]) roadH(y, 2, 105);
+  roadH(60, 2, 105); roadH(90, 2, 113);
   roadH(17, 2, 159); roadH(75, 2, 159);
-  for (const y of [2, 32, 47, 60, 90]) roadH(y, 122, 159);
+  for (const y of [2, 32, 47, 60]) roadH(y, 122, 159);
+  roadH(90, 118, 159);
   roadH(110, 2, 159);                      // carretera vieja
   for (const x of [2, 42, 82]) { roadV(x, 2, 50); roadV(x, 60, 93); }
   roadV(22, 2, 116); roadV(62, 2, 113); roadV(102, 2, 113);
@@ -210,6 +212,7 @@ export function buildMap() {
   const bar = (zone, x0, y0, x1, y1) => { for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) MAP.barriers[zone].push([x, y]); };
   for (const x of [22, 62, 102]) bar('centro', x, 57, x + 3, 57);
   bar('puerto', 113, 17, 113, 20); bar('puerto', 113, 75, 113, 78); bar('puerto', 140, 95, 143, 95);
+  bar('puerto', 110, 90, 110, 93); // the canal ramp only opens with El Puerto
   for (const x of [22, 62, 102]) bar('afueras', x, 95, x + 3, 95);
 
   // ---------- generic blocks
@@ -272,7 +275,12 @@ export function buildMap() {
     if ([[1, 0], [-1, 0], [0, 1], [0, -1]].some(([dx, dy]) => tileAt(x + dx, y + dy) === T.BRIDGE)) MAP.rail[idx(x, y)] = 1;
   }
 
+  // stunt ramp at the end of the avenue: jump the canal into El Puerto
+  MAP.props.push({ type: 'ramp', x: 111 * TS, y: 90 * TS });
+  MAP.ramps.push({ x0: 112.4 * TS, y0: 90 * TS, x1: 114 * TS, y1: 94 * TS, a: 0 });
+
   placeShops();
+  placeCasino();
   applyBarriers({ centro: false, puerto: false, afueras: false });
   buildGraph();
   collectParking(rnd);
@@ -458,6 +466,19 @@ function placePickups() {
   });
 }
 
+// the casino takes over a building in El Centro
+function placeCasino() {
+  let best = null, bd = Infinity;
+  for (const b of MAP.buildings) {
+    if (!b.generic || !b.door || b.shop || b.w < 5 || b.zone !== 'centro') continue;
+    const d = Math.hypot(b.door.x - 36, b.door.y - 38);
+    if (d < bd) { bd = d; best = b; }
+  }
+  if (!best) return;
+  Object.assign(best, { name: 'CASINO LA FORTUNA', sign: 'CASINO', room: 'casino', roof: '#7a1a28', neon: '#ffd23f', casino: true, awning: '#ffd23f' });
+  MAP.doors.push({ x: best.door.x, y: best.door.y, room: 'casino', bid: best.id, name: 'CASINO LA FORTUNA' });
+}
+
 function definePlaces() {
   const P = MAP.places;
   const doorFront = (name) => { const b = MAP.buildings.find((b) => b.name === name); return { x: b.door.x * TS + 8, y: (b.door.y + 1) * TS + 8 }; };
@@ -484,6 +505,11 @@ function definePlaces() {
   P.pintaCen = { x: 92 * TS + 8, y: 46 * TS + 8 };
   P.gasolinera = { x: 92 * TS, y: 109 * TS };
   P.billboard = { x: 34 * TS, y: 13 * TS };
+  P.rampa = { x: 106 * TS, y: 92 * TS };
+  // the secret garage: at the very end of a pier in El Puerto (no map, no sign)
+  P.pintaSecreto = { x: 170 * TS + 8, y: 81 * TS + 8 };
+  const cas = MAP.buildings.find((b) => b.casino);
+  if (cas) P.casino = { x: cas.door.x * TS + 8, y: (cas.door.y + 1) * TS + 8 };
   for (const sh of SHOPS) if (sh.bid !== undefined) { const b = MAP.buildings[sh.bid]; P[sh.id] = { x: b.door.x * TS + 8, y: (b.door.y + 1) * TS + 8 }; }
   // index for the big map
   const poi = (id, name, icon, color, kind) => P[id] && MAP.pois.push({ id, name, icon, color, kind, x: P[id].x, y: P[id].y });
@@ -506,6 +532,7 @@ function definePlaces() {
   poi('gasolinera', 'Gasolinera', 'g', '#d8323c', 'servicio');
   poi('penal', 'Penal (CERESO PV)', 'X', '#7a7a82', 'lugar');
   poi('campo', 'El campo', 'C', '#a0dc50', 'lugar');
+  poi('casino', 'Casino La Fortuna', '$', '#ffd23f', 'lugar');
   const ICON = { ropa: ['R', '#f46eaa', 'ropa'], zapateria: ['Z', '#5adcf0', 'ropa'], restaurante: ['F', '#f08c28', 'comida'], bar: ['b', '#c878f0', 'bar'] };
   for (const sh of SHOPS) { const [ic, col, kind] = ICON[sh.kind]; poi(sh.id, titleCase(sh.name), ic, col, kind); }
 }

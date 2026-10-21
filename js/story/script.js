@@ -71,11 +71,13 @@ export function room() { return G.scenes.interior; }
 // Place a GTA-style marker and wait until the player reaches it.
 export function* goTo(x, y, opts = {}) {
   const c = city();
-  const m = c.addMarker({ x, y, r: opts.r || (opts.needCar ? 22 : 14), color: opts.color || '#ffd23f', label: opts.label, needCar: opts.needCar, letter: opts.letter });
+  // opts.car: only that car counts (the marker hides while you're in anything else)
+  const m = c.addMarker({ x, y, r: opts.r || (opts.needCar || opts.car ? 22 : 14), color: opts.color || '#ffd23f', label: opts.label, needCar: opts.needCar || !!opts.car, letter: opts.letter });
   if (opts.objective) objective(opts.objective);
   try {
-    while (!m.inside || G.scene !== c) {
+    while (!m.inside || G.scene !== c || (opts.car && c.player.car !== opts.car)) {
       yield;
+      if (opts.car) m.hidden = c.player.car !== opts.car;
       if (opts.check) opts.check();
     }
   } finally { c.removeMarker(m); }

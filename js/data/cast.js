@@ -11,6 +11,9 @@ export const LOOKS = {
   ghenghisH: { name: 'GHENGHIS', skin: '#d29c72', hair: 'side', hc: '#3a2414', shirt: '#4a4a50', hood: '#4a4a50', mask: 'rasta', gloves: true, bagCol: '#c8323c', pants: '#2a2a30', shoes: '#101010', body: 'normal', voice: 360, color: '#e0504a', nerf: true },
   // El Jefe (the id stays 'donchuy' for old saves): nobody has seen his face, only his shadow
   donchuy:  { name: 'EL JEFE', skin: '#b87a4b', hair: 'slick', hc: '#9a9aa2', shirt: '#1a1a22', pants: '#1a1a22', shoes: '#101010', body: 'big', voice: 140, color: '#b8a070', silhouette: true },
+  // a one-off pedestrian in a silk floral shirt (see world/oozak.js)
+  oozak:    { name: 'oozaK', skin: '#e8c0a0', hair: 'slick', hc: '#5a3a1e', shirt: '#4aa8e0', pants: '#b8c8e0', shoes: '#f4f4f0', body: 'normal', floral: true, voice: 330, color: '#5adcf0' },
+  dealer:   { name: 'CRUPIER', skin: '#d8a070', hair: 'slick', hc: '#161010', shirt: '#f4f4f0', pants: '#16161c', shoes: '#101010', body: 'normal', tie: '#8c1c28', vest: true, voice: 340, color: '#ffd23f' },
   guarura:  { name: 'GUARURA', skin: '#a8704a', hair: 'bald', hc: '#1a1a1a', shirt: '#16161c', pants: '#16161c', shoes: '#0a0a0a', body: 'wide', shades: true, voice: 210, color: '#8a8a9a' },
   mari:     { name: 'DOÑA MARI', skin: '#c98c5e', hair: 'bun', hc: '#5a4a4a', shirt: '#d05a8c', pants: '#3c3c64', shoes: '#3a2418', body: 'fem', apron: true, voice: 540, color: '#f07aa8' },
   tia:      { name: 'LA TÍA GRIS', skin: '#e0b890', hair: 'short', hc: '#c8c8d0', shirt: '#5a6a3a', pants: '#4a4a32', shoes: '#2a2a1a', body: 'fem', voice: 250, color: '#a0b070', scar: true },

@@ -1,7 +1,7 @@
 // Vehicles, pedestrians and projectiles for the top-down city.
 import { VEHICLES, vehicleSprites, VEH_DIRS, topSprites, TOP_DIRS, CAR_COLORS } from '../data/sprites.js';
 import { rotIndex } from '../core/gfx.js';
-import { clamp, angDiff, rand, pick, dist } from '../core/util.js';
+import { clamp, angDiff, rand, pick, dist, approach } from '../core/util.js';
 import { MAP, TS, solidCarPx, solidFootPx, tileAt, T, isWalkway, nodeEntry, nodeExit, DIRV, edgeBlocked, zoneOf } from './map.js';
 import { civilianLook, CIVILIAN_TYPES } from '../data/cast.js';
 
@@ -15,7 +15,7 @@ export class Vehicle {
     this.spec = VEHICLES[type];
     this.x = x; this.y = y; this.a = a;
     this.vx = 0; this.vy = 0;
-    this.color = color || (type === 'police' || type === 'reyes' ? (type === 'reyes' ? '#1a1a2e' : '#f4f4f0') : type === 'taxi' ? '#ffd23f' : type === 'armored' ? '#6e6e82' : type === 'moto' ? '#d8323c' : pick(CAR_COLORS));
+    this.color = color || (type === 'police' || type === 'reyes' ? (type === 'reyes' ? '#1a1a2e' : '#f4f4f0') : type === 'taxi' ? '#ffd23f' : type === 'armored' ? '#6e6e82' : type === 'moto' ? '#d8323c' : type === 'limo' ? '#16161c' : type === 'helados' ? '#f4f4f0' : pick(CAR_COLORS));
     this.hp = this.spec.hp; this.maxHp = this.spec.hp;
     this.driver = null;     // 'player' | look object | null
     this.ai = null;         // 'traffic' | 'police' | 'parked' | 'script'
@@ -49,17 +49,21 @@ export class Vehicle {
     let vf = this.vx * c + this.vy * s;
     let vl = -this.vx * s + this.vy * c;
     const th = this.dead || this.engineOff ? 0 : this.throttle;
-    const maxS = sp.max * (this.hp < this.maxHp * 0.2 ? 0.75 : 1) * (this.boost || 1);
-    if (th > 0) vf += (vf < 0 ? sp.acc * 2.2 : sp.acc) * th * dt;
+    const boost = this.boost || 1;
+    const maxS = sp.max * (this.hp < this.maxHp * 0.2 ? 0.75 : 1) * boost;
+    if (th > 0) vf += (vf < 0 ? sp.acc * 2.2 : sp.acc * (boost > 1 ? 1.8 : 1)) * th * dt;
     else if (th < 0) vf += (vf > 5 ? -sp.acc * 2 : -sp.acc * 0.6) * -th * dt;
     else vf *= Math.max(0, 1 - 0.9 * dt);
-    if (this.handbrake) vf *= Math.max(0, 1 - 1.6 * dt);
+    // handbrake while turning = drift: the car keeps most of its speed and slides;
+    // handbrake going straight = it just brakes hard
+    const drifting = this.handbrake && Math.abs(this.steer) > 0.2 && Math.abs(vf) > 35;
+    if (this.handbrake) vf *= Math.max(0, 1 - (drifting ? 0.55 : 1.6) * dt);
     vf = clamp(vf, -maxS * 0.4, maxS);
     const off = this.onRough ? 0.6 : 1;
     if (this.onRough && Math.abs(vf) > maxS * 0.6) vf *= Math.max(0, 1 - 1.5 * dt);
-    const grip = this.handbrake ? 1.4 : sp.grip * off;
+    const grip = drifting ? 0.8 : this.handbrake ? 1.4 : sp.grip * off;
     vl *= Math.max(0, 1 - grip * dt);
-    const tr = (sp.style === 'moto' ? 3.4 : 2.7) * (this.handbrake ? 1.35 : 1);
+    const tr = (sp.style === 'moto' ? 3.4 : 2.7) * (drifting ? 1.7 : this.handbrake ? 1.35 : 1);
     this.a += this.steer * tr * dt * clamp(vf / 55, -1, 1);
     // hands off the wheel: settle the heading on the sprite's direction (and on the
     // street's axis when close), or the car keeps creeping diagonally across the lanes
@@ -116,7 +120,9 @@ export class Vehicle {
     this.edge = edge;
     const p0 = nodeExit(edge.from, edge.dir), p1 = nodeEntry(edge.to, edge.dir);
     this.seg = { p0, p1, c: null, len: Math.hypot(p1.x - p0.x, p1.y - p0.y), t: 0, kind: 'edge' };
-    this.cruise = rand(55, 80);
+    // big things drive slow, fast things drive fast
+    this.cruise = this.spec.max < 120 ? rand(42, 58) : this.spec.max > 185 ? rand(75, 95) : rand(55, 80);
+    this.side = 0;
     this.x = p0.x; this.y = p0.y; this.a = Math.atan2(p1.y - p0.y, p1.x - p0.x);
   }
   placeOnEdge(edge, frac) {
@@ -125,6 +131,10 @@ export class Vehicle {
     this.followPos();
   }
   followPos() {
+    this.followPath();
+    if (this.side) { this.x += Math.cos(this.a + Math.PI / 2) * this.side; this.y += Math.sin(this.a + Math.PI / 2) * this.side; }
+  }
+  followPath() {
     const s = this.seg; const u = s.len > 0 ? clamp(s.t / s.len, 0, 1) : 1;
     if (!s.c) { this.x = s.p0.x + (s.p1.x - s.p0.x) * u; this.y = s.p0.y + (s.p1.y - s.p0.y) * u; this.a = Math.atan2(s.p1.y - s.p0.y, s.p1.x - s.p0.x); }
     else {
@@ -152,9 +162,11 @@ export class Vehicle {
       const len = c ? (Math.hypot(c.x - p0.x, c.y - p0.y) + Math.hypot(p1.x - c.x, p1.y - c.y)) * 0.9 : Math.hypot(p1.x - p0.x, p1.y - p0.y);
       this.seg = { p0, p1, c, len: Math.max(1, len), t: 0, kind: 'turn' };
       this.nextEdge = e2;
+      const turn = (e2.dir - din + 4) % 4;
+      this.turnSide = turn === 1 ? 1 : turn === 3 ? -1 : 0;
       if (!n.dead) { n.res = n.res || []; if (!n.res.some((r) => r.car === this)) n.res.push({ car: this, din, straight: e2.dir === din }); }
     } else {
-      const e = this.nextEdge; this.edge = e;
+      const e = this.nextEdge; this.edge = e; this.turnSide = 0;
       const p0 = nodeExit(e.from, e.dir), p1 = nodeEntry(e.to, e.dir);
       this.seg = { p0, p1, c: null, len: Math.hypot(p1.x - p0.x, p1.y - p0.y), t: 0, kind: 'edge' };
     }
@@ -186,13 +198,26 @@ export class Vehicle {
   }
   trafficStep(dt, city) {
     if (this.stun > 0) { this.stun -= dt; this.vx *= 0.9; this.vy *= 0.9; return; }
-    // look ahead for obstacles
-    const ax = this.x + Math.cos(this.a) * 20, ay = this.y + Math.sin(this.a) * 20;
-    let blocked = city.obstacleNear(ax, ay, 13, this);
-    if (!blocked && !this.canEnterNode()) blocked = 'node';
-    let target = this.cruise;
-    if (blocked) {
-      target = 0; this.wait += dt;
+    // look ahead along the road: the faster we go, the further we look, and we ease off early
+    const sp = this.curSpeed || 0;
+    let target = this.cruise, blocked = null, hit = null;
+    for (const d of [14, 25, 38]) {
+      if (d > 18 + sp * 0.45) break;
+      const ob = city.obstacleAt(this.x + Math.cos(this.a) * d, this.y + Math.sin(this.a) * d, 11, this);
+      if (ob) { hit = ob; blocked = ob.kind; target = Math.min(target, d < 18 ? 0 : d < 30 ? this.cruise * 0.35 : this.cruise * 0.65); break; }
+    }
+    if (!this.reckless && !this.canEnterNode()) { blocked = blocked || 'node'; target = 0; }
+    // a siren close by: slow down and hug the curb so it can get through
+    const siren = !this.reckless && city.sirenNear(this.x, this.y, 110);
+    if (siren && siren !== this) target = Math.min(target, 22);
+    // stuck behind something that isn't going anywhere (a parked car, a wreck): go around it
+    const stalled = hit && hit.kind === 'car' && hit.v && !(hit.v.ai === 'traffic' && hit.v.driver) && hit.v.speed < 6;
+    if (stalled && target === 0 && this.seg.kind === 'edge' && this.seg.len - this.seg.t > 40) { this.blockT = (this.blockT || 0) + dt; if (this.blockT > 1.4) this.overtake = 2.6; }
+    else this.blockT = 0;
+    if (this.overtake > 0) { this.overtake -= dt; target = Math.max(target, this.cruise * 0.45); }
+    this.side = approach(this.side || 0, this.overtake > 0 ? -17 : siren ? 6 : 0, 26 * dt);
+    if (target === 0) {
+      this.wait += dt;
       if (this.wait > 1.2 && this.honk <= 0 && blocked === 'player') { this.honk = 3; city.sfxAt('horn', this.x, this.y); }
       if (this.wait > 10 && blocked !== 'player') this.giveUp = true;
     } else this.wait = 0;
@@ -231,6 +256,7 @@ export class Ped {
   sprite() {
     const s = this.sprites();
     if (this.state === 'down' || this.state === 'dead') return s[3][rotIndex(this.a, 4)];
+    if (this.punchAnim > 0 && s[4]) return s[4][rotIndex(this.a, TOP_DIRS)];
     const f = this.moving ? 1 + (Math.floor(this.anim * 8) % 2) : 0;
     return s[f][rotIndex(this.a, TOP_DIRS)];
   }

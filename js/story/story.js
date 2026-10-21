@@ -251,7 +251,7 @@ export const story = {
   // "Reiniciar misión" (phone / pause menu): way out if a mission ever gets stuck
   restartMission() {
     if (!this.active || this.dying) return false;
-    if (G.minigames?.active) G.minigames.active = null;
+    if (G.minigames?.active) G.minigames.stop();
     this.fail('', 'restart');
     return true;
   },
@@ -315,7 +315,7 @@ export const story = {
     this.resetMissionState();
     // anything the player was doing (shop menus, a pending fail card) goes too
     runner.cancelWhere((t) => t.name !== 'death');
-    if (G.minigames?.active) G.minigames.active = null;
+    if (G.minigames?.active) G.minigames.stop();
     const self = this;
     const c = G.scenes.city;
     runner.run((function* () {
@@ -450,6 +450,20 @@ export const story = {
         this.jefeRoom(r);
         r.addAction({ x: 238, r: 22, label: 'Hablar con El Jefe', fn: () => { if (!this.active || this.active.m.allowShops) runner.run(this.chuyMenu(), 'npc'); } });
         break;
+      case 'casino': {
+        const play = (game) => (n) => {
+          if (this.active && !this.active.m.allowShops) return;
+          if (s.money < 50) { runner.run(say(n.look, 'La apuesta mínima es de $50. Sin lana no hay juego, amigo.', 'serious'), 'npc'); return; }
+          minigames.start(game);
+        };
+        r.addNpc({ look: 'dealer', x: 132, facing: -1, prompt: 'Ruleta', onTalk: play('roulette') });
+        r.addNpc({ look: 'dealer', x: 224, facing: -1, prompt: 'Blackjack', onTalk: play('blackjack') });
+        r.addNpc({ look: 'dealer', x: 312, facing: -1, prompt: 'Póker', onTalk: play('poker') });
+        r.addNpc({ look: 'dealer', x: 404, facing: -1, prompt: 'Carrera de caballos', onTalk: play('horses') });
+        for (const sx of [44, 62]) r.addAction({ x: sx + 8, r: 9, label: 'Tragamonedas', fn: () => { if (s.money < 50) { UI.toast('La apuesta mínima es de $50', '#d8323c', 2); return; } if (!this.active || this.active.m.allowShops) minigames.start('slots'); } });
+        r.addNpc({ look: 17, x: 100, facing: -1 }); r.addNpc({ look: 23, x: 250, facing: 1 }); r.addNpc({ look: 31, x: 360, facing: 1, pose: 'sit', y: FLOOR - 2 });
+        break;
+      }
       case 'escondite':
         r.prop('plan').plan = s.chapter >= 3;
         if (s.chapter >= 5 && !this.isDone('c8_entrada')) r.props.push({ t: 'tsuruside', x: 330, col: '#d8d8d0', id: 'tsuru' });
@@ -643,20 +657,37 @@ export const story = {
       this.weatherT = (this.weatherT || 60) - dt;
       if (this.weatherT <= 0 && !G.weatherLock) { this.weatherT = 90 + Math.random() * 120; const r = Math.random(); s.weather = r < 0.62 ? 'sun' : r < 0.8 ? 'cloudy' : r < 0.95 ? 'rain' : 'storm'; }
     }
-    // Pinta y Olvida: lose the police by repainting the car
+    // Pinta y Olvida: repaint (lose the police) and fix the car. Plus a secret garage with a turbo.
     const cc = G.scenes.city;
-    if (G.scene === cc && cc.player.car && cc.wanted > 0 && !cc.wantedLocked) {
-      this.pintaCd = (this.pintaCd || 0) - dt;
+    const car = cc.player.car;
+    this.pintaCd = (this.pintaCd || 0) - dt;
+    if (G.scene === cc && car && !car.dead && !car.sinking && this.pintaCd <= 0 && !cc.wantedLocked) {
       for (const k of ['pintaCol', 'pintaCen']) {
         const pl = MAP.places[k];
-        if (this.pintaCd <= 0 && dist(cc.player.car.x, cc.player.car.y, pl.x, pl.y) < 22) {
-          this.pintaCd = 5;
-          if (s.money < 300) { UI.toast('Pinta y Olvida: $300. No te alcanza.', '#d8323c', 2); break; }
-          s.money -= 300; cc.wanted = 0; cc.heli = null;
-          cc.player.car.color = pick(['#d8323c', '#3c64dc', '#46b450', '#ffd23f', '#8c46c8', '#f4f4f0', '#1a1a2e']);
-          audio.sfx('pass'); UI.flash(0.5);
-          UI.toast('PINTA Y OLVIDA: -$300. Carro nuevo, vida nueva.', '#ffd23f', 3);
-          unlock('pinta');
+        if (dist(car.x, car.y, pl.x, pl.y) > 22) continue;
+        this.pintaCd = 5;
+        const hot = cc.wanted > 0, broken = car.hp < car.maxHp - 1;
+        if (!hot && !broken) { UI.toast('Pinta y Olvida: tu carro está como nuevo. Regresa cuando lo choques o te busque la policía.', '#f4f4f0', 3); break; }
+        const price = hot ? 300 : 150;
+        if (s.money < price) { UI.toast(`Pinta y Olvida: $${price}. No te alcanza.`, '#d8323c', 2); break; }
+        s.money -= price; cc.wanted = 0; cc.heli = null;
+        car.hp = car.maxHp; car.forceSmoke = null;
+        if (hot) car.color = pick(['#d8323c', '#3c64dc', '#46b450', '#ffd23f', '#8c46c8', '#f4f4f0', '#1a1a2e']);
+        audio.sfx('pass'); UI.flash(0.5);
+        UI.toast(hot ? `PINTA Y OLVIDA: -$${price}. Carro nuevo, vida nueva (y arreglado).` : `PINTA Y OLVIDA: -$${price}. Te lo dejamos como nuevo.`, '#ffd23f', 3);
+        if (hot) unlock('pinta');
+      }
+      // the garage nobody talks about, at the end of a pier
+      const sp = MAP.places.pintaSecreto;
+      if (sp && dist(car.x, car.y, sp.x, sp.y) < 20 && car.spec.style !== 'moto') {
+        this.pintaCd = 5;
+        if (car.turbo) UI.toast('TALLER CLANDESTINO: ese ya trae turbo, compa. Mantén SHIFT.', '#5adcf0', 3);
+        else if (s.money < 2500) UI.toast('TALLER CLANDESTINO: el turbo cuesta $2,500. Vuelve con la lana.', '#d8323c', 3);
+        else {
+          s.money -= 2500; car.turbo = true; car.hp = car.maxHp; cc.wanted = 0;
+          audio.sfx('turbo'); UI.flash(0.7);
+          UI.toast('TURBO INSTALADO: mantén SHIFT para acelerar. Nadie te dijo dónde estaba este taller.', '#5adcf0', 5);
+          unlock('turbo');
         }
       }
     }

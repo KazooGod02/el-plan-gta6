@@ -209,6 +209,11 @@ class Audio {
       case 'kick': S.tone('square', 60, t, 0.1, 0.12 * v); S.noiseHit(t, 0.1, 0.3 * v, 'lowpass', 300); break;
       case 'engine_die': S.tone('sawtooth', 70, t, 0.2, 0.1 * v); S.tone('sawtooth', 50, t + 0.2, 0.3, 0.08 * v); S.tone('sawtooth', 35, t + 0.5, 0.4, 0.06 * v); break;
       case 'splash': S.noiseHit(t, 0.4, 0.4 * v, 'bandpass', 900); break;
+      case 'skid': S.noiseHit(t, 0.16, 0.18 * v, 'bandpass', 2400); break;
+      case 'turbo': S.tone('sawtooth', 90, t, 0.25, 0.08 * v); S.tone('sawtooth', 180, t + 0.05, 0.3, 0.06 * v); S.noiseHit(t, 0.35, 0.3 * v, 'highpass', 1800); break;
+      case 'thunder': S.noiseHit(t, 1.8, 0.7 * v, 'lowpass', 300); S.tone('triangle', 38, t, 1.2, 0.25 * v); break;
+      case 'chips': S.noiseHit(t, 0.05, 0.2 * v, 'highpass', 4000); S.tone(0.25, 2200, t, 0.02, 0.04 * v); break;
+      case 'wheel': S.tone(0.5, 1400 + Math.random() * 200, t, 0.015, 0.035 * v); break;
       case 'jam': S.tone('square', 200, t, 0.03, 0.08 * v); S.noiseHit(t + 0.03, 0.03, 0.2 * v, 'highpass', 2000); break;
       case 'reload': S.noiseHit(t, 0.04, 0.3 * v, 'highpass', 2500); S.noiseHit(t + 0.12, 0.04, 0.3 * v, 'highpass', 2500); break;
       case 'pass': [523, 659, 784, 1047, 784, 1047].forEach((f, i) => S.tone(0.25, f, t + i * 0.1, i === 5 ? 0.4 : 0.1, 0.09 * v)); break;

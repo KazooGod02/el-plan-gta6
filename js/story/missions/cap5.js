@@ -3,7 +3,7 @@ import { G } from '../../core/game.js';
 import { UI } from '../../ui/ui.js';
 import { audio } from '../../core/audio.js';
 import { wait, until, say, talk, ask, fadeOut, fadeIn, lock, objective, toast, chat, setClock, setDay, trust, music, walkNpc, walkPlayer, goTo, addMoney } from '../script.js';
-import { P, C, R, S, line, lines, cityAt, roomAt, dumb, seat } from './common.js';
+import { P, C, R, S, line, lines, cityAt, roomAt, dumb, seat, guardCar } from './common.js';
 import { play } from '../../minigames/index.js';
 import { FLOOR } from '../../interior/rooms.js';
 import { unlock } from '../achievements.js';
@@ -80,11 +80,12 @@ export const CAP5 = [
       c.removePed(vend);
       const vp = seat(tsuru, 'vendedor', null);
       c.putInCar(tsuru);
+      guardCar(ctx, tsuru, 'el Tsuru del vendedor');
       lock(false);
       objective('Prueba de manejo: sigue los puntos');
       const pts = [{ x: 24 * TS, y: 34 * TS }, { x: 44 * TS, y: 49 * TS }, { x: 24 * TS, y: 19 * TS }, { x: pv.x, y: pv.y }];
       for (let i = 0; i < pts.length; i++) {
-        yield* goTo(pts[i].x, pts[i].y, { r: 30, needCar: true, label: i === 3 ? 'REGRESAR' : 'PRUEBA ' + (i + 1), check: () => { if (c.player.car !== tsuru) objective('Súbete otra vez al Tsuru'); else objective('Prueba de manejo: sigue los puntos'); } });
+        yield* goTo(pts[i].x, pts[i].y, { r: 30, car: tsuru, label: i === 3 ? 'REGRESAR' : 'PRUEBA ' + (i + 1), check: () => { const o = c.player.car !== tsuru ? 'Súbete otra vez al Tsuru' : 'Prueba de manejo: sigue los puntos'; if (UI.objective !== o) objective(o); } });
         if (i === 0) {
           tsuru.forceSmoke = 'gray';
           yield* lines([['kazoo', '¿Eso es humo?', 'shock'], ['vendedor', 'Vapor. Es el aire acondicionado. Muy moderno.', 'happy']]);
@@ -142,12 +143,13 @@ export const CAP5 = [
       let tsuru = c.vehicles.find((v) => v.type === 'tsuru' && v.mission);
       if (!tsuru) { const pv = P().plazavicio; tsuru = c.spawnVehicle('tsuru', pv.x + 40, pv.y, Math.PI, { mission: true, color: '#d8d8d0' }); tsuru.hp = 70; }
       tsuru.keep = true;
-      ctx.check(() => (tsuru.dead ? '¡Destruiste el Tsuru!' : null));
+      guardCar(ctx, tsuru);
       objective('Lleva el Tsuru al escondite');
       const esc = P().escondite;
-      yield* goTo(esc.x, esc.y + 10, { r: 22, needCar: true, label: 'ESCONDITE', check: () => { objective(c.player.car === tsuru ? 'Lleva el Tsuru al escondite' : 'Súbete al Tsuru'); } });
+      yield* goTo(esc.x, esc.y + 10, { r: 22, car: tsuru, label: 'ESCONDITE', check: () => { const o = c.player.car === tsuru ? 'Lleva el Tsuru al escondite' : 'Súbete al Tsuru'; if (UI.objective !== o) objective(o); } });
       if (c.player.car !== tsuru) { yield* until(() => c.player.car === tsuru); }
       lock(true);
+      tsuru.safe = true;
       c.exitCar(true);
       c.removeVehicle(tsuru);
       yield* fadeOut(0.3);

@@ -33,7 +33,9 @@ export const CAP9 = [
       const ch = CHAPTERS[9];
       UI.showCard(ch.title, ch.label, 3, 'chapter'); audio.sfx('star');
       lock(false);
-      objective('¡Huye por la ruta tres! La terracería de Las Afueras, junto al campo');
+      const OBJ1 = '¡Los traes encima! Brinca el canal en la rampa al final de la avenida de La Colonia (a fondo)';
+      const OBJ2 = '¡Los perdiste! Toma la terracería de la ruta tres, junto al campo';
+      objective(OBJ1);
       ctx.check(() => (c.player.car !== t && !t.dead && dist(c.player.x, c.player.y, t.x, t.y) > 200 ? 'Abandonaste a tus compas' : null));
       ctx.check(() => (t.dead ? (t.sunk ? 'El Tsuru se hundió. Con todo y la lana.' : 'El Tsuru explotó') : null));
       const lineSet = [
@@ -47,18 +49,40 @@ export const CAP9 = [
         [128, [['coqui', '¿Y tú por qué estás tan tranquilo, Ghenghis?', 'serious'], ['ghenghis', 'Porque ya sé cómo acaba esto. Jajaja.', 'laugh']]],
       ];
       const fin = P().caminoFin;
-      const mk = c.addMarker({ x: fin.x, y: fin.y, r: 26, color: '#ffd23f', label: 'EL CAMINO', needCar: true });
+      // halfway there: the river jump. Then the patrols are stuck on the other bank
+      const rp = P().rampa;
+      let ramp = c.addMarker({ x: rp.x, y: rp.y, r: 26, color: '#ff7a3c', label: '¡RAMPA!', needCar: true });
+      let mk = null, jumped = false, lost = false;
       let tt = 0, li = 0;
-      while (!mk.inside) {
+      while (!mk || !mk.inside || c.player.car !== t) {
         const dt = yield; tt += dt;
+        if (t.air) jumped = true;
+        if (jumped && !lost && !t.air && !t.sinking) {
+          lost = true;
+          if (ramp) { c.removeMarker(ramp); ramp = null; }
+          for (const v of c.vehicles) if (v.ai === 'police') { v.ai = 'parked'; v.sirenOn = true; v.mission = false; }
+          c.peds = c.peds.filter((q) => !q.cop);
+          c.wanted = 0; c.heli = null; c.policeKnows = false; c.noPolice = true; c.wantedLocked = true;
+          music('heist');
+          objective(OBJ2);
+          for (const q of [['kazoo', '¡¿LO VIERON?! ¡VOLAMOS, CABRONES!', 'shock'], ['coqui', '¡Se quedaron del otro lado! ¡Tienen que rodear todo el canal!', 'happy'], ['ghenghis', 'Jajaja... por ahora.', 'laugh']]) {
+            UI.say(q[0], q[1], { expr: q[2], auto: 1.6 + q[1].length / 17 }); const d = UI.dialog; while (UI.dialog === d) yield;
+          }
+        }
+        // if they skip the ramp, the dirt road still ends the chase
+        if (!mk && (lost || tt > 150)) mk = c.addMarker({ x: fin.x, y: fin.y, r: 26, color: '#ffd23f', label: 'EL CAMINO', needCar: true });
+        if (mk) mk.hidden = c.player.car !== t;
         if (c.player.car === t) {
           t.hp = Math.max(t.minHp, t.hp - dt * 0.55);
           t.forceSmoke = t.hp < 30 ? 'black' : t.hp < 55 ? 'gray' : null;
         }
-        if (li < lineSet.length && tt > lineSet[li][0]) { const L = lineSet[li][1]; li++; for (const q of L) { UI.say(q[0], q[1], { expr: q[2], auto: 1.4 + q[1].length / 17 }); const d = UI.dialog; while (UI.dialog === d) yield; } }
-        if (tt > 20 && S().unlocked.afueras && c.zone === 'afueras' && UI.objective !== '¡Toma la terracería de la ruta tres, hacia el campo!') objective('¡Toma la terracería de la ruta tres, hacia el campo!');
+        if (li < lineSet.length && tt > lineSet[li][0] && !(lost && lineSet[li][0] === 38)) { const L = lineSet[li][1]; li++; for (const q of L) { UI.say(q[0], q[1], { expr: q[2], auto: 1.4 + q[1].length / 17 }); const d = UI.dialog; while (UI.dialog === d) yield; } }
+        else if (li < lineSet.length && lost && lineSet[li][0] === 38) li++;
+        if (lost && c.zone === 'afueras' && UI.objective !== '¡Toma la terracería de la ruta tres, hacia el campo!') objective('¡Toma la terracería de la ruta tres, hacia el campo!');
       }
+      if (ramp) c.removeMarker(ramp);
       c.removeMarker(mk);
+      c.noPolice = false;
       // ---------- the car dies... and the police are still coming
       lock(true);
       t.engineOff = true; t.forceSmoke = 'black'; t.invuln = true;

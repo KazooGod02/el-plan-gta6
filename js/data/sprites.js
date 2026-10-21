@@ -376,8 +376,14 @@ export function drawTop(L, frame = 0) {
   if (frame === 2) { R(9, 7, 2, 1, sho); R(1, 4, 2, 1, sho); R(7, 7, 2, 1, pa); R(3, 4, 2, 1, pa); }
   // arms
   const a1 = frame === 1 ? 2 : frame === 2 ? -2 : 0;
-  R(5 + a1, 1, 2, 1, sh2); R(7 + a1, 1, 1, 1, sk);
-  R(5 - a1, 10, 2, 1, sh2); R(7 - a1, 10, 1, 1, sk);
+  if (frame === 4) {
+    // punch: the right arm thrown all the way forward, the other one pulled back
+    R(3, 1, 2, 1, sh2); R(5, 1, 1, 1, sk);
+    R(6, 9, 4, 2, sh2); R(10, 9, 2, 2, sk); R(11, 8, 1, 1, sk);
+  } else {
+    R(5 + a1, 1, 2, 1, sh2); R(7 + a1, 1, 1, 1, sk);
+    R(5 - a1, 10, 2, 1, sh2); R(7 - a1, 10, 1, 1, sk);
+  }
   // shoulders
   if (big) { R(3, 1, 5, 10, sh); R(2, 2, 1, 8, sh); R(3, 1, 1, 10, sh2); }
   else { R(4, 2, 4, 8, sh); R(3, 3, 1, 6, sh); R(4, 2, 1, 8, sh2); }
@@ -416,6 +422,7 @@ export function topSprites(look) {
   if (!s) {
     s = [0, 1, 2].map((f) => rotations(drawTop(L, f), TOP_DIRS));
     s[3] = rotations(drawTop(L, 3), 4);
+    s[4] = rotations(drawTop(L, 4), TOP_DIRS);
     topCache.set(id, s);
   }
   return s;
@@ -439,6 +446,12 @@ export const VEHICLES = {
   moto:    { name: 'Moto de reparto', L: 13, W: 5, style: 'moto', max: 145, acc: 150, grip: 8, hp: 55, rating: 4 },
   golf:    { name: 'Carrito de golf', L: 15, W: 9, style: 'golf', max: 70, acc: 60, grip: 7, hp: 60, rating: 5 },
   garbage: { name: 'Camión de basura', L: 32, W: 14, style: 'garbage', max: 95, acc: 55, grip: 5, hp: 250, rating: 1 },
+  lowrider: { name: 'Lowrider', L: 26, W: 12, style: 'lowrider', max: 140, acc: 105, grip: 6.5, hp: 110, rating: 5 },
+  muscle:  { name: 'Muscle "Furia"', L: 24, W: 12, style: 'muscle', max: 205, acc: 190, grip: 7, hp: 110, rating: 4 },
+  jeep:    { name: 'Jeep', L: 20, W: 12, style: 'jeep', max: 150, acc: 130, grip: 7.5, hp: 140, rating: 4 },
+  limo:    { name: 'Limusina', L: 36, W: 13, style: 'limo', max: 140, acc: 90, grip: 6, hp: 160, rating: 5 },
+  helados: { name: 'Camión de helados', L: 26, W: 13, style: 'helados', max: 110, acc: 80, grip: 6, hp: 150, rating: 3 },
+  convertible: { name: 'Convertible', L: 22, W: 11, style: 'convertible', max: 195, acc: 180, grip: 8, hp: 85, rating: 5 },
 };
 
 export const CAR_COLORS = ['#d8323c', '#3c64dc', '#f4f4f0', '#1a1a2e', '#46b450', '#ffd23f', '#6e6e82', '#8c46c8', '#f08c28', '#28b4a0', '#8c5a32', '#a8a8b8', '#f46eaa'];
@@ -450,6 +463,8 @@ export function drawVehicle(type, color, variant = 0) {
   const R = (X, Y, w, h, col) => { x.fillStyle = col; x.fillRect(X, Y, w, h); };
   const col = color, c2 = shade(col, 0.7), c3 = shade(col, 1.25), glass = '#3a5470', glassL = '#6a8cac';
   const body = () => { R(1, 0, L - 2, Wd, c2); R(0, 1, L, Wd - 2, c2); R(1, 1, L - 2, Wd - 2, col); };
+  // tires peeking out at the four corners
+  const wheels = () => { for (const wx of [3, L - 7]) { R(wx, 0, 4, 1, '#141414'); R(wx, Wd - 1, 4, 1, '#141414'); } R(2, 1, L - 4, 1, shade(col, 1.3)); };
   const lights = () => { R(L - 1, 1, 1, 2, '#fff6b0'); R(L - 1, Wd - 3, 1, 2, '#fff6b0'); R(0, 1, 1, 2, '#e02828'); R(0, Wd - 3, 1, 2, '#e02828'); };
   switch (s.style) {
     case 'moto': {
@@ -470,7 +485,42 @@ export function drawVehicle(type, color, variant = 0) {
       return c;
     }
   }
-  body();
+  // the new cars get their own paint jobs
+  if (s.style === 'lowrider' || s.style === 'muscle' || s.style === 'jeep' || s.style === 'limo' || s.style === 'helados' || s.style === 'convertible') {
+    body(); wheels();
+    const ws = L - 9;
+    if (s.style === 'lowrider') {
+      R(ws, 2, 3, Wd - 4, glass); R(ws + 1, 2, 1, Wd - 4, glassL); R(ws - 8, 2, 8, Wd - 4, c3); R(ws - 10, 2, 2, Wd - 4, glass);
+      R(2, 1, L - 4, 1, '#e8e8f0'); R(2, Wd - 2, L - 4, 1, '#e8e8f0');           // chrome trim
+      for (const wx of [3, L - 7]) { R(wx, 0, 4, 1, '#ffd23f'); R(wx, Wd - 1, 4, 1, '#ffd23f'); } // gold rims
+      R(L - 6, Math.floor(Wd / 2) - 1, 4, 2, shade(col, 1.3));
+    } else if (s.style === 'muscle') {
+      R(ws, 2, 3, Wd - 4, glass); R(ws + 1, 2, 1, Wd - 4, glassL); R(ws - 6, 2, 6, Wd - 4, c3); R(ws - 8, 2, 2, Wd - 4, glass);
+      R(1, Math.floor(Wd / 2) - 2, L - 2, 1, '#f4f4f0'); R(1, Math.floor(Wd / 2) + 1, L - 2, 1, '#f4f4f0'); // racing stripes
+      R(0, 1, 2, Wd - 2, '#1a1a1a'); R(L - 7, 4, 3, Wd - 8, '#2a2a2e');           // spoiler and hood scoop
+    } else if (s.style === 'jeep') {
+      R(L - 7, 1, 2, Wd - 2, glass); R(3, 2, L - 11, Wd - 4, '#2a2a30');           // open top
+      R(5, 3, 3, 2, '#5a3a2a'); R(5, Wd - 5, 3, 2, '#5a3a2a'); R(10, 3, 3, 2, '#5a3a2a'); R(10, Wd - 5, 3, 2, '#5a3a2a');
+      R(8, 1, 1, Wd - 2, '#3a3a44');                                              // roll bar
+      R(0, Math.floor(Wd / 2) - 2, 2, 4, '#1a1a1a');                              // spare tire
+    } else if (s.style === 'limo') {
+      R(ws, 2, 3, Wd - 4, glass); R(ws + 1, 2, 1, Wd - 4, glassL);
+      R(5, 2, ws - 5, Wd - 4, c3);
+      for (let i = 7; i < ws - 2; i += 5) { R(i, 1, 3, 1, glass); R(i, Wd - 2, 3, 1, glass); }
+      R(4, 2, 1, Wd - 4, glass);
+    } else if (s.style === 'helados') {
+      R(L - 7, 1, 6, Wd - 2, col); R(L - 4, 2, 2, Wd - 4, glass);
+      R(0, 0, L - 8, Wd, '#d0d0d8'); R(1, 1, L - 10, Wd - 2, '#f4f4f0');
+      R(1, 3, L - 10, 2, '#ff7ae0'); R(1, Wd - 5, L - 10, 2, '#5adcf0');            // stripes
+      R(7, 5, 4, 3, '#e8c890'); R(8, 4, 2, 1, '#f46eaa');                          // a big cone on the roof
+    } else {
+      R(ws, 1, 2, Wd - 2, glass); R(ws + 1, 1, 1, Wd - 2, glassL);                // just a windshield
+      R(4, 2, ws - 5, Wd - 4, '#2a2228'); R(6, 3, 3, Wd - 6, '#6a3a3a'); R(11, 3, 3, Wd - 6, '#6a3a3a');
+    }
+    lights();
+    return c;
+  }
+  body(); wheels();
   if (s.style === 'sedan' || s.style === 'taxi' || s.style === 'police' || s.style === 'reyes' || s.style === 'sports') {
     const ws = L - 9, roofL = s.style === 'sports' ? 5 : 7;
     R(ws, 2, 3, Wd - 4, glass); R(ws + 1, 2, 1, Wd - 4, glassL);

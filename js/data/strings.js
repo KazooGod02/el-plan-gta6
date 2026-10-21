@@ -27,6 +27,7 @@ export const RADIO_STATIONS = [
   { id: 'cumbia', name: 'LA CUMBIA 16-BIT', song: 'cumbia', dj: '¡Pura cumbia pixelada, raza!' },
   { id: 'corridos', name: 'CORRIDOS DEL PUERTO', song: 'corrido', dj: 'Historias que nadie debería cantar.' },
   { id: 'news', name: 'RADIO NOTICIAS PV', song: 'news', dj: 'Noticias de Puerto Vicio.' },
+  { id: 'secreto', name: '???', song: 'secreto', dj: '???' },
   { id: 'off', name: 'RADIO APAGADO', song: null, dj: '' },
 ];
 

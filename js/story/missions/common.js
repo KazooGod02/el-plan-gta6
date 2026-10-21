@@ -60,6 +60,18 @@ export function seat(v, look, label) {
 }
 export function carHas(v, ped) { return v && v.passengers.includes(ped); }
 export function playerCar() { return C().player.car; }
+// a mission car that must make it: fail if it's wrecked, sunk or left behind
+export function guardCar(ctx, car, name = 'el Tsuru', far = 260) {
+  const c = C();
+  ctx.check(() => {
+    if (car.safe) return null; // the mission is done with it (parked inside, cutscene...)
+    if (car.dead || car.wreck) return car.sunk ? `Hundiste ${name}.` : `Destruiste ${name}.`;
+    if (G.scene !== c) return null;
+    if (!c.vehicles.includes(car)) return `Perdiste ${name}.`;
+    if (c.player.car !== car && !c.player.dead && dist(c.player.x, c.player.y, car.x, car.y) > far) return `Dejaste ${name} abandonado.`;
+    return null;
+  });
+}
 
 // press A repeatedly (for kicking the moto, digging, filling the bag...)
 export function* mash(n, label, onPress) {
