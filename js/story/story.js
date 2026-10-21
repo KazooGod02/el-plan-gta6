@@ -100,7 +100,8 @@ export const story = {
     this.triggers = [];
     if (this.active) return;
     this.addSideTriggers();
-    if (G.state.freeMode) return;
+    // free roam has no story mission to fade back in, so a mission that ended on black is undone here
+    if (G.state.freeMode) { if (UI.fadeTarget > 0 && G.lockInput === 0) UI.fadeTarget = 0; return; }
     for (const m of this.available()) {
       const lockEp = this.episodeLock(m);
       if (!m.trigger) {
@@ -143,6 +144,7 @@ export const story = {
   },
   triggerPos(m) {
     const t = m.trigger;
+    if (!t) return null;
     if (t.place) return MAP.places[t.place];
     if (t.door) {
       if (MAP.places[t.door]) return MAP.places[t.door];
@@ -221,10 +223,11 @@ export const story = {
       UI.showCard('MISIÓN SUPERADA', r ? `${r.by} te calificó ${'★'.repeat(r.stars)}${'☆'.repeat(5 - r.stars)}: ${r.text}` : m.title, 4, 'pass');
       if (m.reward && !replay) { G.state.money += m.reward; }
     }
-    this.save();
     const g = G.global;
     if (m.final) { g.finished = true; saveGlobal(g); }
     this.refreshTriggers(true);
+    if (replay) runner.run(this.backFromReplay(), 'replayBack');
+    else this.save();
   },
 
   // What the phone's "Misión" app shows: always read live, so it is never out of date.
@@ -256,10 +259,30 @@ export const story = {
   replayMission(m) {
     if (this.active || this.dying) return;
     const p = (m.failPlace && MAP.places[m.failPlace]) || this.triggerPos(m) || MAP.places.pension;
-    G.scenes.city.player.car = null;
+    const c = G.scenes.city, r = G.scenes.interior, at = c.pos();
+    this.replayFrom = G.scene === r ? { room: r.roomId, x: r.p.x } : { x: at.x, y: at.y };
+    c.player.car = null;
     setScene('city', { x: p.x, y: p.y + 14 });
     this.startMission(m, 'replay');
     this.active.replay = true;
+  },
+  // after a replay (passed or given up) you're put back where you were in free roam
+  placeReplayFrom() {
+    const f = this.replayFrom; this.replayFrom = null;
+    if (!f) return false;
+    if (f.room) { setScene('interior', { room: f.room, x: f.x }); this.populateRoom(f.room); } else setScene('city', { x: f.x, y: f.y });
+    G.state.flags.heistFit = false; G.scenes.city.player.look = 'kazoo'; applyOutfit();
+    UI.hud = true;
+    return true;
+  },
+  *backFromReplay() {
+    lock(true);
+    if (UI.card) yield* wait(UI.card.t);
+    yield* fadeOut(0.5);
+    this.placeReplayFrom();
+    lock(false);
+    yield* fadeIn(0.5);
+    this.save();
   },
 
   // "Reiniciar misión" (phone / pause menu): way out if a mission ever gets stuck
@@ -298,7 +321,8 @@ export const story = {
       c.clearMission();
       for (const v of c.vehicles.slice()) if (v.mission) c.removeVehicle(v);
       removeAllies(c);
-      if (kind !== 'wasted' && kind !== 'busted') {
+      if (a.replay && !restart && self.placeReplayFrom()) { /* back to free roam */ }
+      else if (kind !== 'wasted' && kind !== 'busted') {
         const back = a.m.failPlace ? MAP.places[a.m.failPlace] : null;
         if (G.scene !== c || back) {
           const p = back || self.triggerPos(a.m) || MAP.places.pension;
@@ -308,6 +332,7 @@ export const story = {
       lock(false);
       yield* fadeIn(0.5);
       self.refreshTriggers(true);
+      if (a.replay && restart) { self.startMission(a.m, 'replay'); self.active.replay = true; }
     })(), 'fail');
   },
 
@@ -316,6 +341,7 @@ export const story = {
     // one death at a time (city + interior, or a second hit during the "TE MORISTE" card)
     if (this.dying) return;
     this.dying = true;
+    this.replayFrom = null;
     if (kind === 'wasted') s.stats.deaths++; else s.stats.busted++;
     const wasActive = !!this.active;
     if (wasActive) {

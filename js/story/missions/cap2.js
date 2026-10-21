@@ -3,7 +3,7 @@ import { G } from '../../core/game.js';
 import { UI } from '../../ui/ui.js';
 import { audio } from '../../core/audio.js';
 import { wait, until, say, talk, ask, fadeOut, fadeIn, lock, objective, toast, chat, setClock, setDay, trust, music, walkNpc, goTo } from '../script.js';
-import { P, C, R, S, line, lines, ally, unlockZone, cityAt, roomAt, talkAlong, finishTalk } from './common.js';
+import { P, C, R, S, line, lines, ally, unlockZone, cityAt, roomAt, talkAlong, finishTalk, RUTA3, RUTA3_CARRETERA } from './common.js';
 import { play } from '../../minigames/index.js';
 import { FLOOR } from '../../interior/rooms.js';
 import { TS } from '../../world/map.js';
@@ -228,7 +228,7 @@ export const CAP2 = [
           ['coqui', 'Tampoco. Carretera recta, abierta, sin dónde meterse. Nos ven desde un helicóptero a tres kilómetros.', 'serious'],
           ['kazoo', '¿Y si vamos bien rápido?', 'think'],
           ['coqui', '¿En qué? ¿En tu moto de cuatro punto ocho?', 'smug'],
-          ['coqui', 'Hay un camino más. Sigue la carretera hacia el campo.', 'normal'],
+          ['coqui', 'Hay un camino más. Pero ese se aprende desde la puerta del banco. Regrésate.', 'normal'],
         ] },
       ];
       for (const rt of routes) {
@@ -236,6 +236,25 @@ export const CAP2 = [
         yield* goTo(rt.x, rt.y, { r: 34, needCar: true, label: rt.label, check: keepBoth(rt.obj) });
         yield* finishTalk(pending);
         pending = talkAlong(rt.talk);
+      }
+      // ---- route 3, checkpoint by checkpoint from the bank door: the same streets as the escape
+      const OBJ3 = 'Ruta 3: sigue los puntos de control';
+      objective('Regresa al Banco Federal: de ahí sale la ruta 3');
+      yield* goTo(bk.x, bk.y + 40, { r: 40, needCar: true, label: 'BANCO FEDERAL', check: keepBoth('Regresa al Banco Federal: de ahí sale la ruta 3') });
+      pending = talkAlong([['coqui', 'Ruta tres. Saliendo del banco, al revés: hacia el poniente. Nadie espera que huyas para el otro lado.', 'serious']], pending);
+      const along = {
+        1: [['coqui', 'Aquí, a la izquierda. Derecho al sur por toda la avenida, cruzando el canal.', 'normal'], ['ghenghis', '¿No es más rápido por el Centro?', 'think'], ['coqui', 'Más rápido para que nos agarren.', 'serious']],
+        4: [['coqui', 'Y aquí, a la izquierda otra vez: la avenida de La Colonia.', 'normal']],
+        5: [['coqui', 'Ahora zigzag: izquierda, derecha y de vuelta a la avenida. En línea recta te sigue cualquiera.', 'serious'], ['ghenghis', 'Como cuando huyo de mis deudas. Jajaja.', 'laugh']],
+        9: [['ghenghis', '¿Y ese puente del fondo? Lleva como tres años en obra. Igualito que yo. Jajaja.', 'laugh'], ['coqui', 'Por ahí no se puede. Antes del puente, a la derecha: a la carretera vieja.', 'serious']],
+        13: [['coqui', 'La carretera vieja. Cruzamos el canal y luego a la derecha, la terracería.', 'normal']],
+      };
+      const path = [...RUTA3, ...RUTA3_CARRETERA];
+      for (let i = 0; i < path.length; i++) {
+        objective(OBJ3);
+        yield* goTo(path[i].x, path[i].y, { r: 30, needCar: true, label: 'RUTA 3', check: keepBoth(OBJ3) });
+        audio.sfx('pickup');
+        if (along[i]) pending = talkAlong(along[i], pending);
       }
       objective('Ruta 3: el camino de terracería de Las Afueras');
       const campo = P().campo;

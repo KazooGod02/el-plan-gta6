@@ -22,11 +22,13 @@ export function* line(who, text, expr = 'normal') {
 export function* lines(list) { for (const l of list) yield* line(l[0], l[1], l[2]); }
 
 // a conversation that plays while you keep driving; pair it with finishTalk() so that
-// arriving early waits for the talk to end instead of cutting it off
-export function talkAlong(list) {
+// arriving early waits for the talk to end instead of cutting it off. `after`: another
+// talkAlong that has to finish first (so two conversations never get mixed up)
+export function talkAlong(list, after = null) {
   const h = { done: false };
   const mission = G.story.active;
   runner.run((function* () {
+    while (after && !after.done) yield;
     for (const l of list) {
       if (G.story.active !== mission) break;
       while (G.ui.dialog) yield;
@@ -37,6 +39,18 @@ export function talkAlong(list) {
   return h;
 }
 export function* finishTalk(h) { while (!h.done) yield; }
+
+// LA RUTA TRES, Kuiss's escape route (lane centers, in px): out of the bank the "wrong" way
+// (west), south down the long avenue across the canal, a zigzag through La Colonia (in a
+// straight line anyone follows you), then east along the La Colonia avenue, the one that
+// dead-ends at the bridge under construction. The recon (Cap. 2) and the escape
+// (Cap. 9) drive these same checkpoints; then the recon takes the old highway and the escape
+// jumps the works.
+const tiles = (list) => list.map(([x, y]) => ({ x: x * TS, y: y * TS }));
+export const RUTA3 = tiles([[40, 34], [24, 34], [24, 62], [24, 77], [24, 92], [44, 92], [44, 77], [64, 77], [64, 92], [84, 92], [98, 92]]);
+export const RUTA3_CARRETERA = tiles([[104, 92], [104, 104], [104, 112], [116, 112], [128, 112]]);
+// after the jump: around through El Puerto back to the old highway and the dirt road
+export const RUTA3_HUIDA = tiles([[124, 92], [142, 92], [142, 104], [142, 112], [134, 112], [129, 115]]);
 
 export function maskedLook(id) {
   const m = S().masks[id];

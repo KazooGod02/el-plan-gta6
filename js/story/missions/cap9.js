@@ -2,8 +2,8 @@
 import { G, setScene } from '../../core/game.js';
 import { UI } from '../../ui/ui.js';
 import { audio } from '../../core/audio.js';
-import { wait, until, say, talk, ask, fadeOut, fadeIn, lock, objective, toast, setClock, music, walkNpc } from '../script.js';
-import { P, C, R, S, line, lines, cityAt, roomAt } from './common.js';
+import { wait, until, say, talk, ask, fadeOut, fadeIn, lock, objective, toast, setClock, music, walkNpc, runner } from '../script.js';
+import { P, C, R, S, line, lines, cityAt, roomAt, RUTA3, RUTA3_HUIDA } from './common.js';
 import { spawnTsuruWithCrew } from './cap8.js';
 import { FLOOR } from '../../interior/rooms.js';
 import { rand, dist } from '../../core/util.js';
@@ -23,11 +23,11 @@ export const CAP9 = [
       cityAt(bk, 20, { a: 0 });
       c.clearMission();
       const t = spawnTsuruWithCrew('banco', 40);
-      t.x = bk.x + 20; t.y = bk.y + 40; t.a = 0;
+      t.x = bk.x + 20; t.y = bk.y + 40; t.a = Math.PI;
       t.hp = 80; t.minHp = 14; t.invuln = false;
       c.putInCar(t);
       c.wanted = 4; c.wantedLocked = true; c.noEvade = true; c.policeKnows = true; c.maxWanted = 4;
-      for (let i = 0; i < 2; i++) { const pc = c.spawnVehicle('police', bk.x - 80 - i * 40, bk.y + 40, 0, { ai: 'police' }); pc.sirenOn = true; }
+      for (let i = 0; i < 2; i++) { const pc = c.spawnVehicle('police', bk.x + 90 + i * 40, bk.y + 40, Math.PI, { ai: 'police' }); pc.sirenOn = true; }
       G.weatherLock = true; S().weather = 'sun';
       setClock(10, 22);
       music('chase');
@@ -35,74 +35,90 @@ export const CAP9 = [
       const ch = CHAPTERS[9];
       UI.showCard(ch.title, ch.label, 3, 'chapter'); audio.sfx('star');
       lock(false);
-      const OBJ0 = '¡Huye! Sal hacia la carretera vieja: la ruta tres, junto al campo';
-      const OBJ1 = '¡Al puente en obra de la avenida de La Colonia! Agarra la rampa a fondo';
-      const OBJ2 = '¡Los perdiste! Toma la terracería de la ruta tres, junto al campo';
+      const OBJ0 = '¡Huye por la ruta tres! Sigue los puntos de control';
+      const OBJ1 = '¡Al puente en obra, al final de la avenida! Agarra la rampa a fondo';
+      const OBJ2 = '¡Los perdiste! Rodea por El Puerto hasta la carretera vieja y la terracería';
       objective(OBJ0);
       ctx.check(() => (c.player.car !== t && !t.dead && dist(c.player.x, c.player.y, t.x, t.y) > 200 ? 'Abandonaste a tus compas' : null));
       ctx.check(() => (t.dead ? (t.sunk ? 'El Tsuru se hundió. Con todo y la lana.' : 'El Tsuru explotó') : null));
-      const lineSet = [
-        [8, [['coqui', '¡Arranca, arranca, ARRANCA!', 'angry'], ['kazoo', '¡ESO ESTOY HACIENDO, PENDEJO!', 'shock']]],
-        [22, [['coqui', 'Tranquilos. Está bien. El carro aguanta. Aguanta.', 'serious']]],
-        [38, [['coqui', '¡¿Por qué nos siguen si ya los perdimos?!', 'angry'], ['ghenghis', '¡Porque así es la vida, wey! ¡JAJAJA!', 'laugh']]],
-        [55, [['ghenghis', '¿Alguien más huele a quemado?', 'think'], ['kazoo', 'Es su personalidad.', 'sad']]],
-        [72, [['kazoo', '¡Aguanta, Tsurito! ¡Aguanta!', 'shock']]],
-        [90, [['coqui', 'Kazoo... ¿de dónde sacaste este carro?', 'serious'], ['kazoo', '¡AHORITA NO, KUISS!', 'angry']]],
-        [110, [['coqui', '¡La ruta tres, Kazoo! ¡La terracería! ¡Ahí no nos encuentran!', 'angry'], ['ghenghis', '¿Y qué hay allá?', 'think'], ['coqui', '¡Nada! ¡Por eso!', 'angry']]],
-        [128, [['coqui', '¿Y tú por qué estás tan tranquilo, Ghenghis?', 'serious'], ['ghenghis', 'Porque ya sé cómo acaba esto. Jajaja.', 'laugh']]],
-      ];
-      const fin = P().caminoFin;
-      // halfway there: the river jump. Then the patrols are stuck on the other bank
-      const rp = P().rampa;
       // every bridge over the canal is closed from the start: the builders' ramp is the only way out
       roadblock(c);
-      let ramp = null, blocked = false;
-      let mk = null, jumped = false, lost = false;
-      let tt = 0, li = 0;
-      while (!mk || !mk.inside || c.player.car !== t) {
-        const dt = yield; tt += dt;
-        // a roadblock closes the old highway bridge: Ghenghis has an idea (a terrible one)
-        if (!blocked && tt > 9 && !UI.dialog) {
-          blocked = true;
-          music('chase');
-          for (const q of [
-            ['coqui', '¡Escucha el radio! ¡Pusieron retenes en todos los puentes del canal! ¡Nos cerraron la ruta tres!', 'angry'],
-            ['kazoo', '¡¿Y ahora por dónde?!', 'shock'],
-            ['ghenghis', '¡El puente en obra de la avenida de La Colonia! ¡En la mañana vi que le estaban llevando una rampa a los de la construcción!', 'crazy'],
-            ['coqui', '¿Una rampa? ¡Estás loco, cabrón!', 'angry'],
-            ['kazoo', '¡Está bien pendejo!', 'shock'],
-            ['ghenghis', '¡JAJAJA! ¿Tienen una mejor idea?', 'laugh'],
-            ['kazoo', '...A la verga. Agárrense.', 'serious'],
-          ]) { UI.say(q[0], q[1], { expr: q[2], auto: 1.5 + q[1].length / 17 }); const d = UI.dialog; while (UI.dialog === d) yield; }
-          S().unlocked.obra = true; c.setUnlocked(S().unlocked);
-          ramp = c.addMarker({ x: rp.x, y: rp.y, r: 26, color: '#ff7a3c', label: '¡RAMPA!', needCar: true });
-          objective(OBJ1);
+      // the chase talk is one queue that plays while you drive; the ramp only opens once the
+      // radio scene is over, and the ending waits for the last line
+      const q = [];
+      let talking = false;
+      runner.run((function* () {
+        for (;;) {
+          if (!q.length || UI.dialog) { yield; continue; }
+          const l = q.shift();
+          if (typeof l === 'function') { l(); continue; }
+          talking = true;
+          yield* say(l[0], l[1], l[2], { auto: 1.5 + l[1].length / 17 });
+          talking = false;
+        }
+      })(), 'talkAlong');
+      const busy = () => talking || q.length > 0;
+      let rampOpen = false;
+      q.push(
+        ['coqui', '¡Arranca, arranca, ARRANCA!', 'angry'],
+        ['kazoo', '¡ESO ESTOY HACIENDO, PENDEJO!', 'shock'],
+        ['coqui', '¡Escucha el radio! ¡Pusieron retenes en todos los puentes del canal! ¡Nos cerraron la ruta tres!', 'angry'],
+        ['kazoo', '¡¿Y ahora por dónde?!', 'shock'],
+        ['ghenghis', '¡El puente en obra de la avenida de La Colonia! ¡En la mañana vi que le estaban llevando una rampa a los de la construcción!', 'crazy'],
+        ['coqui', '¿Una rampa? ¡Estás loco, cabrón!', 'angry'],
+        ['kazoo', '¡Está bien pendejo!', 'shock'],
+        ['ghenghis', '¡JAJAJA! ¿Tienen una mejor idea?', 'laugh'],
+        ['kazoo', '...A la verga. Agárrense.', 'serious'],
+        () => { rampOpen = true; S().unlocked.obra = true; c.setUnlocked(S().unlocked); objective(OBJ1); },
+        // while they reach the ramp (whatever is left gets dropped at the jump)
+        ['coqui', 'Tranquilos. Está bien. El carro aguanta. Aguanta.', 'serious'],
+        ['coqui', '¡¿Por qué nos siguen si ya los perdimos?!', 'angry'], ['ghenghis', '¡Porque así es la vida, wey! ¡JAJAJA!', 'laugh'],
+        ['ghenghis', '¿Alguien más huele a quemado?', 'think'], ['kazoo', 'Es su personalidad.', 'sad'],
+        ['coqui', 'Kazoo... ¿de dónde sacaste este carro?', 'serious'], ['kazoo', '¡AHORITA NO, KUISS!', 'angry'],
+        ['coqui', '¿Y tú por qué estás tan tranquilo, Ghenghis?', 'serious'], ['ghenghis', 'Porque ya sé cómo acaba esto. Jajaja.', 'laugh'],
+      );
+      // checkpoints: route 3 up to the bridge works, then (after the jump) around to the dirt road
+      const fin = P().caminoFin, rp = P().rampa;
+      let pts = [...RUTA3, { ...rp, ramp: true }];
+      let i = 0, mk = null, jumped = false, lost = false;
+      const place = () => {
+        if (mk) c.removeMarker(mk);
+        const p = pts[i], end = lost && i === pts.length - 1;
+        mk = c.addMarker({ x: p.x, y: p.y, r: p.ramp || end ? 26 : 30, color: p.ramp ? '#ff7a3c' : '#ffd23f', label: p.ramp ? '¡RAMPA!' : end ? 'EL CAMINO' : 'RUTA 3', needCar: true });
+      };
+      place();
+      for (;;) {
+        const dt = yield;
+        mk.hidden = c.player.car !== t || (pts[i].ramp && !rampOpen);
+        if (mk.inside && c.player.car === t && !pts[i].ramp) {
+          if (lost && i === pts.length - 1) break;
+          i++; audio.sfx('pickup'); place();
         }
         if (t.air) jumped = true;
         if (jumped && !lost && !t.air && !t.sinking) {
           lost = true;
-          if (ramp) { c.removeMarker(ramp); ramp = null; }
+          pts = [...RUTA3_HUIDA, fin]; i = 0; place();
           for (const v of c.vehicles) if (v.ai === 'police') { v.ai = 'parked'; v.sirenOn = true; v.mission = false; }
-          c.peds = c.peds.filter((q) => !q.cop);
+          c.peds = c.peds.filter((p) => !p.cop);
           c.wanted = 0; c.heli = null; c.policeKnows = false; c.noPolice = true; c.wantedLocked = true;
           music('heist');
           objective(OBJ2);
-          for (const q of [['kazoo', '¡¿LO VIERON?! ¡VOLAMOS, CABRONES!', 'shock'], ['coqui', '¡Se quedaron del otro lado! ¡Tienen que rodear todo el canal!', 'happy'], ['ghenghis', 'Jajaja... por ahora.', 'laugh']]) {
-            UI.say(q[0], q[1], { expr: q[2], auto: 1.6 + q[1].length / 17 }); const d = UI.dialog; while (UI.dialog === d) yield;
-          }
+          q.length = 0;
+          q.push(
+            ['kazoo', '¡¿LO VIERON?! ¡VOLAMOS, CABRONES!', 'shock'],
+            ['coqui', '¡Se quedaron del otro lado! ¡Tienen que rodear todo el canal!', 'happy'],
+            ['ghenghis', 'Jajaja... por ahora.', 'laugh'],
+            ['coqui', '¡La ruta tres, Kazoo! ¡La terracería! ¡Ahí no nos encuentran!', 'angry'],
+            ['ghenghis', '¿Y qué hay allá?', 'think'],
+            ['coqui', '¡Nada! ¡Por eso!', 'angry'],
+            ['kazoo', '¡Aguanta, Tsurito! ¡Aguanta!', 'shock'],
+          );
         }
-        // if they skip the ramp, the dirt road still ends the chase
-        if (!mk && lost) mk = c.addMarker({ x: fin.x, y: fin.y, r: 26, color: '#ffd23f', label: 'EL CAMINO', needCar: true });
-        if (mk) mk.hidden = c.player.car !== t;
         if (c.player.car === t) {
           t.hp = Math.max(t.minHp, t.hp - dt * 0.55);
           t.forceSmoke = t.hp < 30 ? 'black' : t.hp < 55 ? 'gray' : null;
         }
-        if (li < lineSet.length && tt > lineSet[li][0] && !(lost && lineSet[li][0] === 38)) { const L = lineSet[li][1]; li++; for (const q of L) { UI.say(q[0], q[1], { expr: q[2], auto: 1.4 + q[1].length / 17 }); const d = UI.dialog; while (UI.dialog === d) yield; } }
-        else if (li < lineSet.length && lost && lineSet[li][0] === 38) li++;
-        if (lost && c.zone === 'afueras' && UI.objective !== '¡Toma la terracería de la ruta tres, hacia el campo!') objective('¡Toma la terracería de la ruta tres, hacia el campo!');
       }
-      if (ramp) c.removeMarker(ramp);
       c.removeMarker(mk);
       c.noPolice = false;
       // ---------- the car dies... and the police are still coming
@@ -125,6 +141,8 @@ export const CAP9 = [
       if (!cops.length) for (let i = 0; i < 2; i++) { const b = behind(240 + i * 40); const pc = c.spawnVehicle('police', b.x, b.y, Math.atan2(-uy, -ux), { mission: true }); pc.ai = 'script'; pc.sirenOn = true; pc.scriptTarget = { ...behind(90 + i * 30), speed: 0.7 }; }
       c.peds = c.peds.filter((q) => !q.cop);
       yield* until(() => t.speed < 5, 4);
+      // the Tsuru dies on the dirt road while they finish talking
+      yield* until(() => !busy());
       UI.letterboxTarget = 1;
       c.camTarget = behind(70);
       yield* line('ghenghis', '...Ahí vienen.', 'serious');
