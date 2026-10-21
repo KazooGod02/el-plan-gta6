@@ -146,6 +146,7 @@ export const interior = {
 
   attack() {
     const p = this.p, s = G.state;
+    if (input.mouseGameplay && input.mouseActive()) p.facing = this.cam.x + input.mouse.x > p.x ? 1 : -1;
     if (s.weapon === 'fists') {
       if (p.punchT > 0) return;
       p.punchT = 0.3; p.state = 'punch';
@@ -421,7 +422,7 @@ export const interior = {
     for (const q of this.props) if (q.front && !q.hidden) drawProp(ctx, q, X(q.x), q.y ?? FLOOR, t, env);
     if (this.extraDraw) this.extraDraw(ctx, cx);
     // bullets
-    for (const b of this.bullets) { ctx.fillStyle = b.owner === 'ally' ? '#9af0ff' : '#fff08c'; ctx.fillRect(X(b.x) - 1, Math.round(b.y), 3, 1); }
+    for (const b of this.bullets) { const nerf = b.owner === 'ally' || b.owner === 'player'; ctx.fillStyle = nerf ? '#f08c28' : '#fff08c'; ctx.fillRect(X(b.x) - 1, Math.round(b.y), 3, 1); if (nerf) { ctx.fillStyle = '#3c64dc'; ctx.fillRect(X(b.x) + (b.vx > 0 ? 2 : -2), Math.round(b.y), 1, 1); } }
     for (const f of this.fx) { ctx.fillStyle = f.col; ctx.fillRect(X(f.x), Math.round(f.y), f.s || 1, f.s || 1); }
 
     // darkness
@@ -459,7 +460,7 @@ export const interior = {
     if (!G.lockInput && !this.frozen && !p.dead) {
       const it = this.interactTarget();
       if (it) {
-        const lbl = (input.lastDevice === 'touch' ? 'A' : input.lastDevice === 'pad' ? 'A' : 'E') + ' ' + it.label;
+        const lbl = input.btn('a') + ' ' + it.label;
         const w = font.measure(lbl) + 6, x = clamp(X(it.x) - w / 2, 2, W - w - 2), y = FLOOR - 40;
         ctx.fillStyle = '#101018'; ctx.fillRect(x, y, w, 11); ctx.fillStyle = '#ffd23f'; ctx.fillRect(x, y + 10, w, 1);
         font.text(ctx, lbl, x + 3, y + 2, '#f4f4f0');

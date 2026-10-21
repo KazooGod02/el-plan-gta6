@@ -184,7 +184,15 @@ export function buildMap() {
   MAP.props.push({ type: 'tower', x: 5 * TS, y: 118 * TS }, { type: 'tower', x: 39 * TS, y: 118 * TS });
   MAP.props.push({ type: 'gate', x: 22 * TS, y: 117 * TS });
   // Field
-  fill(118, 114, 159, 127, T.FIELD); fill(128, 114, 129, 123, T.DIRT);
+  fill(118, 114, 159, 127, T.FIELD);
+  // Blvd. Granada: the residential boulevard at the edge of town where the trailer happens,
+  // palms on both sides, a few new houses to the west and the open field to the east
+  fill(126, 114, 129, 125, T.ROAD); fill(125, 114, 125, 125, T.SIDEWALK); fill(130, 114, 130, 125, T.SIDEWALK);
+  fill(119, 114, 124, 127, T.GRASS);
+  for (const hy of [115, 120]) building({ x: 119, y: hy, w: 5, h: 4, roof: '#c8603c', name: 'CASA', zone: 'afueras', door: { x: 121, y: hy + 3 } });
+  for (let py = 114; py <= 124; py += 3) MAP.props.push({ type: 'palm', x: 125 * TS + 4, y: py * TS + 8 }, { type: 'palm', x: 130 * TS + 12, y: py * TS + 8 });
+  for (let py = 116; py <= 124; py += 4) MAP.props.push({ type: 'banner', x: 131 * TS + 4, y: py * TS + 4 });
+  MAP.props.push({ type: 'granada', x: 132 * TS, y: 114 * TS + 4 });
   MAP.props.push({ type: 'bigtree', x: 146 * TS + 8, y: 121 * TS + 8 });
   setTile(146, 121, T.TREE);
   // street billboards: plain local ads (tile x, tile y, which ad)

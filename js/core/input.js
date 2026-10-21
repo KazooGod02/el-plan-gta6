@@ -31,6 +31,10 @@ class Input {
     this.anyPressed = false;
     this.onFirstGesture = null;
     this.isTouch = false;
+    this.mouse = { x: 0, y: 0, l: false, r: false, wheel: 0, seen: 0 }; // x,y in 320x180 game pixels
+    this.mouseGameplay = false; // set by main: clicks act as attack/interact instead of menu keys
+    this.padType = 'xbox';      // 'xbox' | 'ps'
+    this.pads = [];
     ACTIONS.forEach((a) => { this.cur[a] = false; this.prev[a] = false; });
   }
 
@@ -50,6 +54,14 @@ class Input {
     });
     window.addEventListener('blur', () => { this.keys = {}; });
     window.addEventListener('pointerdown', () => this.gesture());
+    // ---- mouse (desktop): position in game pixels, buttons, wheel
+    const canvas = document.getElementById('game');
+    const toGame = (e) => { const r = canvas.getBoundingClientRect(); this.mouse.x = (e.clientX - r.left) / r.width * 320; this.mouse.y = (e.clientY - r.top) / r.height * 180; };
+    window.addEventListener('mousemove', (e) => { toGame(e); this.mouse.seen = performance.now(); if (!this.isTouch) document.body.style.cursor = ''; });
+    window.addEventListener('mousedown', (e) => { if (this.isTouch && e.sourceCapabilities?.firesTouchEvents) return; toGame(e); this.mouse.seen = performance.now(); this.lastDevice = 'mouse'; if (e.button === 0) this.mouse.l = true; if (e.button === 2) this.mouse.r = true; if (e.button === 1) this.mouse.m = true; });
+    window.addEventListener('mouseup', (e) => { if (e.button === 0) this.mouse.l = false; if (e.button === 2) this.mouse.r = false; if (e.button === 1) this.mouse.m = false; });
+    window.addEventListener('wheel', (e) => { this.mouse.wheel += Math.sign(e.deltaY); }, { passive: true });
+    window.addEventListener('contextmenu', (e) => e.preventDefault());
     this.setupTouch();
   }
 
@@ -105,9 +117,11 @@ class Input {
   pollPad() {
     this.pad = {};
     const pads = navigator.getGamepads ? navigator.getGamepads() : [];
+    this.pads = pads;
     let px = 0, py = 0;
     for (const gp of pads) {
       if (!gp || !gp.connected) continue;
+      this.padType = /054c|playstation|dualshock|dualsense|wireless controller/i.test(gp.id) ? 'ps' : 'xbox';
       const b = (i) => gp.buttons[i] && gp.buttons[i].pressed;
       const ax = gp.axes[0] || 0, ay = gp.axes[1] || 0;
       if (Math.abs(ax) > 0.25) px = ax;
@@ -127,6 +141,13 @@ class Input {
       this.prev[a] = this.cur[a];
       this.cur[a] = !!(this.keys[a] || this.touch[a] || this.pad[a]);
     }
+    // mouse: in gameplay left = attack (aimed at the cursor), right = interact; in menus left = OK, right = back
+    const m = this.mouse;
+    if (this.mouseGameplay) { if (m.l) this.cur.b = true; if (m.r) this.cur.a = true; }
+    else { if (m.l) this.cur.a = true; if (m.r) this.cur.back = true; }
+    if (m.m) this.cur.phone = true;
+    if (m.wheel) { this.cur.weapon = !this.prev.weapon; if (this.cur.weapon) m.wheel -= Math.sign(m.wheel); }
+    if (performance.now() - m.seen > 3000 && !this.isTouch) document.body.style.cursor = 'none';
     // touch stick → directions
     if (this.stick.on) {
       const s = this.stick;
@@ -156,6 +177,20 @@ class Input {
   cancel() { return this.pressed('back') || this.pressed('b') || this.pressed('pause'); }
   consume(a) { this.prev[a] = true; this.cur[a] = true; }
   clearTyped() { this.typed = ''; }
+  mouseActive() { return this.lastDevice === 'mouse' || performance.now() - this.mouse.seen < 1500; }
+  // button label for prompts, by device: btn('a') -> 'E' / 'A' / '✕'
+  btn(act) {
+    const d = this.lastDevice;
+    if (d === 'pad') return (this.padType === 'ps' ? { a: '✕', b: '□', back: '○', phone: '△', weapon: 'R1', pause: 'OPTIONS', map: 'SHARE', run: 'L2' } : { a: 'A', b: 'X', back: 'B', phone: 'Y', weapon: 'RB', pause: 'MENU', map: 'VIEW', run: 'LT' })[act] || act;
+    if (d === 'touch') return { a: 'A', b: 'B' }[act] || act;
+    if (d === 'mouse') return { a: 'CLIC DER', b: 'CLIC IZQ', weapon: 'RUEDA', phone: 'CLIC RUEDA' }[act] || { back: 'ESC', pause: 'ESC', map: 'M', run: 'SHIFT' }[act] || act;
+    return { a: 'E', b: 'ESPACIO', back: 'ESC', phone: 'TAB', weapon: 'Q', pause: 'ESC', map: 'M', run: 'SHIFT' }[act] || act;
+  }
+  // controller vibration (Xbox / PS); silently ignored when unsupported
+  rumble(strong = 0.5, weak = 0.5, ms = 120) {
+    if (this.lastDevice !== 'pad') return;
+    for (const gp of this.pads || []) { const va = gp && gp.vibrationActuator; if (va && va.playEffect) va.playEffect('dual-rumble', { duration: ms, strongMagnitude: strong, weakMagnitude: weak }).catch(() => {}); }
+  }
 }
 
 export const input = new Input();

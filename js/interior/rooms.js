@@ -268,12 +268,15 @@ export const ROOMS = {
     ],
     exits: [{ x: 10, w: 20, to: 'city', place: 'campo' }],
   },
+  // the residential boulevard at the edge of town, with the field right next to it (where the trailer was shot)
   camino: {
-    name: 'El camino', w: 480, outdoor: true,
-    theme: { floor: '#8a6a44', floorP: 'dirt', sky: 'dusk', ground: '#6a7a2a' },
+    name: 'Blvd. Granada', w: 480, outdoor: true,
+    theme: { floor: '#8a8a90', floorP: 'concrete', sky: 'dusk', ground: '#5a8a34' },
     props: [
-      { t: 'fence', x: 10, w: 120 }, { t: 'tree', x: 380, col: '#2a4a1e' }, { t: 'bush', x: 200 }, { t: 'bush', x: 260 },
-      { t: 'lightpole', x: 150 },
+      { t: 'bush', x: 6, col: '#2a5a24' }, { t: 'palm', x: 30, h: 78 }, { t: 'banner', x: 74 }, { t: 'palm', x: 104, h: 64 },
+      { t: 'banner', x: 140 }, { t: 'lightpole', x: 168 }, { t: 'banner', x: 196 },
+      { t: 'sign40', x: 252 }, { t: 'granada', x: 326 }, { t: 'palm', x: 392, h: 70 }, { t: 'bench', x: 420 }, { t: 'palm', x: 458, h: 82 },
+      { t: 'curb', x: 0, w: 480 },
       { t: 'grassfg', x: 0, y: 152, w: 480, front: true },
     ],
     exits: [],

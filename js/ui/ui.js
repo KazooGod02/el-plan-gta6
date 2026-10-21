@@ -37,6 +37,7 @@ export const UI = {
 
   // ------------------------------------------------ dialog
   say(who, text, opts = {}) {
+    if ((G.state?.flags?.heistFit || G.scene?.name === 'trailer') && LOOKS[who + 'H']) who += 'H';
     const L = LOOKS[who] || LOOKS.unknown;
     const txt = censor(text);
     this.dialog = {
@@ -55,7 +56,8 @@ export const UI = {
   },
   bannerShow(text, sub) { this.banner = { text, sub, t: 3 }; },
   banner_(text) { this.bannerShow(text); },
-  setObjective(text) { this.objective = text ? censor(text) : ''; this.objT = text ? 5 : 0; },
+  // only a *new* objective flashes; setting the same one again (missions do it every frame) is silent
+  setObjective(text) { const t = text ? censor(text) : ''; if (t === this.objective) return; this.objective = t; this.objT = t ? 4 : 0; },
   showCard(title, sub, t = 3.5, style = 'pass') { this.card = { title, sub, t, max: t, style }; },
   flash(a = 0.8) { this.flashA = a; },
 
@@ -285,7 +287,7 @@ export const UI = {
         const f = clamp(car.hp / car.maxHp, 0, 1);
         font.text(ctx, car.spec.name, 4, 26, '#f4f4f0', { outline: '#101018' });
         bar(ctx, 4, 36, 52, f, f < 0.25 ? '#d8323c' : f < 0.5 ? '#f08c28' : '#46b450', '#1a2a1a');
-        if (car.passengers.length) font.text(ctx, car.passengers.map((p) => (p.lookId || 'x')[0].toUpperCase()).join(' '), 60, 34, '#ffd23f', { outline: '#101018' });
+        if (car.passengers.length) font.text(ctx, car.passengers.map((p) => ((LOOKS[p.lookId] || p.look || {}).name || '?')[0]).join(' '), 60, 34, '#ffd23f', { outline: '#101018' });
       }
       this.drawGpsArrow(ctx, c);
       this.drawRadar(ctx, c);

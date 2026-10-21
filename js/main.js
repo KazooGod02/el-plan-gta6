@@ -19,6 +19,7 @@ import { MAP } from './world/map.js';
 import { pick } from './core/util.js';
 import { finale } from './story/finale.js';
 import { trailer } from './story/trailer.js';
+import { libreto } from './ui/elenco.js';
 
 const canvas = document.getElementById('game');
 const ctx = canvas.getContext('2d');
@@ -27,7 +28,10 @@ G.canvas = canvas; G.ctx = ctx;
 G.settings = loadSettings();
 G.global = loadGlobal();
 G.ui = UI; G.story = story; G.phone = phone; G.bigmap = bigmap; G.radioNext = radioNext; G.minigames = minigames;
-G.scenes = { title, city, interior, credits, finale, trailer };
+G.scenes = { title, city, interior, credits, finale, trailer, libreto };
+// controller rumble on the loud stuff
+const RUMBLE = { shot: [0.3, 0.5, 90], shotgun: [0.8, 0.6, 180], explode: [1, 1, 500], crash: [0.7, 0.5, 220], hurt: [0.4, 0.6, 150], bang: [1, 1, 400], punch: [0.3, 0.3, 80], hit: [0.2, 0.4, 60], kick: [0.5, 0.2, 90], drill: [0.2, 0.2, 60] };
+audio.onSfx = (n) => { const r = RUMBLE[n]; if (r) input.rumble(...r); };
 audio.setVolumes(G.settings.music, G.settings.sfx);
 
 // The game is laid out in 320x180 logical pixels but drawn at a higher internal
@@ -137,6 +141,7 @@ let last = performance.now(), acc = 0;
 const STEP = 1 / 60;
 
 function tick(dt) {
+  input.mouseGameplay = (G.scene === city || G.scene === interior) && !UI.dialog && !phone.open && !pause.open && !bigmap.open && !minigames.active && !G.lockInput;
   input.update();
   const inGame = G.scene === city || G.scene === interior;
   if (minigames.fullscreen) { minigames.update(dt); runner.update(dt); story.update(dt); return; }

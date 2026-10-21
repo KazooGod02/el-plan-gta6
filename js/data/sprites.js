@@ -48,7 +48,7 @@ export function drawSide(L, frame = 'idle') {
   if (L.chain) { R(8, 10, 1, 1, '#ffd23f'); R(9, 11, 2, 1, '#ffd23f'); }
   if (L.tie) R(10, 10, 1, 5, L.tie);
   if (L.badge) R(9, 11, 1, 1, '#ffd23f');
-  if (L.bag) { R(1, 9, 4, 8, '#3a2c20'); R(1, 9, 4, 1, '#5a4430'); R(2, 12, 2, 1, '#6a5a44'); }
+  if (L.bag) { const bc = L.bagCol || '#3a2c20'; R(1, 9, 4, 8, bc); R(1, 9, 4, 1, shade(bc, 1.3)); R(2, 12, 2, 1, L.bagCol ? '#1a1a2e' : '#6a5a44'); }
   if (L.vest) { R(tx, 9, tw, 6, '#2a2a30'); R(tx + 1, 10, 1, 1, '#ffd23f'); }
 
   // neck
@@ -106,34 +106,47 @@ export function drawSide(L, frame = 'idle') {
   if (L.shades) { R(8, 3, 4, 2, '#141414'); R(6, 3, 2, 1, '#141414'); }
 
   // ---- masks
-  if (L.mask) drawMaskSide(R, L.mask);
+  if (L.mask) drawMaskSide(R, L.mask, L);
+  if (L.floral) for (const [fx, fy] of [[1, 10], [4, 12], [2, 14], [6, 11], [5, 15], [7, 13], [3, 9]]) if (fx < tw) R(tx + fx, fy, 1, 1, '#d8e0ff');
 
   // ---- front arm
   const arm = shade(sh, 0.88);
+  const hand = L.gloves ? '#141418' : skin;
+  // the crew's guns are Nerf blasters (orange with a blue barrel); everybody else carries the real thing
+  const gun = L.nerf ? '#f08c28' : '#2a2a2e', gun2 = L.nerf ? '#3c64dc' : '#2a2a2e';
   if (f === 'aim' || f === 'shoot') {
-    R(8, 10, 5, 2, arm); R(13, 10, 2, 2, skin); R(14, 9, 4, 2, '#2a2a2e'); R(15, 11, 1, 1, '#2a2a2e');
-    if (f === 'shoot') { R(18, 8, 2, 3, '#ffd23f'); R(18, 9, 2, 1, '#ffffff'); }
+    R(8, 10, 5, 2, arm); R(13, 10, 2, 2, hand); R(14, 9, 4, 2, gun); R(17, 9, 1, 2, gun2); R(15, 11, 1, 1, gun);
+    if (f === 'shoot') { R(18, 8, 2, 3, L.nerf ? '#f4f4f0' : '#ffd23f'); R(18, 9, 2, 1, L.nerf ? '#f08c28' : '#ffffff'); }
   } else if (f === 'punch') {
-    R(8, 10, 6, 2, arm); R(14, 10, 2, 2, skin);
+    R(8, 10, 6, 2, arm); R(14, 10, 2, 2, hand);
   } else if (f === 'hands') {
-    R(9, 2, 2, 8, arm); R(9, 1, 2, 1, skin); R(5, 2, 2, 8, sh2); R(5, 1, 2, 1, sk2);
+    R(9, 2, 2, 8, arm); R(9, 1, 2, 1, hand); R(5, 2, 2, 8, sh2); R(5, 1, 2, 1, L.gloves ? hand : sk2);
   } else if (f === 'dig') {
-    R(8, 11, 4, 2, arm); R(12, 11, 1, 2, skin); R(12, 6, 1, 17, '#8c5a32'); R(11, 21, 3, 2, '#9a9aa2');
+    R(8, 11, 4, 2, arm); R(12, 11, 1, 2, hand); R(12, 6, 1, 17, '#8c5a32'); R(11, 21, 3, 2, '#9a9aa2');
   } else if (f === 'carry') {
-    R(8, 11, 4, 2, arm); R(12, 11, 1, 2, skin);
+    R(8, 11, 4, 2, arm); R(12, 11, 1, 2, hand);
   } else if (f === 'phone') {
-    R(8, 10, 2, 3, arm); R(10, 5, 1, 5, arm); R(10, 4, 1, 2, skin); R(11, 3, 1, 3, '#222');
+    R(8, 10, 2, 3, arm); R(10, 5, 1, 5, arm); R(10, 4, 1, 2, hand); R(11, 3, 1, 3, '#222');
   } else {
     let ax = 7;
     if (f === 'walk1' || f === 'run1') ax = 8;
     if (f === 'walk3' || f === 'run2') ax = 6;
-    R(ax, 10, 2, 5, arm); R(ax, 15, 2, 1, skin);
+    R(ax, 10, 2, 5, arm); R(ax, 15, 2, 1, hand);
   }
   if (L.silhouette) return silhouette(c, '#0a0a10');
   return c;
 }
 
-function drawMaskSide(R, m) {
+function drawMaskSide(R, m, L = {}) {
+  if (m === 'rasta') {
+    // knitted red / yellow / green mask under the hoodie's hood
+    const hd = L.hood || '#4a4a50', hd2 = shade(hd, 0.75);
+    R(3, 0, 8, 9, hd); R(3, 0, 1, 9, hd2); R(4, 9, 6, 1, hd2);
+    const st = ['#d8323c', '#ffd23f', '#2a2a2e', '#46b450', '#d8323c', '#ffd23f'];
+    st.forEach((c, i) => R(8, 2 + i, 4, 1, c));
+    R(9, 4, 1, 1, '#f4f4f0'); R(11, 3, 1, 3, st[1]); R(7, 1, 1, 7, hd2);
+    return;
+  }
   if (m === 'luchador') {
     R(4, 0, 7, 8, '#d8323c'); R(8, 3, 3, 2, '#ffd23f'); R(9, 4, 1, 1, DARK); R(9, 6, 2, 1, '#ffd23f'); R(5, 1, 2, 5, '#ffd23f'); R(11, 4, 1, 2, '#d8323c');
   } else if (m === 'presidente') {
@@ -300,12 +313,22 @@ export function drawPortrait(L, expr = 'normal') {
     frame(9); frame(17); R(15, 12, 2, 1, g); R(7, 12, 2, 1, g); R(23, 12, 2, 1, g);
   }
   if (L.shades) { R(9, 12, 6, 3, '#141414'); R(17, 12, 6, 3, '#141414'); R(15, 12, 2, 1, '#141414'); R(10, 12, 2, 1, '#5a5a6a'); R(18, 12, 2, 1, '#5a5a6a'); }
-  if (L.mask) drawMaskPortrait(R, E, L.mask, rx);
+  if (L.mask) drawMaskPortrait(R, E, L.mask, rx, L);
+  if (L.floral) for (const [fx, fy] of [[6, 28], [11, 26], [20, 27], [25, 29], [16, 30], [3, 30], [28, 30], [9, 30], [22, 30]]) { R(fx, fy, 2, 1, '#d8e0ff'); R(fx, fy - 1, 1, 1, '#f4f4ff'); }
   if (L.silhouette) return silhouette(c, '#0a0a10');
   return c;
 }
 
-function drawMaskPortrait(R, E, m, rx) {
+function drawMaskPortrait(R, E, m, rx, L = {}) {
+  if (m === 'rasta') {
+    const hd = L.hood || '#4a4a50';
+    E(16, 14, rx + 4, 14, shade(hd, 0.7)); E(16, 14, rx + 3, 13, hd);
+    E(16, 15, rx, 9, '#2a2a2e');
+    const st = ['#d8323c', '#ffd23f', '#46b450'];
+    for (let y = 7; y <= 23; y += 2) { const c = st[Math.floor((y - 7) / 2) % 3]; for (let x = 16 - rx; x <= 16 + rx; x++) { const dy = (y - 15) / 9, dx = (x - 16) / rx; if (dx * dx + dy * dy <= 1) R(x, y, 1, 2, c); } }
+    R(9, 13, 14, 3, '#1a1a1e'); R(11, 14, 2, 1, '#f4f4f0'); R(19, 14, 2, 1, '#f4f4f0');
+    return;
+  }
   if (m === 'luchador') {
     E(16, 13, rx + 1, 11, '#d8323c');
     R(9, 12, 6, 4, '#ffd23f'); R(17, 12, 6, 4, '#ffd23f'); R(10, 13, 4, 2, '#ffffff'); R(18, 13, 4, 2, '#ffffff'); R(12, 13, 1, 2, DARK); R(20, 13, 1, 2, DARK);
@@ -358,13 +381,14 @@ export function drawTop(L, frame = 0) {
   // shoulders
   if (big) { R(3, 1, 5, 10, sh); R(2, 2, 1, 8, sh); R(3, 1, 1, 10, sh2); }
   else { R(4, 2, 4, 8, sh); R(3, 3, 1, 6, sh); R(4, 2, 1, 8, sh2); }
-  if (L.bag) { R(1, 3, 3, 6, '#3a2c20'); R(1, 3, 3, 1, '#5a4430'); }
+  if (L.bag) { const bc = L.bagCol || '#3a2c20'; R(1, 3, 3, 6, bc); R(1, 3, 3, 1, shade(bc, 1.3)); }
   // head
   const h = L.hair;
   const hcol = (h === 'cap' || h === 'police' || h === 'guard' || h === 'beanie') ? (L.cap || '#333') : h === 'bald' ? sk : hc;
   if (L.mask) {
-    const mc = { luchador: '#d8323c', presidente: '#e8c8a8', payaso: '#f4f4f0', calavera: '#f0f0e8', pasamontanas: '#1a1a1e' }[L.mask] || '#222';
+    const mc = { luchador: '#d8323c', presidente: '#e8c8a8', payaso: '#f4f4f0', calavera: '#f0f0e8', pasamontanas: '#1a1a1e', rasta: L.hood || '#4a4a50' }[L.mask] || '#222';
     R(4, 4, 5, 4, mc); R(5, 3, 3, 6, mc);
+    if (L.mask === 'rasta') { R(8, 4, 1, 1, '#d8323c'); R(8, 5, 1, 1, '#ffd23f'); R(8, 6, 1, 1, '#46b450'); }
   } else if (h === 'curly') {
     R(3, 4, 6, 4, hc); R(4, 3, 4, 6, hc); R(3, 3, 1, 1, hc); R(8, 3, 1, 1, hc); R(3, 8, 1, 1, hc); R(8, 8, 1, 1, hc);
     R(5, 4, 1, 1, shade(hc, 1.7)); R(7, 7, 1, 1, shade(hc, 1.7)); R(9, 5, 1, 2, sk);

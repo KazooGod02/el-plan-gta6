@@ -3,7 +3,8 @@ import { G } from '../../core/game.js';
 import { UI } from '../../ui/ui.js';
 import { audio } from '../../core/audio.js';
 import { wait, until, say, talk, ask, fadeOut, fadeIn, lock, objective, toast, chat, setClock, setDay, trust, music, walkNpc, walkPlayer, goTo } from '../script.js';
-import { P, C, R, S, line, lines, cityAt, roomAt, mash, seat, maskedLook } from './common.js';
+import { P, C, R, S, line, lines, cityAt, roomAt, mash, seat } from './common.js';
+import { LOOKS } from '../../data/cast.js';
 import { play } from '../../minigames/index.js';
 import { FLOOR } from '../../interior/rooms.js';
 import { rand, pick } from '../../core/util.js';
@@ -15,8 +16,9 @@ export function spawnTsuruWithCrew(place, dy = 30) {
   if (!t) { t = c.spawnVehicle('tsuru', p.x, p.y + dy, 0, { mission: true, color: '#d8d8d0' }); t.hp = 80; }
   t.keep = true; t.minHp = 0;
   t.passengers = [];
-  seat(t, maskedLook('coqui'), 'KUISS');
-  seat(t, { ...maskedLook('ghenghis'), bag: true, _id: 'ghM' + S().masks.ghenghis + 'bag' }, 'GHENGHIS');
+  seat(t, 'coquiH', 'KUISS');
+  seat(t, { ...LOOKS.ghenghisH, bag: true, _id: 'ghenghisHbag' }, 'GHENGHIS');
+  C().player.look = 'kazooH';
   return t;
 }
 
@@ -47,11 +49,21 @@ export const CAP8 = [
         ['coqui', 'Costumbre.', 'serious'],
         ['coqui', 'Máscaras.', 'serious'],
       ]);
+      yield* talk([
+        ['kazoo', '...Las máscaras se quedaron en la cajuela del Tsuru.', 'shock'],
+        ['coqui', 'Pues ábrela.', 'serious'],
+        ['kazoo', 'No abre. Es su personalidad.', 'sad'],
+        ['coqui', '...', 'angry'],
+        ['ghenghis', 'Yo sí traigo la mía. La del tianguis. Tejida a mano, con los colores de la suerte. Jajaja.', 'happy'],
+        ['coqui', 'Nadie improvisa, dije. NADIE.', 'angry'],
+        ['kazoo', 'Pues vamos así. Con cara de clientes. Con cara de... que nos vean.', 'think'],
+      ]);
       audio.sfx('select');
-      co.mask = m.coqui; gh.mask = m.ghenghis; r.p.mask = m.kazoo;
+      co.look = 'coquiH'; gh.look = 'ghenghisH'; r.p.look = 'kazooH';
+      S().flags.heistFit = true;
       UI.flash(0.4);
       yield* wait(0.8);
-      yield* say('ghenghis', m.ghenghis === 'payaso' ? '¡JAJAJA! ¡Me veo increíble! Parezco la pesadilla de un niño.' : 'Me veo serio. No me gusta. Jajaja.', 'laugh');
+      yield* say('ghenghis', '¿Cómo me veo? Parezco bandera de puesto de cocos. Jajaja.', 'laugh');
       S().weapons.pistol = Math.max(S().weapons.pistol || 0, 60);
       yield* fadeOut(0.4);
       const c = C();
@@ -94,8 +106,8 @@ export const CAP8 = [
       const r = R();
       r.noExit = true;
       const m = S().masks;
-      r.p.mask = m.kazoo;
-      const gh = r.addNpc({ id: 'ghenghis', look: 'ghenghis', x: 20, facing: 1, mask: m.ghenghis, bag: true });
+      r.p.look = 'kazooH';
+      const gh = r.addNpc({ id: 'ghenghis', look: 'ghenghisH', x: 20, facing: 1, bag: true });
       // the cameras stay off while Ghenghis explains: nobody gets caught mid-sentence
       const cams = [];
       for (const [id, fac, sw] of [['bcam1', 1, 3.2], ['bcam2', -1, 3.6], ['bcam3', 1, 3.0]]) {
@@ -153,8 +165,8 @@ export const CAP8 = [
       roomAt('bovedaIn', 50);
       const rv = R();
       rv.noExit = true;
-      rv.p.mask = m.kazoo;
-      const g2 = rv.addNpc({ id: 'ghenghis', look: 'ghenghis', x: 24, facing: 1, mask: m.ghenghis, bag: true });
+      rv.p.look = 'kazooH';
+      const g2 = rv.addNpc({ id: 'ghenghis', look: 'ghenghisH', x: 24, facing: 1, bag: true });
       yield* fadeIn(0.5);
       yield* wait(0.6);
       yield* talk([
@@ -212,12 +224,12 @@ export const CAP8 = [
       const r = R();
       r.noExit = true;
       const m = S().masks;
-      r.p.mask = m.kazoo; r.p.facing = -1;
+      r.p.look = 'kazooH'; r.p.facing = -1;
       r.infiniteAmmo = true;
       S().weapons.pistol = Math.max(S().weapons.pistol || 0, 60);
       S().weapon = 'pistol';
-      const co = r.addNpc({ id: 'coqui', look: 'coqui', x: 856, facing: -1, mask: m.coqui, shooter: true, basePose: 'aim', pose: 'aim' });
-      const gh = r.addNpc({ id: 'ghenghis', look: 'ghenghis', x: 876, facing: -1, mask: m.ghenghis, bag: true, shooter: true, basePose: 'aim', pose: 'aim' });
+      const co = r.addNpc({ id: 'coqui', look: 'coquiH', x: 856, facing: -1, shooter: true, basePose: 'aim', pose: 'aim' });
+      const gh = r.addNpc({ id: 'ghenghis', look: 'ghenghisH', x: 876, facing: -1, bag: true, shooter: true, basePose: 'aim', pose: 'aim' });
       for (let i = 0; i < 5; i++) r.addNpc({ look: [3, 8, 13, 19, 25][i], x: 240 + i * 70, facing: 1, pose: 'down' });
       const time = G.story._alarmTime || 110;
       UI.timer = { label: 'REFUERZOS', t: time };
@@ -266,9 +278,9 @@ function* hostagePhase(ctx) {
   roomAt('banco', 60);
   const r = R();
   r.noExit = true;
-  r.p.mask = m.kazoo;
-  const co = r.addNpc({ id: 'coqui', look: 'coqui', x: 36, facing: 1, mask: m.coqui, pose: 'aim' });
-  const gh = r.addNpc({ id: 'ghenghis', look: 'ghenghis', x: 84, facing: 1, mask: m.ghenghis, bag: true, pose: 'aim' });
+  r.p.look = 'kazooH';
+  const co = r.addNpc({ id: 'coqui', look: 'coquiH', x: 36, facing: 1, pose: 'aim' });
+  const gh = r.addNpc({ id: 'ghenghis', look: 'ghenghisH', x: 84, facing: 1, bag: true, pose: 'aim' });
   const hostages = [];
   const xs = [180, 230, 290, 360, 420, 480];
   xs.forEach((x, i) => hostages.push(r.addNpc({ look: [3, 8, 13, 19, 25, 31][i], x, facing: i % 2 ? -1 : 1 })));

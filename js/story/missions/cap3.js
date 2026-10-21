@@ -162,11 +162,20 @@ export const CAP3 = [
       }
       if (res.perfect) yield* say('tia', '...Perfecto. No dudaste ni tantito. Eso me asusta. Pero me gusta.', 'smug');
       else yield* say('tia', 'Nada mal. Dudaste poquito. Poquito es lo que tarda una bala.', 'serious');
-      yield* say('tia', 'Kuiss ya pagó. Tres pistolas y balas. Te doy la tuya.', 'normal');
+      yield* say('tia', 'Kuiss ya pagó. Tres "pistolas". Te doy la tuya.', 'normal');
+      yield* talk([
+        ['narrator', 'La Tía Gris abre una caja. Adentro hay tres blasters Nerf. Naranjas. Con el cañón azul.', 'normal'],
+        ['kazoo', '...Tía. Son Nerf.', 'shock'],
+        ['tia', 'Son Nerf que DISPARAN. Les metí resorte de camión. Un dardo de estos te deja un moretón que te dura hasta Navidad.', 'serious'],
+        ['ghenghis', '¡JAJAJA! ¡Vamos a asaltar un banco con juguetes!', 'laugh'],
+        ['tia', 'Kuiss no quiere muertos. Y yo no vendo muertos. Nadie sale lastimado... mucho.', 'smug'],
+        ['kazoo', '¿Y si nos disparan con balas de verdad?', 'think'],
+        ['tia', 'Pues te agachas, niño. Para eso sirven las rodillas.', 'serious'],
+      ]);
       S().weapons.pistol = (S().weapons.pistol || 0) + 36;
       S().weapon = 'pistol';
       audio.sfx('reload');
-      toast('PISTOLA — Q cambia de arma. Espacio dispara.', '#ffd23f', 4);
+      toast('BLASTER NERF (que sí dispara) — Q cambia de arma. Espacio o clic dispara.', '#f08c28', 5);
       gh.pose = 'aim'; gh.facing = 1;
       yield* say('ghenghis', 'Oye Kazoo, mira. ¡Bang! Jajaja.', 'crazy');
       tia.facing = -1;

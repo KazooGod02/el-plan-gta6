@@ -2,9 +2,13 @@
 // hair styles: curly librito side slick bun short pony cap police bald guard long mohawk beanie
 // body: normal wide big fem thin
 export const LOOKS = {
-  kazoo:    { name: 'KAZOO', skin: '#c48a5e', hair: 'curly', hc: '#241410', shirt: '#e0a82e', pants: '#34466e', shoes: '#f0f0f0', body: 'normal', voice: 430, color: '#e0a82e' },
-  coqui:    { name: 'KUISS', skin: '#f2d0ae', hair: 'fringe', hc: '#9a7048', shirt: '#3c64a0', pants: '#b49664', shoes: '#5a3218', body: 'normal', voice: 290, color: '#5a8ce0' },
-  ghenghis: { name: 'GHENGHIS', skin: '#d29c72', hair: 'side', hc: '#3a2414', shirt: '#b8323c', pants: '#26262e', shoes: '#101010', body: 'normal', crazy: true, voice: 360, color: '#e0504a', flannel: true },
+  kazoo:    { name: 'KAZOO', skin: '#c48a5e', hair: 'curly', hc: '#241410', shirt: '#e0a82e', pants: '#34466e', shoes: '#f0f0f0', body: 'normal', voice: 430, color: '#e0a82e', nerf: true },
+  coqui:    { name: 'KUISS', skin: '#f2d0ae', hair: 'fringe', hc: '#9a7048', shirt: '#3c64a0', pants: '#b49664', shoes: '#5a3218', body: 'normal', glasses: true, voice: 290, color: '#5a8ce0', nerf: true },
+  ghenghis: { name: 'GHENGHIS', skin: '#d29c72', hair: 'side', hc: '#3a2414', shirt: '#b8323c', pants: '#26262e', shoes: '#101010', body: 'normal', crazy: true, voice: 360, color: '#e0504a', flannel: true, nerf: true },
+  // what they wear on the day of the heist (must match the trailer)
+  kazooH:    { name: 'KAZOO', skin: '#c48a5e', hair: 'curly', hc: '#241410', shirt: '#26345e', floral: true, pants: '#3a5a9a', shoes: '#f4f4f4', body: 'normal', voice: 430, color: '#e0a82e', nerf: true },
+  coquiH:    { name: 'KUISS', skin: '#f2d0ae', hair: 'fringe', hc: '#9a7048', shirt: '#18181c', pants: '#7a7a84', shoes: '#2a2a2e', body: 'normal', glasses: true, voice: 290, color: '#5a8ce0', nerf: true },
+  ghenghisH: { name: 'GHENGHIS', skin: '#d29c72', hair: 'side', hc: '#3a2414', shirt: '#4a4a50', hood: '#4a4a50', mask: 'rasta', gloves: true, bagCol: '#c8323c', pants: '#2a2a30', shoes: '#101010', body: 'normal', voice: 360, color: '#e0504a', nerf: true },
   // El Jefe (the id stays 'donchuy' for old saves): nobody has seen his face, only his shadow
   donchuy:  { name: 'EL JEFE', skin: '#b87a4b', hair: 'slick', hc: '#9a9aa2', shirt: '#1a1a22', pants: '#1a1a22', shoes: '#101010', body: 'big', voice: 140, color: '#b8a070', silhouette: true },
   guarura:  { name: 'GUARURA', skin: '#a8704a', hair: 'bald', hc: '#1a1a1a', shirt: '#16161c', pants: '#16161c', shoes: '#0a0a0a', body: 'wide', shades: true, voice: 210, color: '#8a8a9a' },

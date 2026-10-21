@@ -574,7 +574,7 @@ export const story = {
   *tiaMenu() {
     const s = G.state;
     if (!this.isDone('c3_tia')) { yield* say('tia', 'No te conozco. Lárgate.', 'serious'); return; }
-    const opts = ['Balas de pistola x12 ($120)', 'Escopeta ($1,800)', 'Cartuchos x8 ($200)', 'Campo de tiro', 'Nada'];
+    const opts = ['Dardos Nerf x12 ($120)', 'Nerf Mega ($1,800)', 'Dardos Mega x8 ($200)', 'Campo de tiro', 'Nada'];
     const c = yield* ask('tia', 'Kazoo. ¿Qué necesitas? Rápido, que el tiempo cuesta.', opts, 'serious');
     const buy = (price, fn) => { if (s.money < price) { UI.toast('No te alcanza', '#d8323c', 2); return false; } s.money -= price; audio.sfx('reload'); fn(); return true; };
     if (c === 0) buy(120, () => { s.weapons.pistol = (s.weapons.pistol || 0) + 12; });

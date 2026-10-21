@@ -148,3 +148,42 @@ git clone https://github.com/KazooGod02/el-plan-gta6.git
 | `js/minigames/` | Kazoo Kart, campo de tiro, lotería, máscaras, Marketplace, taladro, repartos |
 
 **Herramienta de pruebas:** en la consola del navegador existe `__tick(n)`, que avanza `n` frames del juego aunque la pestaña esté oculta, y `G`, que expone el estado global (por ejemplo `G.state`, `G.story.active`).
+
+---
+
+## Versión de escritorio (.exe) — Edición Elenco
+
+Es la versión para que el elenco juegue antes de grabar el tráiler. Es el mismo juego que la web, envuelto en Electron, más unos extras.
+
+- **Generar el .exe:** `npm install` (solo la primera vez) y luego `npm run build`. Sale en `dist/EL-PLAN-Edicion-Elenco.exe` (portable, ~100 MB, no se instala).
+- **Probar sin empaquetar:** `npm start`.
+- **Prueba rápida sin abrir ventana:** `npx electron . --smoke` debe imprimir `{"ok":true,"errs":[]}`.
+- **El libreto del tráiler es privado:** vive en `js/ui/libreto-data.js`, que NO se sube a GitHub (.gitignore). Solo va dentro del .exe. Si clonas el repo en otra compu, copia ese archivo a mano antes de hacer `npm run build`.
+
+**Extras (solo en el .exe):**
+- **ENSAYO: EL ESCAPE:** el tráiler jugable, sin necesidad del código secreto.
+- **LIBRETO DEL TRÁILER:** el guion completo de "El Escape". Eliges tu personaje y tus líneas salen resaltadas. A salta a tu siguiente línea.
+- **CAPÍTULOS:** empezar desde cualquier capítulo. Se guarda en la ranura 3 para no pisar la partida principal.
+- **SALIR** en el menú, pantalla completa (F11 o Alt+Enter) y "EDICIÓN ELENCO" en el arranque y el título.
+
+**Controles nuevos (también en la web):**
+- **Ratón:** clic izquierdo dispara o golpea hacia el cursor; clic derecho interactúa o sube al carro; la rueda cambia de arma/radio; el clic de la rueda abre el teléfono. En los menús, clic izquierdo acepta y derecho regresa. El cursor se esconde solo.
+- **Control de Xbox y PS4/PS5:** se detecta solo. La pantalla de controles y los avisos ("A Hablar" / "✕ Hablar") muestran los botones del control que estés usando.
+- **Vibración del control** en disparos, choques, golpes y explosiones.
+
+**Pendiente:** el .exe usa el ícono default de Electron, y Windows puede mostrar "Windows protegió tu PC" porque no está firmado (Más información → Ejecutar de todas formas).
+
+### Cambios finales (atraco y huida)
+- **Ropa del atraco igual que en el tráiler** (desde que salen del escondite en el Cap. 8 hasta el final, y también en el ENSAYO):
+  - Kazoo: camisa de botones con flores, pantalón de mezclilla y tenis blancos.
+  - Kuiss: camisa negra y pantalón gris.
+  - Ghenghis: chamarra con gorro, guantes negros, la máscara tejida roja, amarilla y verde, y la maleta roja.
+  - En la historia, las máscaras de Disfraces "se quedaron en la cajuela del Tsuru". Ghenghis lleva la suya del tianguis.
+- **Las armas son Nerf** ("que sí disparan", con resorte de camión, según la Tía Gris). Son naranjas con el cañón azul y disparan dardos naranjas. La policía sigue con balas de verdad.
+- **La huida termina en Blvd. Granada:** boulevard residencial a las afueras, con palmeras, banderines, la torre de ventas "Res. Granada" y el campo al lado. Está en el mapa al sur de la carretera vieja y es también el escenario del final y del ENSAYO.
+- **Final de la persecución:** las patrullas ya no desaparecen. Llegan por el boulevard y se paran detrás con las sirenas, y la última escena tiene luces rojas y azules.
+
+### Arreglos
+- [x] Kuiss salía como "C" en el carro.
+- [x] Salía "COQUI" en los avisos del chat.
+- [x] Demasiadas notificaciones al actualizarse la misión: varios mensajes seguidos ahora salen como un solo aviso ("3 mensajes nuevos") con un solo sonido. El objetivo solo parpadea cuando cambia.

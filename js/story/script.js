@@ -3,6 +3,7 @@ import { G, setScene, emit } from '../core/game.js';
 import { audio } from '../core/audio.js';
 import { input } from '../core/input.js';
 import { UI } from '../ui/ui.js';
+import { LOOKS } from '../data/cast.js';
 import { dist } from '../core/util.js';
 
 export class MissionFail extends Error { constructor(reason) { super(reason); this.reason = reason; } }
@@ -104,10 +105,17 @@ export function sfx(name, o) { audio.sfx(name, o); }
 export function chat(from, text, priv = false) {
   const s = G.state;
   (priv ? s.chatPriv : s.chat).push({ from, text, day: s.day });
-  audio.sfx('notify');
   G.phoneBadge = (G.phoneBadge || 0) + 1;
-  UI.toast('✉ ' + (priv ? 'PRIVADO' : 'LOS DEL PLAN') + ': ' + from.toUpperCase(), '#5adcf0', 2.5);
+  // a burst of messages becomes a single notification with one sound
+  const b = chatBurst;
+  if (G.time - b.t > 6) { b.n = 0; audio.sfx('notify'); }
+  b.n++; b.t = G.time;
+  if (b.toast) UI.toasts = UI.toasts.filter((q) => q !== b.toast);
+  const name = (LOOKS[from] || {}).name || from;
+  UI.toast('✉ ' + (priv ? 'PRIVADO' : 'LOS DEL PLAN') + ': ' + (b.n > 1 ? b.n + ' mensajes nuevos' : name), '#5adcf0', 3);
+  b.toast = UI.toasts[UI.toasts.length - 1];
 }
+const chatBurst = { n: 0, t: -99, toast: null };
 export function notify(title, text) {
   G.state.notes.push({ title, text, day: G.state.day });
   audio.sfx('phone');

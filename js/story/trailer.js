@@ -14,17 +14,18 @@ import { FLOOR } from '../interior/rooms.js';
 import { UI } from '../ui/ui.js';
 import { runner, wait, until, say } from './script.js';
 
-const GH_BAG = { ...LOOKS.ghenghis, bag: true, _id: 'trailer_gh_bag' };
-const KZ_BAG = { ...LOOKS.kazoo, bag: true, _id: 'trailer_kz_bag' };
+const GH_BAG = { ...LOOKS.ghenghisH, bag: true, _id: 'trailer_gh_bag' };
+const KZ_BAG = { ...LOOKS.kazooH, bag: true, _id: 'trailer_kz_bag' };
 const autoT = (s) => 1.5 + s.length / 16;
 // a film line: plays by itself, A skips it
 function* ln(who, text, expr = 'normal', opts = {}) { yield* say(who, text, expr, { auto: autoT(text), ...opts }); }
 
 // scenery along the road, in world px (props from the interiors)
 const PROPS = [
-  { t: 'fence', x: 0, w: 120 }, { t: 'tree', x: 150, col: '#1e3a1e' }, { t: 'bush', x: 240 }, { t: 'lightpole', x: 300 },
-  { t: 'fence', x: 340, w: 90 }, { t: 'bush', x: 470 }, { t: 'tree', x: 520, col: '#1a341a' }, { t: 'bush', x: 610 },
-  { t: 'bush', x: 700, cover: true }, { t: 'tree', x: 740, col: '#1e3a1e' },
+  // Blvd. Granada: palms, banners, the sales tower; the field takes over toward the end
+  { t: 'palm', x: 20, h: 76 }, { t: 'banner', x: 70 }, { t: 'palm', x: 120, h: 64 }, { t: 'banner', x: 170 }, { t: 'bush', x: 240 }, { t: 'lightpole', x: 300 },
+  { t: 'sign40', x: 350 }, { t: 'granada', x: 420 }, { t: 'bush', x: 470 }, { t: 'palm', x: 520, h: 72 }, { t: 'banner', x: 580 }, { t: 'bush', x: 610 },
+  { t: 'bush', x: 700, cover: true }, { t: 'palm', x: 740, h: 80 },
   { t: 'crates', x: 852, front: true }, { t: 'bush', x: 940 }, { t: 'tree', x: 990, col: '#16301a' }, { t: 'bush', x: 1060 },
   { t: 'tree', x: 1120, col: '#1e3a1e' }, { t: 'bush', x: 1190 }, { t: 'bush', x: 1230 }, { t: 'tree', x: 1290, col: '#16301a' },
   { t: 'bush', x: 1360 }, { t: 'bush', x: 1400 }, { t: 'tree', x: 1450, col: '#1a341a' },
@@ -37,9 +38,9 @@ export const trailer = {
   enter() {
     this.t = 0; this.mode = 'road'; this.cam = 0; this.camTarget = null; this.shake = 0;
     this.control = null; this.prompt = null; this.lights = 0; this.bullets = []; this.fx = []; this.flash = 0;
-    this.k = { look: 'kazoo', x: 40, facing: 1, pose: null, moving: false, anim: 0, crouch: false, hurt: 0 };
+    this.k = { look: 'kazooH', x: 40, facing: 1, pose: null, moving: false, anim: 0, crouch: false, hurt: 0 };
     this.g = { look: GH_BAG, x: 62, facing: 1, pose: null, moving: false, anim: 0 };
-    this.c = { look: 'coqui', x: 86, facing: 1, pose: null, moving: false, anim: 0 };
+    this.c = { look: 'coquiH', x: 86, facing: 1, pose: null, moving: false, anim: 0 };
     this.bag = null; this.field = null; this.end = null; this.song = null;
     UI.hud = false; UI.dialog = null; UI.card = null; UI.objective = ''; UI.letterbox = 1; UI.letterboxTarget = 1;
     UI.fade = 1; UI.fadeTarget = 1; UI.subtitle = null;
@@ -126,7 +127,7 @@ export const trailer = {
     yield* ln('coqui', '¡Y aparte es un puto Tsuru viejísimo, PENDEJO!', 'angry');
     audio.setSiren(0.6);
     UI.subtitle = '(Sirenas. Ahora más fuertes.)'; yield* wait(1.2); UI.subtitle = null;
-    g.look = 'ghenghis'; this.bag = { x: g.x + 10 }; audio.sfx('dig');
+    g.look = 'ghenghisH'; this.bag = { x: g.x + 10 }; audio.sfx('dig');
     yield* ln('ghenghis', 'Pues ya valimos verga. Es mejor separarnos con nuestras partes.', 'serious');
     yield* ln('kazoo', 'Wey, hay que seguir caminando. Si nos separamos orita, nos van a agarrar.', 'shock');
     // [00:48] the backpack
@@ -214,7 +215,7 @@ export const trailer = {
     yield* wait(0.6);
     c.facing = 1;
     yield* ln('coqui', '....', 'shock');
-    g.pose = 'down'; g.look = 'ghenghis'; g.down = true; this.bag = { x: g.x - 14 }; audio.sfx('hit');
+    g.pose = 'down'; g.look = 'ghenghisH'; g.down = true; this.bag = { x: g.x - 14 }; audio.sfx('hit');
     yield* wait(1.4);
     // [02:03] everything breaks
     c.facing = 1;
@@ -407,17 +408,17 @@ export const trailer = {
     for (let i = -1; i < 14; i++) { const x = Math.round(i * 34 - (cx * 0.3) % 34); ctx.beginPath(); ctx.ellipse(x, 122, 22, 16, 0, 0, Math.PI * 2); ctx.fill(); }
     ctx.fillStyle = '#1e2a1c'; ctx.fillRect(0, 124, W, FLOOR - 124);
     // road
-    ctx.fillStyle = '#7a5a36'; ctx.fillRect(0, FLOOR, W, H - FLOOR);
-    ctx.fillStyle = '#5e4428'; for (let i = 0; i < 70; i++) ctx.fillRect(((i * 37 - cx) % W + W) % W, FLOOR + 3 + ((i * 11) % 24), 2, 1);
-    ctx.fillStyle = '#4a6a2a'; ctx.fillRect(0, FLOOR - 2, W, 3);
+    ctx.fillStyle = '#8a8a90'; ctx.fillRect(0, FLOOR, W, H - FLOOR);
+    ctx.fillStyle = '#7a7a80'; for (let i = 0; i < 70; i++) ctx.fillRect(((i * 37 - cx) % W + W) % W, FLOOR + 3 + ((i * 11) % 24), 2, 1);
+    ctx.fillStyle = '#c8c4bc'; ctx.fillRect(0, FLOOR - 2, W, 3);
     const X = (x) => Math.round(x - cx);
     for (const p of PROPS) if (!p.front && X(p.x) > -80 && X(p.x) < W + 20) drawProp(ctx, p, X(p.x), FLOOR, t, {});
-    if (this.bag) drawProp(ctx, { t: 'bag' }, X(this.bag.x), FLOOR, t, {});
+    if (this.bag) drawProp(ctx, { t: 'bag', red: true }, X(this.bag.x), FLOOR, t, {});
     const k = this.k, g = this.g, c = this.c;
     for (const ch of [g, c, k]) this.drawChar(ctx, ch, X(ch.x));
     for (const p of PROPS) if (p.front && X(p.x) > -80 && X(p.x) < W + 20) drawProp(ctx, p, X(p.x), FLOOR, t, {});
     drawProp(ctx, { t: 'grassfg', w: W + 20 }, -((cx) % 3), FLOOR + 4, t, {});
-    for (const b of this.bullets) { ctx.fillStyle = '#fff08c'; ctx.fillRect(X(b.x) - 1, Math.round(b.y), 3, 1); }
+    for (const b of this.bullets) { ctx.fillStyle = '#f08c28'; ctx.fillRect(X(b.x) - 1, Math.round(b.y), 3, 1); ctx.fillStyle = '#3c64dc'; ctx.fillRect(X(b.x) + (b.vx > 0 ? 2 : -2), Math.round(b.y), 1, 1); }
     for (const f of this.fx) { ctx.fillStyle = f.col; ctx.fillRect(X(f.x), Math.round(f.y), 1, 1); }
     // police lights sweeping over trees, walls and faces
     if (this.lights > 0) {

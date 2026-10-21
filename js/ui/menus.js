@@ -15,6 +15,7 @@ import { countdownText } from '../world/city.js';
 import { VIGNETTES, PW, PH } from '../story/cinematics.js';
 import { SONGS } from '../data/music.js';
 import { trailerCode } from '../story/trailer.js';
+import { CAST, CHAPTERS, startChapter } from './elenco.js';
 
 // ---------------------------------------------------------------- options list (shared)
 function optionsRows() {
@@ -51,24 +52,30 @@ function drawOptions(ctx, o, y0 = 50) {
 }
 
 const CONTROLS = [
-  ['MOVER', 'WASD / Flechas / Stick', 'Joystick'],
-  ['ACCIÓN / HABLAR / SUBIR AL CARRO', 'E / Enter', 'A'],
-  ['GOLPEAR / DISPARAR / FRENO DE MANO', 'Espacio / J', 'B'],
-  ['CORRER / CLAXON', 'Shift', 'Stick al fondo'],
-  ['AGACHARSE / CUBRIRSE (interiores)', 'S / Abajo', 'Abajo'],
-  ['CAMBIAR ARMA / RADIO', 'Q', '🔫'],
-  ['TELÉFONO', 'Tab / T', '📱'],
-  ['MAPA (waypoint e índice)', 'M', 'Cel > Mapa'],
-  ['PAUSA', 'Esc / P', 'II'],
+  ['MOVER', 'WASD / Flechas', 'Joystick', 'Stick izq. / Cruceta', 'WASD (apunta con el ratón)'],
+  ['ACCIÓN / HABLAR / SUBIR AL CARRO', 'E / Enter', 'A', 'a', 'a'],
+  ['GOLPEAR / DISPARAR / FRENO DE MANO', 'Espacio / J', 'B', 'b', 'b'],
+  ['CORRER / CLAXON', 'Shift', 'Stick al fondo', 'run', 'run'],
+  ['AGACHARSE / CUBRIRSE (interiores)', 'S / Abajo', 'Abajo', 'Abajo', 'S'],
+  ['CAMBIAR ARMA / RADIO', 'Q', '🔫', 'weapon', 'weapon'],
+  ['TELÉFONO', 'Tab / T', '📱', 'phone', 'phone'],
+  ['MAPA (waypoint e índice)', 'M', 'Cel > Mapa', 'map', 'map'],
+  ['PAUSA', 'Esc / P', 'II', 'pause', 'pause'],
 ];
+const ACTS = ['a', 'b', 'run', 'weapon', 'phone', 'map', 'pause'];
 function drawControls(ctx) {
   ctx.fillStyle = 'rgba(8,8,20,0.95)'; ctx.fillRect(10, 10, W - 20, H - 20);
   font.text(ctx, 'CÓMO JUGAR', W / 2, 16, '#ffd23f', { align: 'center' });
-  const touch = input.isTouch;
-  CONTROLS.forEach(([a, k, t], i) => {
-    const y = 30 + i * 12;
-    font.text(ctx, a, 18, y, '#f4f4f0');
-    font.text(ctx, (touch ? t : k).replace('🔫', 'botón arma').replace('📱', 'botón cel'), W - 18, y, '#5adcf0', { align: 'right' });
+  const d = input.lastDevice;
+  const col = d === 'pad' ? 3 : d === 'mouse' ? 4 : input.isTouch ? 2 : 1;
+  const dev = { 1: 'TECLADO', 2: 'TÁCTIL', 3: input.padType === 'ps' ? 'CONTROL PLAYSTATION' : 'CONTROL XBOX', 4: 'TECLADO + RATÓN' }[col];
+  font.text(ctx, dev + ' (cambia solo según lo que uses)', W / 2, 24, '#a8a8b8', { align: 'center' });
+  CONTROLS.forEach((row, i) => {
+    const y = 34 + i * 12;
+    let v = row[col];
+    if (ACTS.includes(v)) v = input.btn(v);
+    font.text(ctx, row[0], 18, y, '#f4f4f0');
+    font.text(ctx, v.replace('🔫', 'botón arma').replace('📱', 'botón cel'), W - 18, y, '#5adcf0', { align: 'right' });
   });
   font.text(ctx, 'Maneja: Arriba acelera, Abajo frena/reversa. B = freno de mano.', W / 2, 148, '#a8a8b8', { align: 'center' });
   font.text(ctx, 'Sigue la flecha y la ruta del radar. ? = extraños y locos.', W / 2, 158, '#ffd23f', { align: 'center' });
@@ -86,6 +93,7 @@ const BOOT = [
   [2.3, 'SONIDO: CHIPTUNE 4 CANALES ................ OK', '#a8a8b8'],
   [3.0, 'C:\\> INICIALIZANDO...', '#f4f4f0'],
   [3.8, 'C:\\> ABRIENDO MAINGAME.EXE', '#f4f4f0'],
+  ...(CAST ? [[4.1, 'C:\\> EDICIÓN ELENCO: KAZOO · KUISS · GHENGHIS', '#ffd23f']] : []),
 ];
 const BOOT_END = 6.2;
 let comboBuf = '';
@@ -108,7 +116,9 @@ export const title = {
     out.push({ id: 'new', t: 'NUEVA PARTIDA' });
     if (any) out.push({ id: 'load', t: 'CARGAR PARTIDA' });
     if (G.global.finished) out.push({ id: 'free', t: 'MODO LIBRE' });
+    if (CAST) out.push({ id: 'chapters', t: 'CAPÍTULOS' }, { id: 'ensayo', t: 'ENSAYO: EL ESCAPE' }, { id: 'libreto', t: 'LIBRETO DEL TRÁILER' });
     out.push({ id: 'options', t: 'OPCIONES' }, { id: 'controls', t: 'CÓMO JUGAR' }, { id: 'credits', t: 'CRÉDITOS' });
+    if (CAST) out.push({ id: 'quit', t: 'SALIR' });
     return out;
   },
   toMenu() { G.titleStarted = true; this.mode = 'menu'; this.t = 0; this.song = 'title'; UI.fade = 1; UI.fadeTarget = 0; audio.init(); },
@@ -130,6 +140,13 @@ export const title = {
     }
     if (this.mode === 'options') { if (updateOptions(this.opt)) this.mode = 'menu'; return; }
     if (this.mode === 'controls' || this.mode === 'credits') { if (input.cancel() || input.pressed('a')) this.mode = 'menu'; return; }
+    if (this.mode === 'chapters') {
+      if (input.pressed('down')) { this.chSel = (this.chSel + 1) % CHAPTERS.length; audio.sfx('move'); }
+      if (input.pressed('up')) { this.chSel = (this.chSel + CHAPTERS.length - 1) % CHAPTERS.length; audio.sfx('move'); }
+      if (input.cancel()) { this.mode = 'menu'; audio.sfx('back'); }
+      if (input.pressed('a')) { audio.sfx('select'); startChapter(this.chSel); }
+      return;
+    }
     if (this.mode === 'slots') {
       if (input.pressed('down')) { this.slotSel = (this.slotSel + 1) % 3; audio.sfx('move'); }
       if (input.pressed('up')) { this.slotSel = (this.slotSel + 2) % 3; audio.sfx('move'); }
@@ -159,6 +176,10 @@ export const title = {
       else if (it.id === 'options') { this.mode = 'options'; this.opt.sel = 0; }
       else if (it.id === 'controls') this.mode = 'controls';
       else if (it.id === 'credits') { setScene('credits', { back: 'title' }); }
+      else if (it.id === 'chapters') { this.mode = 'chapters'; this.chSel = this.chSel || 0; }
+      else if (it.id === 'ensayo') setScene('trailer');
+      else if (it.id === 'libreto') setScene('libreto');
+      else if (it.id === 'quit') window.desktop.quit();
     }
   },
   render(ctx) {
@@ -170,20 +191,21 @@ export const title = {
     font.text(ctx, 'EL PLAN', lx + 2, 14 + 2, 'rgba(20,6,30,0.6)', { align: 'center', scale: 4 });
     font.text(ctx, 'EL PLAN', lx, 14, '#fff4e0', { align: 'center', scale: 4, outline: '#2a0a2a' });
     ctx.fillStyle = '#ff3cc8'; ctx.fillRect(lx - 44, 46, 88, 1);
-    font.text(ctx, 'PUERTO VICIO', lx, 50, '#ffd890', { align: 'center', outline: '#2a0a2a' });
+    font.text(ctx, CAST ? 'PUERTO VICIO · EDICIÓN ELENCO' : 'PUERTO VICIO', lx, 50, '#ffd890', { align: 'center', outline: '#2a0a2a' });
     ctx.globalAlpha = 0.6;
     font.text(ctx, '@KazooGod02', W - 5, H - 11, '#f4f4f0', { align: 'right', outline: '#101018' });
     ctx.globalAlpha = 1;
     if (CONFIG.marathonDate) font.text(ctx, 'EL ESCAPE: ' + countdownText(), 5, H - 11, '#5adcf0', { outline: '#101018' });
     if (this.mode === 'menu') {
       const items = this.items();
-      const step = 13, bw = 132, y0 = Math.round(H / 2 + 2 - (items.length * step) / 2 + 10);
+      const step = items.length > 9 ? 10 : items.length > 7 ? 11 : 13, bw = 132, y0 = Math.max(64, Math.round(H / 2 + 12 - (items.length * step) / 2));
       ctx.fillStyle = 'rgba(10,6,24,0.55)'; ctx.fillRect(Math.round(lx - bw / 2), y0 - 7, bw, items.length * step + 9);
       this.selY = this.selY ?? y0;
       this.selY += (y0 + this.sel * step - this.selY) * 0.3;
       const hy = Math.round(this.selY) - 3;
-      ctx.fillStyle = 'rgba(255,210,63,0.18)'; ctx.fillRect(Math.round(lx - bw / 2), hy, bw, 12);
-      ctx.fillStyle = '#ffd23f'; ctx.fillRect(Math.round(lx - bw / 2), hy, 2, 12); ctx.fillRect(Math.round(lx + bw / 2) - 2, hy, 2, 12);
+      const hh = step - 1;
+      ctx.fillStyle = 'rgba(255,210,63,0.18)'; ctx.fillRect(Math.round(lx - bw / 2), hy, bw, hh);
+      ctx.fillStyle = '#ffd23f'; ctx.fillRect(Math.round(lx - bw / 2), hy, 2, hh); ctx.fillRect(Math.round(lx + bw / 2) - 2, hy, 2, hh);
       items.forEach((it, i) => {
         const sel = i === this.sel;
         font.text(ctx, it.t, lx, y0 + i * step, sel ? '#ffd23f' : '#f4f4f0', { align: 'center', outline: '#101018' });
@@ -191,6 +213,16 @@ export const title = {
     }
     if (this.mode === 'options') drawOptions(ctx, this.opt, 90);
     if (this.mode === 'controls') drawControls(ctx);
+    if (this.mode === 'chapters') {
+      const bx = Math.round(lx - 110);
+      ctx.fillStyle = 'rgba(8,8,20,0.94)'; ctx.fillRect(bx, 58, 220, 118);
+      ctx.fillStyle = '#ffd23f'; ctx.fillRect(bx, 58, 2, 118);
+      font.text(ctx, 'CAPÍTULOS (se guarda en la ranura 3)', bx + 8, 62, '#ffd23f');
+      CHAPTERS.forEach((c, i) => {
+        const sel = i === this.chSel;
+        font.text(ctx, (sel ? '► ' : '  ') + c.label + ' · ' + c.title, bx + 8, 74 + i * 10, sel ? '#ffd23f' : '#f4f4f0');
+      });
+    }
     if (this.mode === 'slots') {
       const bx = Math.round(lx - 104);
       ctx.fillStyle = 'rgba(8,8,20,0.94)'; ctx.fillRect(bx, 64, 208, 100);

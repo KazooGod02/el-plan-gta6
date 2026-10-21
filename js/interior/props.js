@@ -253,7 +253,7 @@ const PAINT = {
   boxes(c, x, y) { R(c, x, y - 40, 34, 40, '#6a5a44'); for (let r = 0; r < 4; r++) for (let i = 0; i < 3; i++) { R(c, x + 1 + i * 11, y - 39 + r * 10, 10, 9, '#b08a5a'); R(c, x + 3 + i * 11, y - 36 + r * 10, 6, 1, '#8a6a3a'); } },
   drill(c, x, y, o) { R(c, x, y - 12, 20, 12, '#ffd23f'); R(c, x + 2, y - 10, 16, 8, '#3a3a44'); R(c, x + 18, y - 8, 6, 3, '#9a9aa6'); R(c, x + 4, y - 16, 3, 4, '#3a3a44'); font.text(c, 'DRL', x + 10, y - 9, '#ffd23f', { align: 'center' }); },
   money(c, x, y, o) { const n = o.n ?? 6; for (let i = 0; i < n; i++) { const mx = x + (i % 3) * 10, my = y - 5 - Math.floor(i / 3) * 5; R(c, mx, my, 9, 5, '#46b450'); R(c, mx + 1, my + 1, 7, 3, '#2c8c3a'); R(c, mx + 3, my + 2, 3, 1, '#a0dc50'); } },
-  bag(c, x, y, o) { R(c, x, y - 12, 12, 12, '#3a2c20'); R(c, x + 1, y - 11, 10, 3, '#5a4430'); R(c, x + 3, y - 15, 6, 3, '#3a2c20'); if (o.money) { R(c, x + 2, y - 13, 8, 2, '#46b450'); } },
+  bag(c, x, y, o) { const bc = o.red ? '#c8323c' : '#3a2c20'; if (o.red) { R(c, x - 4, y - 10, 20, 10, bc); R(c, x - 4, y - 3, 20, 3, '#1a1a2e'); R(c, x + 1, y - 13, 10, 3, '#1a1a2e'); if (o.money) R(c, x - 1, y - 11, 14, 2, '#46b450'); return; } R(c, x, y - 12, 12, 12, bc); R(c, x + 1, y - 11, 10, 3, '#5a4430'); R(c, x + 3, y - 15, 6, 3, bc); if (o.money) { R(c, x + 2, y - 13, 8, 2, '#46b450'); } },
   lamp(c, x, y, o, t) { R(c, x + 3, y - 20, 2, 20, '#3a3a44'); R(c, x, y - 26, 8, 6, o.col || '#ffd23f'); R(c, x + 1, y - 1, 6, 1, '#3a3a44'); },
   fan(c, x, y, o, t) { R(c, x + 9, y, 2, 6, '#3a3a44'); const f = Math.floor(t * 12) % 2; R(c, x + (f ? 0 : 4), y + 6, f ? 20 : 12, 2, '#6a5a44'); R(c, x + 8, y + 5, 4, 4, '#5a4a34'); },
   calendar(c, x, y, o) { R(c, x, y, 12, 14, '#f4f4f0'); R(c, x, y, 12, 4, '#d8323c'); for (let i = 0; i < 3; i++) for (let j = 0; j < 3; j++) R(c, x + 2 + i * 3, y + 6 + j * 3, 2, 2, '#9a9aa6'); if (o.mark) R(c, x + 8, y + 12, 2, 2, '#d8323c'); },
@@ -293,6 +293,39 @@ const PAINT = {
   clothes(c, x, y, o) { R(c, x, y - 36, 30, 1, '#c8c8d0'); const cols = ['#e0a82e', '#3c64dc', '#b8323c', '#f4f4f0']; for (let i = 0; i < 4; i++) R(c, x + 2 + i * 7, y - 35, 5, 8 + (i % 2) * 3, cols[i]); },
   tank(c, x, y) { R(c, x, y - 26, 14, 18, '#2a2a2e'); R(c, x + 1, y - 27, 12, 2, '#3a3a44'); R(c, x + 2, y - 8, 2, 8, '#3a3a44'); R(c, x + 10, y - 8, 2, 8, '#3a3a44'); },
   lightpole(c, x, y, o, t) { R(c, x + 3, y - 60, 2, 60, '#3a3a44'); R(c, x + 3, y - 60, 10, 2, '#3a3a44'); R(c, x + 10, y - 59, 5, 3, '#fff08c'); },
+  // ---- Blvd. Granada (where the trailer was shot): palms, the sales tower, banners
+  palm(c, x, y, o, t) {
+    const h = o.h || 70, sway = Math.round(Math.sin(t * 0.8 + x) * 1.5);
+    for (let i = 0; i < h; i += 3) R(c, x + Math.round(Math.sin(i / h * 1.4) * 4), y - i, 4, 3, i % 6 ? '#8a6a44' : '#6e5234');
+    const tx = x + Math.round(Math.sin(1.4) * 4) + 2 + sway, ty = y - h;
+    c.fillStyle = '#2c6a30';
+    for (const [dx, dy, w] of [[-18, 4, 18], [2, 4, 18], [-14, -2, 14], [2, -2, 14], [-8, -6, 16], [-20, 9, 8], [14, 9, 8]]) c.fillRect(tx + dx, ty + dy, w, 3);
+    c.fillStyle = '#3c8a40'; c.fillRect(tx - 10, ty - 3, 20, 2);
+    R(c, tx - 2, ty + 2, 4, 4, '#6e5234');
+  },
+  granada(c, x, y) {
+    // stone tower with a tiled roof + a pergola on the left
+    R(c, x - 34, y - 40, 40, 4, '#c8603c'); R(c, x - 34, y - 36, 40, 2, '#a8482c');
+    for (const px of [-32, -18, -4]) R(c, x + px, y - 34, 4, 34, '#e8d8b8');
+    R(c, x, y - 96, 34, 96, '#c8b49a');
+    for (let yy = y - 92; yy < y - 30; yy += 6) for (let xx = (yy / 6) % 2 ? 0 : 3; xx < 34; xx += 7) R(c, x + xx, yy, 5, 1, '#a8947a');
+    R(c, x - 3, y - 100, 40, 5, '#e8d8b8');
+    c.fillStyle = '#c8603c'; c.beginPath(); c.moveTo(x - 5, y - 100); c.lineTo(x + 17, y - 116); c.lineTo(x + 39, y - 100); c.closePath(); c.fill();
+    R(c, x + 8, y - 34, 18, 34, '#3a2a1e'); R(c, x + 10, y - 32, 14, 32, '#5a4a3a');
+    c.fillStyle = '#e8d8b8'; c.beginPath(); c.arc(x + 17, y - 34, 9, Math.PI, 0); c.fill();
+    R(c, x + 9, y - 70, 16, 18, '#3a2a1e'); R(c, x + 11, y - 68, 12, 14, '#7a2a3a'); R(c, x + 14, y - 65, 6, 6, '#f4f4f0');
+  },
+  banner(c, x, y, o, t) {
+    R(c, x, y - 64, 2, 64, '#d8d8d8');
+    const f = Math.round(Math.sin(t * 2 + x) * 1);
+    R(c, x + 2, y - 62, 10 + f, 26, '#7a2a3a'); R(c, x + 4, y - 58, 6, 6, '#f4f4f0'); R(c, x + 4, y - 48, 6, 1, '#f4f4f0'); R(c, x + 4, y - 45, 6, 1, '#f4f4f0');
+  },
+  sign40(c, x, y) {
+    R(c, x + 5, y - 36, 2, 36, '#8a8a94');
+    R(c, x, y - 48, 12, 14, '#2a2a2e'); R(c, x + 1, y - 47, 10, 12, '#f4f4f0');
+    font.text(c, '40', x + 6, y - 44, '#101018', { align: 'center' });
+  },
+  curb(c, x, y, o) { const w = o.w || 480; R(c, x, y - 3, w, 3, '#c8c4bc'); R(c, x, y - 1, w, 1, '#9a968e'); },
   cones(c, x, y) { for (let i = 0; i < 3; i++) { R(c, x + i * 7 + 2, y - 8, 2, 8, '#f08c28'); R(c, x + i * 7, y - 2, 6, 2, '#f08c28'); R(c, x + i * 7 + 2, y - 5, 2, 1, '#f4f4f0'); } },
   cell(c, x, y) { PAINT.bars(c, x, y, { w: 50 }); R(c, x + 6, y - 10, 20, 4, '#6a6a74'); },
   sink(c, x, y) { R(c, x, y - 22, 16, 4, '#e8e8ec'); R(c, x + 6, y - 18, 4, 18, '#c8c8d0'); R(c, x + 7, y - 26, 2, 4, '#9a9aa6'); },

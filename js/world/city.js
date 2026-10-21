@@ -522,11 +522,12 @@ export const city = {
     const i = owned.indexOf(s.weapon);
     s.weapon = owned[(i + 1) % owned.length];
     audio.sfx('reload');
-    G.ui?.toast(s.weapon === 'fists' ? 'PUÑOS' : s.weapon === 'pistol' ? 'PISTOLA' : 'ESCOPETA', '#ffd23f', 1);
+    G.ui?.toast(s.weapon === 'fists' ? 'PUÑOS' : s.weapon === 'pistol' ? 'BLASTER NERF' : 'NERF MEGA', '#ffd23f', 1);
   },
 
   attack() {
     const p = this.player, s = G.state;
+    if (input.mouseGameplay && input.mouseActive() && !p.car) p.a = Math.atan2(this.cam.y + input.mouse.y - p.y, this.cam.x + input.mouse.x - p.x);
     if (this.noWeapons || isWaterPx(p.x, p.y)) return;
     if (s.weapon === 'fists') {
       if (p.punchT > 0) return;
@@ -576,8 +577,9 @@ export const city = {
   driveControls(dt) {
     const p = this.player, v = p.car;
     if (v.dead) { v.throttle = 0; v.steer = 0; if (input.pressed('a')) this.exitCar(true); return; }
-    const analog = input.stick.on || (input.lastDevice === 'pad' && (Math.abs(input.ax) > 0.3 || Math.abs(input.ay) > 0.3) && !input.down('up') && !input.down('down'));
-    if (input.stick.on || (input.lastDevice === 'touch')) {
+    // touch and controller drive by screen direction: push the stick where you want to go
+    // and the car turns that way and accelerates (keyboard keeps classic tank controls)
+    if (input.stick.on || input.lastDevice === 'touch' || input.lastDevice === 'pad') {
       const mag = Math.hypot(input.ax, input.ay);
       if (mag > 0.25) {
         const target = Math.atan2(input.ay, input.ax);
@@ -585,9 +587,6 @@ export const city = {
         if (Math.abs(diff) > 2.4 && v.fwdSpeed < 25) { v.throttle = -mag; v.steer = clamp(-diff, -1, 1); }
         else { v.steer = clamp(diff * 2.2, -1, 1); v.throttle = mag * (Math.abs(diff) > 1.4 ? 0.35 : 1); }
       } else { v.throttle = 0; v.steer = 0; }
-    } else if (analog && input.lastDevice === 'pad') {
-      v.steer = clamp(input.ax * 1.2, -1, 1);
-      v.throttle = input.down('b') ? 0 : -input.ay;
     } else {
       v.throttle = (input.down('up') ? 1 : 0) - (input.down('down') ? 1 : 0);
       v.steer = (input.down('right') ? 1 : 0) - (input.down('left') ? 1 : 0);
@@ -1171,8 +1170,12 @@ export const city = {
       if (G.state.weapon !== 'fists' && !p.dead) { ctx.fillStyle = '#2a2a2e'; ctx.fillRect(Math.round(p.x - cx + Math.cos(p.a) * 6), Math.round(p.y - cy + Math.sin(p.a) * 6), 2, 2); }
     }
     // bullets
-    ctx.fillStyle = '#fff08c';
-    for (const b of this.bullets) ctx.fillRect(Math.round(b.x - cx), Math.round(b.y - cy), 2, 2);
+    // your side shoots Nerf darts (orange with a blue tip); the cops shoot the real thing
+    for (const b of this.bullets) {
+      const bx = Math.round(b.x - cx), by = Math.round(b.y - cy);
+      if (b.owner === 'player') { ctx.fillStyle = '#f08c28'; ctx.fillRect(bx, by, 2, 2); ctx.fillStyle = '#3c64dc'; ctx.fillRect(bx + Math.sign(b.vx), by + Math.sign(b.vy), 1, 1); }
+      else { ctx.fillStyle = '#fff08c'; ctx.fillRect(bx, by, 2, 2); }
+    }
     // particles
     for (const pt of this.particles) {
       if (!vis(pt.x, pt.y, 10)) continue;
@@ -1432,6 +1435,27 @@ function drawBubble(ctx, x, y, text) {
 
 function drawProp(ctx, pr, x, y, t) {
   x = Math.round(x); y = Math.round(y);
+  if (pr.type === 'palm') {
+    ctx.fillStyle = 'rgba(0,0,0,0.25)'; ctx.fillRect(x - 2, y + 2, 12, 4);
+    ctx.fillStyle = '#6e5234'; ctx.fillRect(x - 1, y - 1, 3, 3);
+    ctx.fillStyle = '#2c6a30';
+    for (let i = 0; i < 6; i++) { const a = i / 6 * Math.PI * 2 + Math.sin(t * 0.8 + x) * 0.08; for (let k = 2; k < 9; k++) ctx.fillRect(Math.round(x + Math.cos(a) * k), Math.round(y + Math.sin(a) * k - 3), 2, 2); }
+    ctx.fillStyle = '#3c8a40'; ctx.fillRect(x - 1, y - 4, 3, 3);
+    return;
+  }
+  if (pr.type === 'granada') {
+    ctx.fillStyle = 'rgba(0,0,0,0.3)'; ctx.fillRect(x + 4, y + 4, 22, 22);
+    ctx.fillStyle = '#c8b49a'; ctx.fillRect(x, y, 22, 22);
+    ctx.fillStyle = '#c8603c'; ctx.fillRect(x + 2, y + 2, 18, 18); ctx.fillStyle = '#a8482c'; ctx.fillRect(x + 10, y + 2, 2, 18); ctx.fillRect(x + 2, y + 10, 18, 2);
+    ctx.fillStyle = '#c8603c'; ctx.fillRect(x - 18, y + 6, 18, 12); ctx.fillStyle = '#a8482c'; for (let i = 0; i < 18; i += 3) ctx.fillRect(x - 18 + i, y + 6, 1, 12);
+    font.text(ctx, 'RES. GRANADA', x + 11, y + 26, '#f4f4f0', { align: 'center', outline: '#101018' });
+    return;
+  }
+  if (pr.type === 'banner') {
+    ctx.fillStyle = '#d8d8d8'; ctx.fillRect(x, y, 2, 2);
+    ctx.fillStyle = '#7a2a3a'; ctx.fillRect(x + 2, y - 4 + Math.round(Math.sin(t * 2 + x)), 5, 3);
+    return;
+  }
   if (pr.type === 'bigtree') {
     ctx.fillStyle = 'rgba(0,0,0,0.3)'; ctx.beginPath(); ctx.ellipse(x + 6, y + 8, 22, 12, 0, 0, Math.PI * 2); ctx.fill();
     ctx.fillStyle = '#5a3a1a'; ctx.fillRect(x - 3, y - 4, 6, 14);

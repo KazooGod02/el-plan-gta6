@@ -176,6 +176,7 @@ class Audio {
 
   // ---------------- sfx ----------------
   sfx(name, opt = {}) {
+    if (this.onSfx) this.onSfx(name, opt);
     if (!this.ctx || this.muted) return;
     const t = this.ctx.currentTime + 0.001;
     const v = opt.vol ?? 1;

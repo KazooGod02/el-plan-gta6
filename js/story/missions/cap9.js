@@ -17,6 +17,7 @@ export const CAP9 = [
       lock(true);
       UI.fade = 1; UI.fadeTarget = 1;
       const c = C(), bk = P().banco;
+      S().flags.heistFit = true;
       cityAt(bk, 20, { a: 0 });
       c.clearMission();
       const t = spawnTsuruWithCrew('banco', 40);
@@ -58,17 +59,35 @@ export const CAP9 = [
         if (tt > 20 && S().unlocked.afueras && c.zone === 'afueras' && UI.objective !== '¡Toma la terracería de la ruta tres, hacia el campo!') objective('¡Toma la terracería de la ruta tres, hacia el campo!');
       }
       c.removeMarker(mk);
-      // ---------- the car dies
+      // ---------- the car dies... and the police are still coming
       lock(true);
-      t.engineOff = true; t.forceSmoke = 'black';
+      t.engineOff = true; t.forceSmoke = 'black'; t.invuln = true;
+      c.player.invuln = true;
       audio.sfx('engine_die');
       music(null);
-      c.wantedLocked = false; c.wanted = 0; c.policeKnows = false;
-      c.vehicles = c.vehicles.filter((v) => v.ai !== 'police');
+      // patrols pull up behind on the boulevard and stop there, sirens on: no arrest, no vanishing
+      const cops = c.vehicles.filter((v) => v.ai === 'police');
+      // 'behind' = back up the boulevard toward the old highway, where the patrols come from
+      const ex = 128 * 16 + 8 - t.x, ey = 106 * 16 - t.y, el = Math.hypot(ex, ey) || 1, ux = ex / el, uy = ey / el;
+      const behind = (d) => ({ x: t.x + ux * d, y: t.y + uy * d });
+      cops.forEach((v, i) => {
+        v.ai = 'script'; v.sirenOn = true; v.mission = true;
+        // anyone left far behind gets put on the boulevard, just off-screen, so they all roll in together
+        if (dist(v.x, v.y, t.x, t.y) > 420) { const b = behind(240 + i * 40); v.x = b.x; v.y = b.y; v.a = Math.atan2(-uy, -ux); v.vx = v.vy = 0; }
+        v.scriptTarget = { ...behind(90 + i * 30), speed: 0.7 };
+      });
+      if (!cops.length) for (let i = 0; i < 2; i++) { const b = behind(240 + i * 40); const pc = c.spawnVehicle('police', b.x, b.y, Math.atan2(-uy, -ux), { mission: true }); pc.ai = 'script'; pc.sirenOn = true; pc.scriptTarget = { ...behind(90 + i * 30), speed: 0.7 }; }
       c.peds = c.peds.filter((q) => !q.cop);
       yield* until(() => t.speed < 5, 4);
-      yield* wait(1.2);
+      UI.letterboxTarget = 1;
+      c.camTarget = behind(70);
+      yield* line('ghenghis', '...Ahí vienen.', 'serious');
+      yield* wait(1.6);
+      c.camTarget = { x: t.x, y: t.y };
+      yield* line('coqui', '¡Abajo! ¡Todos abajo del carro, YA!', 'angry');
       yield* fadeOut(0.8);
+      c.camTarget = null; UI.letterboxTarget = 0;
+      c.wantedLocked = false; c.wanted = 0; c.policeKnows = false; c.player.invuln = false;
       yield* caminoScene();
     },
   },
@@ -87,16 +106,18 @@ function* caminoScene() {
   r.onUpdate = (dt) => {
     if (Math.random() < 0.5) r.fx.push({ x: 262 + rand(-3, 3), y: FLOOR - 16, vx: rand(-8, 8), vy: rand(-30, -15), life: 1.4, col: Math.random() < 0.6 ? '#1e1e24' : '#3a3a44', s: 3 });
   };
-  audio.setSiren(0.08);
+  audio.setSiren(0.3);
+  // the patrols are right behind them on the boulevard: red and blue on everything
+  r.overlay = () => { const ctx = G.ctx; const k = 0.07 + 0.05 * Math.sin(G.time * 9); ctx.fillStyle = Math.floor(G.time * 4) % 2 ? 'rgba(255,40,40,' + k + ')' : 'rgba(40,90,255,' + k + ')'; ctx.fillRect(0, 0, 320, 180); };
   yield* fadeIn(1.2);
   yield* wait(1.5);
   yield* say('narrator', '...', 'normal');
   // they get out
   audio.sfx('door');
   k0.visible = true; k0.x = 236; k0.facing = -1;
-  const co = r.addNpc({ id: 'coqui', look: 'coqui', x: 222, facing: 1 });
+  const co = r.addNpc({ id: 'coqui', look: 'coquiH', x: 222, facing: 1 });
   audio.sfx('door');
-  const gh = r.addNpc({ id: 'ghenghis', look: 'ghenghis', x: 200, facing: 1, bag: true });
+  const gh = r.addNpc({ id: 'ghenghis', look: 'ghenghisH', x: 200, facing: 1, bag: true });
   void m;
   yield* walkNpc(co, 180, 40);
   yield* walkNpc(gh, 150, 40);
@@ -117,7 +138,7 @@ function* caminoScene() {
   // ---------- BLACK
   UI.fade = 1; UI.fadeTarget = 1;
   audio.setSiren(0);
-  r.onUpdate = null;
+  r.onUpdate = null; r.overlay = null;
   yield* wait(1.4);
   UI.subtitle = '*respiraciones*'; yield* wait(1.6);
   UI.subtitle = '*pasos apresurados*'; audio.sfx('step'); yield* wait(0.35); audio.sfx('step'); yield* wait(0.35); audio.sfx('step'); yield* wait(0.9);
@@ -134,6 +155,7 @@ function* caminoScene() {
   unlock('fin');
   if (s.stats.playtime < 5400 && !s.flags.cheats) unlock('speed');
   s.finished = true;
+  s.flags.heistFit = false; C().player.look = 'kazoo';
   G.global.finished = true;
   G.forceDark = undefined; G.weatherLock = false;
   UI.fade = 0; UI.fadeTarget = 0;
