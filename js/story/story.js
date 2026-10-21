@@ -197,6 +197,8 @@ export const story = {
     G.musicOverride = null; G.forceDark = undefined; G.weatherLock = false; G.freezeClock = false; G.slowmo = 0;
     UI.letterboxTarget = 0; UI.timer = null; UI.meter = null; UI.overFade = null;
     const c = G.scenes.city;
+    // anything a mission changed in the world (e.g. the Cap. 9 roadblock) is put back
+    if (c.missionCleanup) { const f = c.missionCleanup; c.missionCleanup = null; try { f(); } catch (e) { console.error(e); } }
     c.wantedLocked = false; c.noEvade = false; c.maxWanted = 5; c.policeKnows = false; c.noPolice = false;
     c.trafficOn = true; c.pedsOn = true; c.frozen = false; c.lockCar = false; c.extraDraw = null; c.camTarget = null;
     const r = G.scenes.interior;

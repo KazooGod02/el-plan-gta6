@@ -9,6 +9,8 @@ import { FLOOR } from '../../interior/rooms.js';
 import { rand, dist } from '../../core/util.js';
 import { unlock } from '../achievements.js';
 import { CHAPTERS } from './index.js';
+import { tileAt, setTile, T } from '../../world/map.js';
+import { refreshTiles } from '../../world/tiles.js';
 
 export const CAP9 = [
   {
@@ -33,9 +35,10 @@ export const CAP9 = [
       const ch = CHAPTERS[9];
       UI.showCard(ch.title, ch.label, 3, 'chapter'); audio.sfx('star');
       lock(false);
-      const OBJ1 = '¡Los traes encima! Brinca el canal en la rampa al final de la avenida de La Colonia (a fondo)';
+      const OBJ0 = '¡Huye! Sal hacia la carretera vieja: la ruta tres, junto al campo';
+      const OBJ1 = '¡Al puente en obra de la avenida de La Colonia! Agarra la rampa a fondo';
       const OBJ2 = '¡Los perdiste! Toma la terracería de la ruta tres, junto al campo';
-      objective(OBJ1);
+      objective(OBJ0);
       ctx.check(() => (c.player.car !== t && !t.dead && dist(c.player.x, c.player.y, t.x, t.y) > 200 ? 'Abandonaste a tus compas' : null));
       ctx.check(() => (t.dead ? (t.sunk ? 'El Tsuru se hundió. Con todo y la lana.' : 'El Tsuru explotó') : null));
       const lineSet = [
@@ -51,11 +54,30 @@ export const CAP9 = [
       const fin = P().caminoFin;
       // halfway there: the river jump. Then the patrols are stuck on the other bank
       const rp = P().rampa;
-      let ramp = c.addMarker({ x: rp.x, y: rp.y, r: 26, color: '#ff7a3c', label: '¡RAMPA!', needCar: true });
+      // every bridge over the canal is closed from the start: the builders' ramp is the only way out
+      roadblock(c);
+      let ramp = null, blocked = false;
       let mk = null, jumped = false, lost = false;
       let tt = 0, li = 0;
       while (!mk || !mk.inside || c.player.car !== t) {
         const dt = yield; tt += dt;
+        // a roadblock closes the old highway bridge: Ghenghis has an idea (a terrible one)
+        if (!blocked && tt > 9 && !UI.dialog) {
+          blocked = true;
+          music('chase');
+          for (const q of [
+            ['coqui', '¡Escucha el radio! ¡Pusieron retenes en todos los puentes del canal! ¡Nos cerraron la ruta tres!', 'angry'],
+            ['kazoo', '¡¿Y ahora por dónde?!', 'shock'],
+            ['ghenghis', '¡El puente en obra de la avenida de La Colonia! ¡En la mañana vi que le estaban llevando una rampa a los de la construcción!', 'crazy'],
+            ['coqui', '¿Una rampa? ¡Estás loco, cabrón!', 'angry'],
+            ['kazoo', '¡Está bien pendejo!', 'shock'],
+            ['ghenghis', '¡JAJAJA! ¿Tienen una mejor idea?', 'laugh'],
+            ['kazoo', '...A la verga. Agárrense.', 'serious'],
+          ]) { UI.say(q[0], q[1], { expr: q[2], auto: 1.5 + q[1].length / 17 }); const d = UI.dialog; while (UI.dialog === d) yield; }
+          S().unlocked.obra = true; c.setUnlocked(S().unlocked);
+          ramp = c.addMarker({ x: rp.x, y: rp.y, r: 26, color: '#ff7a3c', label: '¡RAMPA!', needCar: true });
+          objective(OBJ1);
+        }
         if (t.air) jumped = true;
         if (jumped && !lost && !t.air && !t.sinking) {
           lost = true;
@@ -70,7 +92,7 @@ export const CAP9 = [
           }
         }
         // if they skip the ramp, the dirt road still ends the chase
-        if (!mk && (lost || tt > 150)) mk = c.addMarker({ x: fin.x, y: fin.y, r: 26, color: '#ffd23f', label: 'EL CAMINO', needCar: true });
+        if (!mk && lost) mk = c.addMarker({ x: fin.x, y: fin.y, r: 26, color: '#ffd23f', label: 'EL CAMINO', needCar: true });
         if (mk) mk.hidden = c.player.car !== t;
         if (c.player.car === t) {
           t.hp = Math.max(t.minHp, t.hp - dt * 0.55);
@@ -116,6 +138,27 @@ export const CAP9 = [
     },
   },
 ];
+
+// police block the old highway bridge for the rest of the chase; undone when the mission ends
+const BRIDGES = [17, 75, 110]; // the three roads that cross the canal into El Puerto / the field
+function roadblock(c) {
+  const saved = [];
+  const cops = [];
+  for (const by of BRIDGES) {
+    for (let y = by; y <= by + 3; y++) for (let x = 114; x <= 117; x++) { saved.push([x, y, tileAt(x, y)]); setTile(x, y, T.BARRIER); }
+    refreshTiles(114, by, 117, by + 3);
+    for (const [x, y, a] of [[112 * 16, by * 16 + 20, 1.4], [112 * 16 + 4, by * 16 + 46, -1.2]]) { const v = c.spawnVehicle('police', x, y, a, { mission: true }); v.ai = 'parked'; v.sirenOn = true; v.keep = true; cops.push(v); }
+  }
+  c.redrawMini();
+  c.missionCleanup = () => {
+    for (const [x, y, tt] of saved) setTile(x, y, tt);
+    for (const by of BRIDGES) refreshTiles(114, by, 117, by + 3);
+    c.redrawMini();
+    for (const v of cops) c.removeVehicle(v);
+    // the works stay closed until the story has actually happened
+    if (!S().finished) { S().unlocked.obra = false; c.setUnlocked(S().unlocked); }
+  };
+}
 
 function* caminoScene() {
   const s = S();
@@ -179,6 +222,7 @@ function* caminoScene() {
   unlock('fin');
   if (s.stats.playtime < 5400 && !s.flags.cheats) unlock('speed');
   s.finished = true;
+  s.unlocked.obra = true; // the builders' ramp stays for free roam
   s.flags.heistFit = false; C().player.look = 'kazoo';
   G.global.finished = true;
   G.forceDark = undefined; G.weatherLock = false;

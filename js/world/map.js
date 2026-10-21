@@ -22,7 +22,7 @@ export const MAP = {
   nodes: [], edges: [],
   doors: [],
   places: {},
-  barriers: { centro: [], puerto: [], afueras: [] },
+  barriers: { centro: [], puerto: [], afueras: [], obra: [] }, // 'obra': the bridge under construction
   parking: [],
   collect: { cassettes: [], stars: [], graffiti: [], kazoos: [] },
   props: [],   // overhead decorations {type,x,y}
@@ -212,7 +212,9 @@ export function buildMap() {
   const bar = (zone, x0, y0, x1, y1) => { for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) MAP.barriers[zone].push([x, y]); };
   for (const x of [22, 62, 102]) bar('centro', x, 57, x + 3, 57);
   bar('puerto', 113, 17, 113, 20); bar('puerto', 113, 75, 113, 78); bar('puerto', 140, 95, 143, 95);
-  bar('puerto', 110, 90, 110, 93); // the canal ramp only opens with El Puerto
+  // the bridge at the end of the La Colonia avenue is under construction: fenced off for cars
+  // and people until the escape (Cap. 9), when the builders' ramp is already there
+  bar('obra', 107, 89, 107, 94);
   for (const x of [22, 62, 102]) bar('afueras', x, 95, x + 3, 95);
 
   // ---------- generic blocks

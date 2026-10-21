@@ -656,6 +656,7 @@ export const city = {
 
   // ---- stunt ramps: hit one fast enough and the car flies (the river jump in the final chase)
   onRamp(v) {
+    if (!MAP.unlocked?.obra) return false;
     for (const r of MAP.ramps) {
       if (v.x < r.x0 || v.x > r.x1 || v.y < r.y0 || v.y > r.y1) continue;
       const along = v.vx * Math.cos(r.a) + v.vy * Math.sin(r.a);
@@ -704,7 +705,14 @@ export const city = {
     v.sinking += dt;
     const k = Math.max(0, 1 - 2.2 * dt);
     v.vx *= k; v.vy *= k;
-    v.x += v.vx * dt; v.y += v.vy * dt;
+    const nx = v.x + v.vx * dt, ny = v.y + v.vy * dt;
+    // still afloat for a moment: if it drifts back onto land it climbs out instead of sinking
+    if (v.sinking < 0.6 && !isWaterPx(nx, ny)) {
+      if (!v.collides(nx, ny, v.a)) { v.x = nx; v.y = ny; }
+      v.sinking = 0; v.vx *= 0.6; v.vy *= 0.6;
+      return;
+    }
+    v.x = nx; v.y = ny;
     if (chance(0.35)) this.particles.push({ x: v.x + rand(-6, 6), y: v.y + rand(-4, 4), vx: rand(-4, 4), vy: rand(-12, -4), life: 0.6, max: 0.6, col: '#c8e8ff', size: 1, drag: 1 });
     const p = this.player;
     if (p.car === v && v.sinking > 0.6) {
@@ -806,10 +814,10 @@ export const city = {
     const vs = this.vehicles;
     for (let i = 0; i < vs.length; i++) {
       const a = vs[i];
-      if (a.sinking) continue;
+      if (a.sinking || a.air) continue;
       for (let j = i + 1; j < vs.length; j++) {
         const b = vs[j];
-        if (b.sinking) continue;
+        if (b.sinking || b.air) continue;
         const dx = b.x - a.x, dy = b.y - a.y;
         if (dx * dx + dy * dy > 1600) continue;
         // two circles per vehicle
@@ -1545,8 +1553,8 @@ function drawGround(ctx, c, cx, cy, t) {
     if (tall(x, y - 1)) ctx.fillRect(px + (tall(x - 1, y) ? 5 : 0), py, TS - (tall(x - 1, y) ? 5 : 0), 4);
     else if (tall(x - 1, y - 1)) ctx.fillRect(px, py, 5, 4);
   }
-  // things painted on the ground (the canal ramp)
-  for (const pr of MAP.props) if (pr.type === 'ramp' && pr.x > cx - 60 && pr.x < cx + W + 10 && pr.y > cy - 70 && pr.y < cy + H + 10) drawProp(ctx, pr, pr.x - cx, pr.y - cy, t);
+  // the bridge under construction (and, once it opens, the builders' ramp)
+  for (const pr of MAP.props) if (pr.type === 'ramp' && pr.x > cx - 140 && pr.x < cx + W + 40 && pr.y > cy - 90 && pr.y < cy + H + 30) drawWorks(ctx, pr, pr.x - cx, pr.y - cy, t, MAP.unlocked?.obra);
   // rain puddles on the road and sidewalks (always in the same spots)
   const rain = c.rainAmt || 0;
   if (rain > 0.05) for (let y = ty0; y <= ty1; y++) for (let x = tx0; x <= tx1; x++) {
@@ -1566,6 +1574,24 @@ function drawGround(ctx, c, cx, cy, t) {
     }
     ctx.lineWidth = 1;
   }
+}
+
+// the unfinished bridge: concrete piers in the canal, cones, a sign, and the ramp when it's open
+function drawWorks(ctx, pr, x, y, t, open) {
+  x = Math.round(x); y = Math.round(y);
+  // piers and scaffolding over the water (x 114-117)
+  const wx = x + 48;
+  for (const py of [4, 26, 48]) { ctx.fillStyle = '#7a7a84'; ctx.fillRect(wx + 6, y + py, 8, 10); ctx.fillRect(wx + 42, y + py, 8, 10); ctx.fillStyle = '#5a5a64'; ctx.fillRect(wx + 6, y + py + 8, 8, 2); ctx.fillRect(wx + 42, y + py + 8, 8, 2); }
+  ctx.strokeStyle = '#c8a040'; ctx.lineWidth = 1; ctx.beginPath();
+  for (const yy of [2, 62]) { ctx.moveTo(wx + 2, y + yy + 0.5); ctx.lineTo(wx + 62, y + yy + 0.5); }
+  for (let xx = 4; xx < 64; xx += 12) { ctx.moveTo(wx + xx + 0.5, y + 2); ctx.lineTo(wx + xx + 6.5, y + 62); }
+  ctx.stroke();
+  if (open) { drawProp(ctx, pr, x, y, t); return; }
+  // closed: cones across the avenue and a sign
+  for (let i = 0; i < 5; i++) { const cxp = x - 40 + i * 12, cyp = y + 8 + i * 11; ctx.fillStyle = '#f08c28'; ctx.fillRect(cxp, cyp, 4, 4); ctx.fillStyle = '#f4f4f0'; ctx.fillRect(cxp + 1, cyp + 1, 2, 1); }
+  ctx.fillStyle = '#3a3a44'; ctx.fillRect(x - 54, y - 2, 2, 14); ctx.fillRect(x - 6, y - 2, 2, 14);
+  ctx.fillStyle = '#ffd23f'; ctx.fillRect(x - 58, y - 12, 58, 11); ctx.fillStyle = '#101018'; ctx.fillRect(x - 58, y - 1, 58, 1);
+  font.text(ctx, 'PUENTE EN OBRA', x - 29, y - 10, '#101018', { align: 'center' });
 }
 
 // a solid dark copy of a sprite, cached, for drop shadows

@@ -39,7 +39,7 @@ El juego termina exactamente en el primer segundo del trailer: pantalla negra y 
 - **Casino La Fortuna** (El Centro): ruleta, blackjack, póker (jotas o más), carrera de caballos y tragamonedas. Apuesta mínima $50.
 - **Calle viva:** eventos al azar (peleas, asaltos, persecuciones de patrulla, choques) que no se meten contigo ni con las misiones, hasta que tú te metes. Si le pegas al ratero, recuperas la cartera.
 - **Pinta y Olvida:** pierde a la policía **y arregla el carro**. Hay un taller secreto que le pone **turbo** (se usa con Shift). El juego no dice dónde está.
-- **Rampa del canal:** al final de la avenida de La Colonia; a fondo brincas el canal hasta El Puerto.
+- **Puente en obra:** al final de la avenida de La Colonia hay un puente en construcción, cerrado para carros y peatones. Solo se abre en la huida (Cap. 9), con la rampa de los albañiles, y después de terminar la historia se queda abierto (en modo libre también).
 - **Radio:** nueva estación **"???"** con una versión 8-bit de la canción de KazooGod02.
 - **El teléfono** funciona como menú: chat del grupo, Marketplace, mapa, deuda, radio, cassettes, logros, ajustes y guardar.
 - **GPS y mapa:** ruta morada en el radar, distancia y una flecha alrededor de Kazoo que apunta al objetivo. El mapa completo (tecla **M**, o Cel > Mapa) se mueve, tiene zoom, waypoint e índice de lugares por categoría.
@@ -88,14 +88,17 @@ Si te pasa algo de esto, anótalo con **capítulo, qué pasó, captura** y, si p
 
 - [x] **El carro dejaba una especie de reflejo en el pavimento.** La sombra era una copia transparente del carro. Ahora es una sombra oscura de verdad.
 - [x] **Misiones del Tsuru: contaba cualquier carro y no fallaba si le pasaba algo al Tsuru.** Los marcadores (prueba de manejo, escondite, banco) ahora solo cuentan si vas en el Tsuru, y la misión falla si lo destruyes, lo hundes o lo dejas tirado (Cap. 5 y Cap. 8).
-- [x] **Persecución final: la policía siempre estaba encima.** A medio camino hay que brincar el canal en la rampa; las patrullas se quedan del otro lado y te pierden. Al final, con el rastreador, vuelven a aparecer.
+- [x] **Persecución final: la policía siempre estaba encima.** Ahora la huida te obliga a irte por la ruta: hay retenes en los tres puentes del canal, Ghenghis propone el puente en obra con la rampa de la construcción ("¡estás loco!"), y al brincar las patrullas se quedan del otro lado y te pierden. Al final, con el rastreador, vuelven a aparecer.
+- [x] **La rampa estaba desde el inicio del juego.** Ahora es un puente en obra cerrado hasta la huida.
+- [x] **Al volar, un carro de abajo te chocaba.** Los carros en el aire ya no chocan con nada del suelo.
+- [x] **Un carro que tocaba el agua y se salía se hundía de todas formas.** Si regresa a tierra antes de hundirse, se sale del agua.
 - [x] **HUD encima de los minijuegos de pantalla completa.** Ahora se oculta mientras juegas y regresa al salir.
 - [x] **Mejoras generales:** fondos 2D (estructura arriba del techo, sombras y conos de luz en interiores; horizontes con capas, luna bajo el HUD y anuncio de neón que flotaba en la azotea), sombras de edificios en la calle, faros y calaveras de los carros de noche (más brillantes al frenar), lluvia nueva (inclinada, salpicaduras, charcos, entra y sale poco a poco, truenos), tráfico más listo (frena con tiempo, se orilla con las sirenas, rodea carros parados, direccionales), animación de golpe del jugador, derrape con Espacio (marcas de llanta y humo) y 6 carros nuevos (lowrider, muscle "Furia", jeep, limusina, camión de helados, convertible).
 
 ### Por revisar (sospechosos)
 
 0. **Cosas nuevas sin probar a mano:** las 5 misiones de extraños y locos, las tiendas, los pickups, el GPS en misiones con varios marcadores, y el cartel de SE BUSCA en iPhone.
-   - **De esta versión:** el salto del canal en el Cap. 9 (¿se alcanza la velocidad con el Tsuru dañado?), el balance del casino, que los eventos de la calle no estorben, el tráfico rebasando carros parados, y la canción "???" (es un arreglo 8-bit sacado de la canción original: puede no sonar idéntica).
+   - **De esta versión:** el salto del puente en obra en el Cap. 9 (¿se alcanza la velocidad con el Tsuru dañado?), el balance del casino, que los eventos de la calle no estorben, el tráfico rebasando carros parados, y la canción "???" (es un arreglo 8-bit sacado de la canción original: puede no sonar idéntica).
 1. **Dificultad del sigilo:**
    - **Cap. 1, taller del Tuercas:** el "Primo" está pegado al escritorio. Puede que no se alcance a llegar sin que te vea, aunque avientes la tuerca.
    - **Cap. 3, Bodega 7:** los tres guardias con linterna pueden estar muy duros.

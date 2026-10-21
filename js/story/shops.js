@@ -124,7 +124,7 @@ const TIPS = [
   'Hay un señor en la plaza que dice que el mundo se acaba. Lleva diciendo eso desde 1999.',
   'Dicen que al final de un muelle del puerto hay un taller que no sale en ningún mapa. Le ponen turbo a lo que sea.',
   'En El Centro abrieron un casino. La casa siempre gana. Bueno, casi siempre.',
-  'Al final de la avenida de La Colonia hay una rampa que da al canal. Nadie sabe quién la puso.',
+  'El puente de la avenida de La Colonia lleva meses en obra. Nunca he visto a nadie trabajando ahí.',
   'Una señora de La Colonia anda buscando su gato. Paga bien. El gato no.',
   'Un wey con máscara de luchador reta a todo el que pasa. Nunca ha ganado.',
   'Cambiarte de ropa confunde a la policía. De verdad. Son así de listos.',

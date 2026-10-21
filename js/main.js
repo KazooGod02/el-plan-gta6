@@ -57,7 +57,7 @@ G.startNew = (free = false) => {
   story.newGame(free);
   if (free) {
     const s = G.state;
-    s.unlocked = { centro: true, puerto: true, afueras: true }; city.setUnlocked(s.unlocked);
+    s.unlocked = { centro: true, puerto: true, afueras: true, obra: true }; city.setUnlocked(s.unlocked);
     s.done = []; s.chapter = 9; s.chapterName = 'MODO LIBRE'; s.day = -1; s.money = 2000; s.weapons = { pistol: 60 }; s.flags.free = true;
     const p = MAP.places.pension;
     setScene('city', { x: p.x, y: p.y + 8, a: Math.PI / 2 });
