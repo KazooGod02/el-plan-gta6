@@ -363,16 +363,14 @@ export const pause = {
 // ---------------------------------------------------------------- CREDITS
 const CREDITS = [
   ['EL PLAN', 'title'],
-  ['Una precuela 8-bit de "El Escape"', ''],
+  ['Precuela de "El Escape"', ''],
   ['', ''],
   ['UNA HISTORIA DE', 'h'], ['KazooGod02', ''], ['', ''],
-  ['REPARTO', 'h'], ['KAZOO — Kazoo', ''], ['KUISS — Kuiss', ''], ['GHENGHIS — Ghenghis', ''], ['', ''],
-  ['TAMBIÉN APARECEN', 'h'], ['El Jefe (de espaldas) · Doña Mari', ''], ['La Tía Gris', ''], ['El Tuercas · Comandante Reyes', ''], ['VendeRápido_5E (5 estrellas)', ''], ['', ''],
-  ['GUION DEL TRAILER', 'h'], ['KazooGod02', ''], ['', ''],
-  ['JUEGO, PIXELES Y CHIPTUNE', 'h'], ['Hecho con código y cariño', ''], ['para los que esperan el tráiler', ''], ['', ''],
-  ['GRACIAS ESPECIALES', 'h'], ['A la comunidad de KazooGod02', ''], ['A todos los que dejan reseñas honestas', ''], ['A Doña Mari, por los tacos', ''], ['', ''],
-  ['Ningún Tsuru fue lastimado', ''], ['durante la producción de este juego.', ''], ['(Mentira.)', ''], ['', ''],
-  ['NOS VEMOS EN "EL ESCAPE"', 'h'], ['', ''], ['', ''],
+  ['REPARTO', 'h'], ['Kazoo', ''], ['Kuiss', ''], ['Ghenghis', ''], ['', ''],
+  ['PERSONAJES', 'h'], ['Doña Mari', ''], ['La Tía Gris', ''], ['El Tuercas', ''], ['Comandante Reyes', ''], ['El Jefe', ''], ['VendeRápido_5E', ''], ['', ''],
+  ['GUION DEL TRÁILER', 'h'], ['KazooGod02', ''], ['', ''],
+  ['GRACIAS', 'h'], ['A la comunidad de KazooGod02', ''], ['', ''],
+  ['CONTINÚA EN', 'h'], ['EL ESCAPE', ''], ['', ''], ['', ''],
 ];
 // credits roll on the right while little scenes from the story play on the left
 const COL_X = 250, COL_W = 128, PX0 = 8, PY0 = 36;
@@ -414,14 +412,14 @@ export const credits = {
     ctx.restore();
     // sprocket holes
     for (let x = PX0; x < PX0 + PW; x += 12) { ctx.fillStyle = '#1a1a2a'; ctx.fillRect(x + 3, PY0 - 10, 6, 4); ctx.fillRect(x + 3, PY0 + PH + 6, 6, 4); }
-    font.text(ctx, v.cap, PX0 + PW / 2, PY0 + PH + 14, '#ffd23f', { align: 'center' });
+    font.text(ctx, v.cap, PX0 + PW / 2, PY0 + PH + 14, '#a8a8b8', { align: 'center' });
     // ---- credits column
     const total = creditLines.reduce((a, l) => a + l.h, 0);
     let y = H + 4 - (this.t / this.length()) * (total + H - 20);
     for (const l of creditLines) {
       if (y > -24 && y < H + 10) {
-        if (l.kind === 'title') font.text(ctx, l.txt, COL_X, y, '#ffd23f', { align: 'center', scale: 2, outline: '#5a1a00' });
-        else font.text(ctx, l.txt, COL_X, y, l.kind === 'h' ? '#ff7ae0' : '#f4f4f0', { align: 'center' });
+        if (l.kind === 'title') font.text(ctx, l.txt, COL_X, y, '#f4f4f0', { align: 'center', scale: 2 });
+        else font.text(ctx, l.txt, COL_X, y, l.kind === 'h' ? '#8a8aa0' : '#f4f4f0', { align: 'center' });
       }
       y += l.h;
     }

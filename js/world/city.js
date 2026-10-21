@@ -1718,7 +1718,6 @@ function drawProp(ctx, pr, x, y, t) {
     ctx.fillStyle = '#c8b49a'; ctx.fillRect(x, y, 22, 22);
     ctx.fillStyle = '#c8603c'; ctx.fillRect(x + 2, y + 2, 18, 18); ctx.fillStyle = '#a8482c'; ctx.fillRect(x + 10, y + 2, 2, 18); ctx.fillRect(x + 2, y + 10, 18, 2);
     ctx.fillStyle = '#c8603c'; ctx.fillRect(x - 18, y + 6, 18, 12); ctx.fillStyle = '#a8482c'; for (let i = 0; i < 18; i += 3) ctx.fillRect(x - 18 + i, y + 6, 1, 12);
-    font.text(ctx, 'RES. GRANADA', x + 11, y + 26, '#f4f4f0', { align: 'center', outline: '#101018' });
     return;
   }
   if (pr.type === 'banner') {

@@ -32,18 +32,17 @@ function bubble(c, x, y, text) {
 
 export const VIGNETTES = [
   {
-    cap: 'Día -21 · "Tenía 4.8 estrellas"',
+    cap: 'Día -21',
     draw(c, t) {
       sky(c, 'day', t); ground(c, '#43434e', '#9a9aa6');
       for (let i = 0; i < PW; i += 24) R(c, i + 4, FL + 8, 12, 2, '#e8c040');
       const kick = Math.floor(t * 3) % 2;
       moto(c, 60, FL, t, true);
       person(c, 'kazoo', t > 1.2 ? (kick ? 'punch' : 'idle') : 'idle', 46, 1);
-      if (t > 0.6) bubble(c, 50, 22, t > 2.8 ? '¡CUATRO PUNTO OCHO!' : '¡Ahorita no, bonita!');
     },
   },
   {
-    cap: 'Día -20 · Kuiss sale del penal',
+    cap: 'Día -20 · El penal',
     draw(c, t) {
       sky(c, 'day', t); ground(c, '#9a7a50');
       R(c, 96, 26, 72, 54, '#7a7a82'); R(c, 96, 26, 72, 3, '#5a5a64');
@@ -57,7 +56,7 @@ export const VIGNETTES = [
     },
   },
   {
-    cap: 'La Última Risa · Ghenghis',
+    cap: 'La Última Risa',
     draw(c, t) {
       R(c, 0, 0, PW, FL, '#2a1038');
       for (let y = 0; y < FL; y += 6) for (let x = (y / 6) % 2 ? 0 : 8; x < PW; x += 16) R(c, x, y, 15, 1, '#3a1a4a');
@@ -84,7 +83,7 @@ export const VIGNETTES = [
     },
   },
   {
-    cap: 'El plan · "Nadie improvisa"',
+    cap: 'El plan',
     draw(c, t) {
       R(c, 0, 0, PW, FL, '#5a5a5e');
       drawProp(c, { t: 'whiteboard', plan: true }, 54, 18, t);
@@ -118,7 +117,7 @@ export const VIGNETTES = [
     },
   },
   {
-    cap: 'La huida · Tsurito, no me falles',
+    cap: 'Día 0 · La huida',
     draw(c, t) {
       sky(c, 'day', t); ground(c, '#43434e', '#9a9aa6');
       for (let i = 0; i < PW + 30; i += 30) R(c, ((i - t * 160) % (PW + 30) + PW + 30) % (PW + 30) - 15, FL + 8, 14, 2, '#e8c040');
