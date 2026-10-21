@@ -1529,19 +1529,23 @@ function drawAtmosphere(ctx, c, cx, cy) {
   }
 }
 
-// headlights: two soft cones of light in front of the car
+// headlights: one beam that starts as wide as both lamps and fades out softly. It's drawn
+// as three faint nested cones so the sides blur instead of ending in a hard edge.
 function drawHeadlights(ctx, v, sx, sy, dk) {
-  const c = Math.cos(v.a), s = Math.sin(v.a), hl = v.spec.L / 2, len = v.spec.style === 'moto' ? 34 : 46;
-  for (const sd of v.spec.style === 'moto' ? [0] : [-v.spec.W / 2 + 2, v.spec.W / 2 - 2]) {
-    const x0 = sx + c * hl - s * sd, y0 = sy + s * hl + c * sd;
-    const g = ctx.createRadialGradient(x0, y0, 0, x0, y0, len);
-    g.addColorStop(0, `rgba(255,248,210,${dk * 0.55})`); g.addColorStop(1, 'rgba(255,248,210,0)');
-    ctx.fillStyle = g; ctx.beginPath(); ctx.moveTo(x0, y0);
-    ctx.lineTo(x0 + Math.cos(v.a - 0.32) * len, y0 + Math.sin(v.a - 0.32) * len);
-    ctx.lineTo(x0 + Math.cos(v.a + 0.32) * len, y0 + Math.sin(v.a + 0.32) * len);
+  const c = Math.cos(v.a), s = Math.sin(v.a), hl = v.spec.L / 2, moto = v.spec.style === 'moto';
+  const len = moto ? 30 : 40, hw = moto ? 1 : v.spec.W / 2 - 2;
+  const ox = sx + c * hl, oy = sy + s * hl;
+  const g = ctx.createRadialGradient(ox - c * 4, oy - s * 4, 0, ox - c * 4, oy - s * 4, len + 4);
+  g.addColorStop(0, `rgba(255,246,215,${dk * 0.13})`); g.addColorStop(0.4, `rgba(255,246,215,${dk * 0.07})`); g.addColorStop(1, 'rgba(255,246,215,0)');
+  ctx.fillStyle = g;
+  for (const spread of [0.14, 0.26, 0.38]) {
+    const fw = hw + len * spread;
+    ctx.beginPath();
+    ctx.moveTo(ox + s * hw, oy - c * hw); ctx.lineTo(ox - s * hw, oy + c * hw);
+    ctx.lineTo(ox + c * len - s * fw, oy + s * len + c * fw); ctx.lineTo(ox + c * len + s * fw, oy + s * len - c * fw);
     ctx.closePath(); ctx.fill();
-    glow(ctx, x0, y0, 4, `rgba(255,255,230,${dk * 0.8})`);
   }
+  for (const sd of moto ? [0] : [-hw, hw]) glow(ctx, ox - s * sd, oy + c * sd, 3, `rgba(255,255,230,${dk * 0.45})`);
 }
 
 // building shadows, tire marks and rain puddles, drawn right on top of the street
