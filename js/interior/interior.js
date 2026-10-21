@@ -253,6 +253,12 @@ export const interior = {
     return true;
   },
 
+  alarmOnce(e) {
+    if (e.alarmCd > 0 || G.time - (this.lastAlarm || -9) < 2) return;
+    e.alarmCd = 4; this.lastAlarm = G.time;
+    audio.sfx('alarm', { vol: 0.15 });
+  },
+
   updateEnemy(e, dt) {
     e.anim += dt;
     if (e.hitT > 0) e.hitT -= dt;
@@ -261,6 +267,7 @@ export const interior = {
     if (e.state === 'down') { e.downT += dt; return; }
     if (e.frozen) return;
     const p = this.p;
+    if (e.alarmCd > 0) e.alarmCd -= dt;
     if (e.kind === 'camera') {
       if (e.disabled) return;
       e.sweepT = (e.sweepT ?? (e.sweep || 2.5)) - dt;
@@ -268,7 +275,7 @@ export const interior = {
       // a camera needs a couple of seconds of you standing in its cone before it raises the alarm
       const seenC = !p.dead && this.cameraSees(e);
       if (seenC) e.susp += dt * (e.alertRate || 0.5); else e.susp = Math.max(0, e.susp - dt * 0.6);
-      if (e.susp >= 1) { e.susp = 1; e.bark = '!'; e.barkT = 1; if (this.onDetected) this.onDetected(e); e.susp = 0; }
+      if (e.susp >= 1) { e.susp = 1; e.bark = '!'; e.barkT = 1; this.alarmOnce(e); if (this.onDetected) this.onDetected(e); e.susp = 0; }
       return;
     }
     const seen = !p.dead && this.canSee(e);
@@ -280,7 +287,7 @@ export const interior = {
       } else e.susp = Math.max(0, e.susp - dt * 0.35);
       if (e.susp >= 1) {
         e.susp = 1; e.bark = '!'; e.barkT = 1.2;
-        audio.sfx('alarm', { vol: 0.3 });
+        this.alarmOnce(e);
         if (this.stealth && this.onDetected) { this.onDetected(e); return; }
         e.state = 'attack';
       }
