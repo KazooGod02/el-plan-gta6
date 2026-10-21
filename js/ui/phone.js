@@ -14,7 +14,8 @@ import { UI, censor } from './ui.js';
 import { MISSIONS, CHAPTERS } from '../story/missions/index.js';
 
 // after the last mission the Misión app becomes a list to play any of them again
-const canReplay = () => !G.story.active && !G.state.freeMode && G.story.isDone(MISSIONS[MISSIONS.length - 1].id);
+// (the ending turns on freeMode, and MODO LIBRE from the title counts once the story was beaten)
+const canReplay = () => !G.story.active && (G.state.finished || G.story.isDone(MISSIONS[MISSIONS.length - 1].id) || (G.state.freeMode && G.global?.finished));
 
 // APPS[0] ("Misión") is the wide widget at the top of the home screen; the rest is a 3x3 grid
 const APPS = [
