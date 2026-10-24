@@ -47,7 +47,7 @@ export function kart(opts = {}) {
       ctx.fillStyle = '#1e6e3c'; ctx.fillRect(ROAD_X - 30, 0, ROAD_W + 60, H);
       ctx.fillStyle = '#3a3a44'; ctx.fillRect(ROAD_X, 0, ROAD_W, H);
       const off = this.scroll % 32;
-      ctx.fillStyle = '#e8c040';
+      ctx.fillStyle = '#f4f4f0';
       for (let i = 1; i < 4; i++) for (let y = -32; y < H; y += 32) ctx.fillRect(ROAD_X + i * 35 - 1, y + off, 2, 16);
       ctx.fillStyle = '#f4f4f0'; for (let y = -32; y < H; y += 16) { ctx.fillRect(ROAD_X - 3, y + off, 3, 8); ctx.fillRect(ROAD_X + ROAD_W, y + off, 3, 8); }
       for (let y = -40; y < H; y += 40) { ctx.fillStyle = '#2a8a3a'; ctx.fillRect(ROAD_X - 22, y + (this.scroll % 40), 8, 8); ctx.fillRect(ROAD_X + ROAD_W + 14, y + 20 + (this.scroll % 40), 8, 8); }
